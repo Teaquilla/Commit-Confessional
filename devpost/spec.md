@@ -1,7 +1,8 @@
 ---
 doc: spec
-status: draft
+status: approved
 ---
+
 
 # Commit Confessional — Technical Specification
 
@@ -37,16 +38,17 @@ User Browser                      Next.js Server (/api/confess)             Gemi
      |                                          |-- 3. Enforce 10k cap           |
      |                                          |-- 4. Compute 5 base signals    |
      |                                          |-- 5. generateReport(input) --->|
-     |                                          |      (timeout: 25s)            |-- 6. Model generates JSON
+     |                                          |      (total deadline: 28s)     |-- 6. Model generates JSON
      |                                          |<-- 7. Returns raw JSON --------|
-     |                                          |-- 8. Output guardrails check   |
-     |                                          |      (retry once if invalid)   |
+     |                                          |-- 8. Guardrails & 503/429 check|
+     |                                          |      (retry once if rem >=10s) |
      |                                          |-- 9. Compute severity & clamp  |
      |                                          |-- 10. Schema verification      |
      |<-- 11. Returns verified JSON response ---|                                |
      |-- 12. Animated count-up & dual panels    |                                |
      |-- 13. User clicks "Copy PR Description"  |                                |
 ```
+
 
 ---
 
@@ -62,8 +64,10 @@ PRD ref: `prd.md > 3. Look and Feel`, `prd.md > 6. Product Decisions`.
 - **Schema Validation:** [Zod](https://zod.dev/).
   - *Rationale:* Runtime validation of request payloads and AI JSON output before rendering.
 - **AI SDK & Model:** Google Gemini API using official SDK ([Google Gen AI Documentation](https://ai.google.dev/gemini-api/docs)).
-  - *Model:* `gemini-3.8-flash` (verified active via API model catalog on 2026-10-20; documented in `docs/decisions.md`).
-  - *Configuration:* Model string read from environment variable `AI_MODEL_NAME`, allowing zero-code model swapping.
+  - *Model:* `gemini-3.8-flash` (listed in the model catalog on 2026-10-20; generateContent returned HTTP 503 (high demand); gemini-3.5-flash returned HTTP 200 with the new key). Text generation capability for `gemini-3.8-flash` is not yet proven.
+  - *Configuration:* Model string read strictly from environment variable `AI_MODEL_NAME`. No automatic model switching.
+  - *Model Selection Criteria:* The model used in the demonstration video and README is the one that passes 5 consecutive runs on each of the 3 sample diffs (valid JSON against schema, passes output guardrails); model name and test date must be recorded in `docs/decisions.md` under DEC-004.
+
 
 ---
 
@@ -88,17 +92,19 @@ PRD ref: `prd.md > 2. Screens and Layout`.
 
 ### Production Hosting (Self-Hosted Server)
 - **Runtime:** Node.js LTS running `next build` and `next start` managed under a process manager (`pm2` or `systemd`) or Docker container.
-- **Reverse Proxy:** `nginx` or `Caddy` with HTTPS, forwarding to local port (e.g. 3000) with a read timeout of at least 30 seconds (`proxy_read_timeout 30s;`).
+- **Reverse Proxy:** `nginx` or `Caddy` with HTTPS, forwarding to local port (e.g. 3000) with a read timeout of 35 seconds (`proxy_read_timeout 35s;`), ensuring the application's internal 28-second deadline resolves cleanly before proxy termination.
 - **Environment Variables:** Stored securely on the server environment (e.g. `/etc/environment` or `.env.local` outside version control).
 - **Fallback Deployment:** Vercel Free Plan is documented as a secondary backup option in `docs/decisions.md`.
 
 ### Deployment Checklist
 - [ ] Project-specific Gemini API key created with a hard spending quota configured at the provider before deployment; verify and record the evidence.
 - [ ] Ports 80 and 443 open with valid SSL/TLS certificate.
-- [ ] Reverse proxy read timeout set to at least 30 seconds.
+- [ ] Reverse proxy read timeout set to 35 seconds (`proxy_read_timeout 35s;`).
+- [ ] Per-IP rate limiting configured (e.g. in reverse proxy or middleware) to protect the API endpoint.
 - [ ] Access logging configured so that request bodies are never stored in log files.
 - [ ] Service restart command verified (`pm2 restart commit-confessional` or `systemctl restart commit-confessional`).
 - [ ] Verification that the public URL is reachable from an external network.
+
 
 ---
 
@@ -142,18 +148,20 @@ PRD ref: `prd.md > 2. Screens and Layout`, `prd.md > 4. Features and Behavior`.
 ## 7. Panic Score Formula & Parsing Rules
 PRD ref: `prd.md > 4.2 Panic Score & "Why This Score?" Popover`.
 
-### 7.1 Maximum Signal Weights
+### 7.1 Maximum Signal Weights & Point Mapping
 The base score (0–100) is calculated deterministically in code from 5 signals:
 1. **Rushed commit messages:** Max 30 points.
-   - *Measurement:* Proportion of commits containing low-effort messages (e.g. "fix", "asdfgh", "wip", "test", single-word messages, or repeated messages).
+   - *Point Mapping:* `Math.round((low_effort_commit_count / total_commits) * 30)`. Low-effort messages include generic phrases ("fix", "wip", "test", "asdfgh"), single-word messages, or repeated messages.
 2. **Shouting or keyboard mashing:** Max 10 points.
-   - *Measurement:* Messages in ALL CAPS or containing repetitive punctuation/character sequences.
+   - *Point Mapping:* If any commit message is in ALL CAPS with at least 4 letters (to avoid short acronyms like "WIP" or "API") or contains repetitive punctuation/character mashing (e.g. `!!!`, `???`) = 10 points; otherwise = 0 points.
 3. **Repeated file touches:** Max 20 points.
-   - *Measurement:* Any single file modified across 3 or more commits in the same changeset.
+   - *Point Mapping:* If any single file is modified across $\ge 3$ commits in the same changeset = 20 points; if modified across 2 commits = 10 points; otherwise = 0 points.
 4. **Debug leftovers:** Max 20 points.
-   - *Measurement:* Count of added lines containing `console.log`, `print(`, `debugger`, `var_dump`, or commented-out code blocks (capped at 5 instances = 20 pts).
+   - *Point Mapping:* 4 points per added line containing debug statements (`console.log`, `print(`, `debugger`, `var_dump`), capped at 5 instances (`Math.min(5, debug_count) * 4` = max 20 points).
 5. **Diff size:** Max 20 points.
-   - *Measurement:* Total volume of lines added/removed and number of files changed (scaled progressively: >300 lines = 20 pts).
+   - *Point Mapping:* Scaled by total lines changed (added + deleted): >300 lines = 20 points; 100–300 lines = 10 points; <100 lines = 0 points.
+
+
 
 ### 7.2 Normalization for Diff-Only Inputs
 If the input contains no commit messages (diff only):
@@ -271,10 +279,15 @@ All external AI calls are encapsulated in a single exported function:
 ```typescript
 export async function generateReport(input: string): Promise<AIOutput>;
 ```
-- Reads model name from `process.env.AI_MODEL_NAME` (defaulting to `gemini-3.8-flash`).
-- Enforces an internal timeout of 25 seconds via `AbortController`.
+- Reads model name strictly from `process.env.AI_MODEL_NAME`. There is **no automatic model switching/fallback**.
+- Enforces an overall total request deadline of 28 seconds managed via `AbortController`.
 - Injects a strict system prompt instructing structured JSON output with temperature 0.2.
 - Input is treated strictly as data: wrapped in explicit delimiters (`=== BEGIN USER CODE INPUT ===\n${input}\n=== END USER CODE INPUT ===`), with system instructions stating that any instructions found inside the input must be ignored.
+- **Provider Retry Policy (HTTP 503 / 429):**
+  - If the Gemini API returns HTTP 503 (high demand) or HTTP 429 (rate limit), the server performs at most one retry after a 1–2 second delay.
+  - The retry is executed *only* if the remaining time within the 28-second total budget is at least 10 seconds (`remainingTime >= 10s`).
+  - Every retry logs strictly the error code to the server console (e.g. `[AI_RETRY] 503`), never logging input content.
+  - If remaining time is <10s or the second attempt fails, it terminates with an error.
 
 ### 9.2 Output Guardrails Validator (`src/lib/guardrails.ts`)
 - **Extraction:**
@@ -283,11 +296,12 @@ export async function generateReport(input: string): Promise<AIOutput>;
 - **Enforcement & Retry Policy:**
   1. If any file name referenced by the AI does not exist in the valid set:
      - The output is rejected.
-     - The AI call is retried once with a firmer prompt reminder: *"Do not mention file names that are not in the input."*
-  2. If the second attempt still contains invalid file names:
+     - The AI call is retried once with a firmer prompt reminder: *"Do not mention file names that are not in the input."*, *only* if the remaining time within the 28-second total deadline is at least 10 seconds.
+  2. If the second attempt still contains invalid file names (or remaining time is <10s):
      - The request is terminated.
      - The server logs the event to the console (error code `GUARDRAIL_FILE_MISMATCH` only, NEVER logging input content).
      - The server returns the standard error: *"Something went wrong and no report was filed. Please try again."*
+
 
 ---
 
@@ -316,7 +330,7 @@ repo-root/
 │   │   ├── layout.tsx            # Root layout with IBM Plex fonts
 │   │   ├── page.tsx              # Landing page (Hero, How It Works, Pricing)
 │   │   ├── app/page.tsx          # Dedicated Core Loop App Screen
-│   │   └── api/confess/route.ts  # Next.js Server Route Handler (timeout 25s)
+│   │   └── api/confess/route.ts  # Next.js Server Route Handler (28s total deadline)
 │   ├── components/
 │   │   ├── AppHeader.tsx         # Header wordmark linking to /
 │   │   ├── HeroSection.tsx       # Landing hero
@@ -389,7 +403,7 @@ PRD ref: `prd.md > 8. Deferred From the POC`, `prd.md > 9. Non-Goals`.
 ### Decisions Made
 1. **Design decision:** Limit invented file names and malformed output with deterministic checks.
 2. **Next.js App Router + TypeScript:** Approved for server route isolation and self-hosted production reliability.
-3. **Google Gemini (`gemini-3.8-flash`):** Selected as initial low-cost, high-speed model; swappable via `AI_MODEL_NAME`.
+3. **Google Gemini:** Model configured strictly via `AI_MODEL_NAME` (listed in catalog on 2026-10-20; text generation unproven for 3.8-flash; gemini-3.5-flash returned 200). Strict single retry policy for 503/429 (rem >=10s) with no automatic model switching.
 4. **Self-Hosted Production Architecture:** Primary deployment targets a self-hosted Linux server with HTTPS reverse proxy; Vercel Free Plan is kept as backup.
 
 ### Known Limitations
@@ -397,7 +411,9 @@ PRD ref: `prd.md > 8. Deferred From the POC`, `prd.md > 9. Non-Goals`.
 2. **Score Tuning:** The score is tuned for panicked human commits; AI-generated changes with tidy messages may score lower than they feel.
 3. **AI Interpretation:** The "Cause" line provided by AI in the Incident Report is an interpretation based on code diff clues, not guaranteed ground truth.
 4. **Language Support:** Non-English inputs are completely untested.
-5. **Diff-Only Inputs:** If an input consists solely of a git diff without commit messages, signals 1–3 are marked as "n/a" in the UI, and weights are automatically re-normalized across remaining signals.
+5. **Diff-Only Inputs:** If an input consists solely of a git diff without commit messages, signals 1–3 are marked as "n/a" in the UI, and weights are automatically re-normalized across remaining signals (signals 4 and 5). Note: For a diff-only input with >300 lines changed and no other signals, the normalized score is 50 (MAJOR) purely due to diff size (20/40 points normalized to 50/100; verified in `tests/panic-score.test.ts`).
 6. **AI Output Variance:** AI generation is not completely deterministic; identical inputs may produce slight variations in wording.
 7. **Third-Party Service:** User input is transmitted to Google Gemini API to generate the reports.
-8. **Rate Limiting:** Per-IP rate limiting will only be included if time permits during implementation; otherwise, no rate limiting is active on the application layer.
+8. **Rate Limiting:** Per-IP rate limiting must be configured at the reverse proxy before deployment (see Deployment checklist); until verified, it is not claimed.
+
+

@@ -31,25 +31,46 @@ Dokumen ini mencatat setiap keputusan arsitektural, teknis, atau penyesuaian sco
 ---
 
 ## DEC-004 | 2026-10-20 | Pemilihan dan Verifikasi Model AI
-- **Keputusan:** Menggunakan provider Google Gemini dengan model `gemini-3.8-flash`. Model name dikonfigurasi melalui environment variable `AI_MODEL_NAME`.
-- **Verifikasi API Catalog:** Terverifikasi via kueri endpoint resmi `https://generativelanguage.googleapis.com/v1beta/models` dengan header `x-goog-api-key` (tanpa key di URL) pada 2026-10-20. Model `models/gemini-3.8-flash` terdaftar aktif dalam katalog API.
-- **Verifikasi Smoke Test:**
-  - `gemini-3.8-flash`: Menghasilkan HTTP 503 (`This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.`) serta timeout 30000ms pada lonjakan beban server Google (dicatat di `F-006`).
-  - `gemini-3.5-flash` (uji validasi konektivitas & kredensial):
-    ```
-    HTTP status: 200
-    Model: gemini-3.5-flash
-    Response text length: 1152 characters
-    ```
-  - **Kesimpulan:** Kredensial baru di `.env.local` dan komunikasi header `x-goog-api-key` terverifikasi 100% valid dan berfungsi. Konfigurasi `AI_MODEL_NAME` mempertahankan `gemini-3.8-flash` sebagai target utama dengan `gemini-3.5-flash` sebagai fallback terverifikasi.
+- **Keputusan:** Menggunakan provider Google Gemini dengan model yang dikonfigurasi melalui environment variable `AI_MODEL_NAME`.
+- **Status Verifikasi Model:**
+  - `gemini-3.8-flash`: listed in the model catalog on 2026-10-20; generateContent returned HTTP 503 (high demand); gemini-3.5-flash returned HTTP 200 with the new key.
+  - **Catatan Validasi Kemampuan:** Belum dibuktikan bahwa `gemini-3.8-flash` bisa menghasilkan teks (belum ada respons HTTP 200). Kredensial API key baru terbukti dapat melakukan pemanggilan API via `gemini-3.5-flash` (HTTP 200, panjang teks 1152 karakter).
+- **Entri Katalog Model (Kueri API 2026-10-20):**
+  ```json
+  {
+    "name": "models/gemini-3.8-flash",
+    "supportedGenerationMethods": [
+      "generateContent",
+      "countTokens",
+      "createCachedContent",
+      "batchGenerateContent"
+    ]
+  }
+  ```
+- **Kebijakan Retry & Tanpa Fallback Otomatis:**
+  - Tidak ada perpindahan model otomatis (*no automatic fallback*). Model tetap diambil secara ketat dari `AI_MODEL_NAME`.
+  - Jika API mengembalikan HTTP 503 atau 429: dilakukan tepat 1 kali percobaan ulang (*retry*) setelah jeda 1-2 detik, hanya jika sisa waktu dalam batas total 28 detik masih minimal 10 detik.
+  - Setiap percobaan ulang dicatat ke console server (hanya kode error HTTP, tanpa isi input/prompt).
+- **Kriteria Pemilihan Model untuk Demo Video & README:**
+  - Model yang dipakai dalam video demonstrasi dan README wajib lolos 5 kali berturut-turut pada masing-masing dari 3 sample diff (skema JSON valid dan lolos output guardrails). Nama model terpilih dan tanggal pengujian wajib dicatat di sini.
 - **Dokumentasi Resmi:** https://ai.google.dev/gemini-api/docs/models/gemini
 - **Status:** Disetujui (Zidane).
-
 
 ---
 
 ## DEC-005 | 2026-10-20 | Arsitektur Hosting dan Deployment
-- **Keputusan:** Deployment produksi utama menggunakan server self-hosted milik rekan tim yang dikelola dengan process manager (`next start` di bawah pm2 / systemd / Docker) dan reverse proxy (nginx / Caddy) dengan HTTPS dan read timeout >= 30 detik. Vercel Free Plan ditetapkan sebagai opsi deployment cadangan (*fallback*).
+- **Keputusan:** Deployment produksi utama menggunakan server self-hosted milik rekan tim yang dikelola dengan process manager (`next start` di bawah pm2 / systemd / Docker) dan reverse proxy (nginx / Caddy) dengan HTTPS dan read timeout >= 35 detik. Vercel Free Plan ditetapkan sebagai opsi deployment cadangan (*fallback*).
 - **Rasional:** Memberikan kendali infrastruktur penuh, privasi server-side environment variables, dan keandalan timeout eksekusi.
 - **Status:** Disetujui (Zidane).
+
+---
+
+## DEC-006 | 2026-10-20 | Pemetaan Poin Panic Score Bertahap (Discrete Step Mapping)
+- **Keputusan:** Menggunakan fungsi pemetaan bertahap (step function) diskrit alih-alih kurva matematis kontinu untuk menghitung 5 sinyal Panic Score (contoh: ukuran diff >300 baris = 20 pts, 100–300 baris = 10 pts, <100 baris = 0 pts; sentuhan berkas >= 3 commit = 20 pts, 2 commit = 10 pts; ALL CAPS >= 4 huruf = 10 pts).
+- **Rasional:**
+  1. **Transparansi & Auditabilitas:** Memudahkan verifikasi manual dan pengujian unit otomatis tanpa ketidakpastian pembulatan angka desimal.
+  2. **Menghindari False Precision:** Panic Score adalah heuristik psikologis pengalaman developer, bukan metrik saintifik mutlak; skala kontinu memberikan ilusi akurasi semu.
+  3. **Kejelasan UX:** Nilai bulat yang dihasilkan dari tiap tahapan memudahkan developer memahami breakdown alasan di popover *"Why this score?"*.
+- **Status:** Disetujui (Zidane).
+
 

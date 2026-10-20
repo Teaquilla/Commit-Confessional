@@ -72,14 +72,15 @@ Dokumen ini mencatat setiap kegagalan, error perintah, kegagalan panggilan API, 
 - **Perintah / konteks:** Audit keamanan repositori dan verifikasi eliminasi token lama.
 - **Log mentah:** `docs/failures/raw/2026-10-20-F-005.txt`
 - **Dugaan penyebab:** Kunci API sempat terpapar di luar berkas environment lokal.
-- **Tindakan:** Pengguna mencabut API key lama di konsol provider dan memasang key baru secara mandiri di `.env.local`. Builder memverifikasi bahwa key lama tidak tersisa di repositori (`git grep -n "AQ.Ab"`, `git log --all -S "AQ.Ab" --oneline`, dan pencarian teks di `docs/`).
+- **Tindakan:** Pengguna mencabut API key lama di konsol provider dan memasang key baru secara mandiri di `.env.local`. Builder memverifikasi bahwa key lama tidak tersisa di repositori (`git grep -n "[key-prefix]"`, `git log --all -S "[key-prefix]" --oneline`, dan pencarian teks di `docs/`).
 - **Status:** key dicabut, key baru dipasang
 - **Bukti perbaikan:**
-  - `git grep -n "AQ.Ab"`: 0 kecocokan.
-  - `git log --all -S "AQ.Ab" --oneline`: 0 kecocokan.
-  - Pencarian di `docs/`: 0 kecocokan (selain berkas log pencarian audit `raw/2026-10-20-F-005.txt`).
+  - `git grep -n "[key-prefix]"`: 0 kecocokan pada seluruh berkas yang terlacak git.
+  - `git log --all -S "[key-prefix]" --oneline`: 0 kecocokan di seluruh riwayat commit git.
+  - Pencarian di `docs/`: 0 kecocokan nilai kunci asli. Catatan riwayat perintah audit di `docs/failures/raw/2026-10-20-F-005.txt` telah disamarkan menggunakan `[key-prefix]`.
   - `.gitignore` mengabaikan `.env*` dengan pengecualian `.env.example`.
   - `.env.local` tidak terlacak git (`git ls-files .env.local` kosong).
+
 - **Dampak ke klaim:** Kredensial lama telah dicabut dan tidak ada kebocoran di riwayat git maupun dokumentasi publik.
 
 ---
@@ -91,12 +92,13 @@ Dokumen ini mencatat setiap kegagalan, error perintah, kegagalan panggilan API, 
 - **Perintah / konteks:** `node --env-file=.env.local scripts/smoke-test.mjs`
 - **Log mentah:** `docs/failures/raw/2026-10-20-F-006.txt`
 - **Dugaan penyebab:** Beban trafik tinggi (*high demand surge*) pada server Google Gemini untuk model `gemini-3.8-flash`.
-- **Tindakan:** Menguji model pembanding terdekat (`gemini-3.5-flash`) untuk memvalidasi validitas API key baru dan konfigurasi jaringan header `x-goog-api-key`.
-- **Status:** dalam penyelidikan / fallback aktif
+- **Tindakan:** Menguji konektivitas & kredensial via `gemini-3.5-flash` untuk memastikan API key baru dan konfigurasi header `x-goog-api-key` berfungsi. Menetapkan kebijakan tanpa fallback otomatis: hanya 1 kali retry untuk HTTP 503/429 (setelah 1-2 detik, jika sisa waktu batas 28 detik masih >= 10 detik).
+- **Status:** dalam penyelidikan (kemampuan generateContent pada gemini-3.8-flash belum terbukti)
 - **Bukti perbaikan:**
-  - `scripts/smoke-test.mjs` dengan `gemini-3.5-flash` menghasilkan HTTP status 200 dan teks respons sepanjang 1152 karakter, membuktikan API key baru valid dan konfigurasi header berfungsi penuh.
-  - Kegagalan HTTP 503 pada `gemini-3.8-flash` murni akibat kendala kapasitas sementara di sisi server provider.
-- **Dampak ke klaim:** Model default diatur ke `gemini-3.8-flash` dengan `gemini-3.5-flash` sebagai opsi fallback operasional yang terbukti stabil.
+  - `scripts/smoke-test.mjs` dengan `gemini-3.5-flash` menghasilkan HTTP status 200 dan teks respons sepanjang 1152 karakter, membuktikan API key baru valid dan konfigurasi header berfungsi.
+  - Belum ada bukti respons HTTP 200 dari `gemini-3.8-flash`.
+- **Dampak ke klaim:** Klaim kemampuan teks `gemini-3.8-flash` dicatat sebagai `tidak terbukti` di `claims-register.md` (C-005) hingga diperoleh respons HTTP 200.
+
 
 
 
