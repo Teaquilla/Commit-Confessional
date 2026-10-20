@@ -71,6 +71,22 @@ Dokumen ini mencatat setiap keputusan arsitektural, teknis, atau penyesuaian sco
   1. **Transparansi & Auditabilitas:** Memudahkan verifikasi manual dan pengujian unit otomatis tanpa ketidakpastian pembulatan angka desimal.
   2. **Menghindari False Precision:** Panic Score adalah heuristik psikologis pengalaman developer, bukan metrik saintifik mutlak; skala kontinu memberikan ilusi akurasi semu.
   3. **Kejelasan UX:** Nilai bulat yang dihasilkan dari tiap tahapan memudahkan developer memahami breakdown alasan di popover *"Why this score?"*.
+- **Keluaran Lengkap Perintah Tes (`tests/panic-score.test.ts`):**
+  Perintah: `node --test tests/panic-score.test.ts`
+  ```text
+  ▶ Panic Score - Diff Only Edge Cases
+    ✔ computes score 50 (MAJOR) for diff-only input with >300 lines and no other signals (0.62ms)
+  ✔ Panic Score - Diff Only Edge Cases (1.1755ms)
+  ℹ tests 1
+  ℹ suites 1
+  ℹ pass 1
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 95.6922
+  ```
 - **Status:** Disetujui (Zidane).
+
 
 
