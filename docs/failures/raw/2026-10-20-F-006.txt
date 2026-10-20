@@ -1,0 +1,13 @@
+Command:
+node --env-file=.env.local scripts/smoke-test.mjs
+
+Target Model: gemini-3.8-flash
+
+Result:
+HTTP status: 503
+Error message: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.
+(Subsequent runs timed out after 30000ms due to Google server capacity overload)
+
+Comparison Test:
+gemini-3.5-flash -> HTTP status: 200, Response text length: 1152 characters
+gemini-2.5-flash -> HTTP status: 404 (Model no longer available to new users)

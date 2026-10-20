@@ -1,0 +1,8 @@
+Security Incident Audit:
+Search for old key prefix in repo:
+- git grep -n "AQ.Ab": 0 matches
+- git log --all -S "AQ.Ab" --oneline: 0 matches
+- grep in docs/: 0 matches
+
+Status: Key revoked by user, new key configured in .env.local without agent exposure.
+Verification: Passed. No traces found in repository history or documents.

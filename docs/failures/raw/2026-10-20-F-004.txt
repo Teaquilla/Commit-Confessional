@@ -1,0 +1,12 @@
+Command:
+node -e "..." (testing without --env-file)
+
+Exit Code: 1
+Output:
+TypeError [ERR_HTTP_INVALID_HEADER_VALUE]: Invalid value "undefined" for header "x-goog-api-key"
+    at ClientRequest.setHeader (node:_http_outgoing:688:11)
+    at new ClientRequest (node:_http_client:537:14)
+    at Object.request (node:https:684:10)
+    at [eval]:6:21 {
+  code: 'ERR_HTTP_INVALID_HEADER_VALUE'
+}

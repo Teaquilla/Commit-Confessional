@@ -1,8 +1,6 @@
 # Environment variables & secrets
-.env
-.env.local
-.env.*.local
-*.env
+.env*
+!.env.example
 
 # Devpost learner profile (per learn-ai-basics instructions)
 devpost/learner-profile.md

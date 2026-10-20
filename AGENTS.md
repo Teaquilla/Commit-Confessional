@@ -6,10 +6,11 @@ Sumber kebenaran scope: devpost/scope.md. Jangan menambah fitur di luar scope ta
 
 ## Aturan umum (semua agen)
 1. Baca devpost/scope.md, prd.md, spec.md sebelum bekerja.
-2. Jangan commit secret. Gunakan .env dan perbarui .env.example.
+2. Jangan commit secret. Gunakan .env dan perbarui .env.example. Jangan pernah membuka atau mencetak .env*; jangan menaruh secret di argumen perintah; baca dari environment variable.
 3. Jangan menambah auth, pembayaran, atau database multi-tenant.
 4. Commit kecil dengan pesan jelas (format: tipe: ringkasan).
 5. Setiap klaim 'selesai' harus punya bukti (file, commit, perintah, atau screenshot).
+
 
 ## Pencatatan kegagalan (wajib, semua agen)
 1. Setiap error, perintah gagal (exit code non-nol), panggilan API gagal, output AI rusak, retry, rollback, atau revert dicatat di docs/failures/failure-log.md pada saat terjadi, SEBELUM mencoba memperbaikinya.

@@ -49,3 +49,54 @@ Dokumen ini mencatat setiap kegagalan, error perintah, kegagalan panggilan API, 
 - **Bukti perbaikan:** Eksekusi `git init -b main` sukses dengan output `Initialized empty Git repository in D:/yayaya/.git/`.
 - **Dampak ke klaim:** Tidak ada klaim publik yang terpengaruh.
 
+---
+
+## F-004 | 2026-10-20 16:30 WIB | Fase 1
+- **Kategori:** runtime
+- **Severity:** P2
+- **Gejala:** TypeError `ERR_HTTP_INVALID_HEADER_VALUE`: Invalid value "undefined" for header "x-goog-api-key" saat eksekusi node inline tanpa argumen `--env-file=.env.local`.
+- **Perintah / konteks:** `node -e "..."`
+- **Log mentah:** `docs/failures/raw/2026-10-20-F-004.txt`
+- **Dugaan penyebab:** Bendera `--env-file=.env.local` terlewat pada pemanggilan `node -e`.
+- **Tindakan:** Menggunakan `node --env-file=.env.local` pada setiap pemanggilan skrip pengujian.
+- **Status:** diperbaiki
+- **Bukti perbaikan:** Eksekusi dengan `--env-file=.env.local` berhasil membaca environment variable tanpa error undefined header.
+- **Dampak ke klaim:** Tidak ada klaim publik yang terpengaruh.
+
+---
+
+## F-005 | 2026-10-20 16:32 WIB | Fase 1
+- **Kategori:** keamanan
+- **Severity:** P1
+- **Gejala:** Potensi keterpaparan token API key lama pada prompt percakapan dan kebutuhan rotasi ke environment lokal yang aman.
+- **Perintah / konteks:** Audit keamanan repositori dan verifikasi eliminasi token lama.
+- **Log mentah:** `docs/failures/raw/2026-10-20-F-005.txt`
+- **Dugaan penyebab:** Kunci API sempat terpapar di luar berkas environment lokal.
+- **Tindakan:** Pengguna mencabut API key lama di konsol provider dan memasang key baru secara mandiri di `.env.local`. Builder memverifikasi bahwa key lama tidak tersisa di repositori (`git grep -n "AQ.Ab"`, `git log --all -S "AQ.Ab" --oneline`, dan pencarian teks di `docs/`).
+- **Status:** key dicabut, key baru dipasang
+- **Bukti perbaikan:**
+  - `git grep -n "AQ.Ab"`: 0 kecocokan.
+  - `git log --all -S "AQ.Ab" --oneline`: 0 kecocokan.
+  - Pencarian di `docs/`: 0 kecocokan (selain berkas log pencarian audit `raw/2026-10-20-F-005.txt`).
+  - `.gitignore` mengabaikan `.env*` dengan pengecualian `.env.example`.
+  - `.env.local` tidak terlacak git (`git ls-files .env.local` kosong).
+- **Dampak ke klaim:** Kredensial lama telah dicabut dan tidak ada kebocoran di riwayat git maupun dokumentasi publik.
+
+---
+
+## F-006 | 2026-10-20 16:40 WIB | Fase 1
+- **Kategori:** panggilan API
+- **Severity:** P2
+- **Gejala:** HTTP status 503 (`This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.`) dan timeout request setelah 30000ms pada model `gemini-3.8-flash`.
+- **Perintah / konteks:** `node --env-file=.env.local scripts/smoke-test.mjs`
+- **Log mentah:** `docs/failures/raw/2026-10-20-F-006.txt`
+- **Dugaan penyebab:** Beban trafik tinggi (*high demand surge*) pada server Google Gemini untuk model `gemini-3.8-flash`.
+- **Tindakan:** Menguji model pembanding terdekat (`gemini-3.5-flash`) untuk memvalidasi validitas API key baru dan konfigurasi jaringan header `x-goog-api-key`.
+- **Status:** dalam penyelidikan / fallback aktif
+- **Bukti perbaikan:**
+  - `scripts/smoke-test.mjs` dengan `gemini-3.5-flash` menghasilkan HTTP status 200 dan teks respons sepanjang 1152 karakter, membuktikan API key baru valid dan konfigurasi header berfungsi penuh.
+  - Kegagalan HTTP 503 pada `gemini-3.8-flash` murni akibat kendala kapasitas sementara di sisi server provider.
+- **Dampak ke klaim:** Model default diatur ke `gemini-3.8-flash` dengan `gemini-3.5-flash` sebagai opsi fallback operasional yang terbukti stabil.
+
+
+
