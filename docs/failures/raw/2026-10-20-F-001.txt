@@ -1,0 +1,15 @@
+Command:
+powershell -Command "$dirs = @('docs\failures\raw', 'docs\reports', 'docs\log', 'docs\audit', 'devpost', 'src'); foreach ($d in $dirs) { New-Item -ItemType Directory -Force -Path $d | Out-Null; New-Item -ItemType File -Force -Path (Join-Path $d '.gitkeep') | Out-Null }; Write-Output 'Directories created with .gitkeep'"
+
+Exit Code: 1
+Output:
+At line:10 char:10
++ foreach ( in ) {
++          ~
+Missing variable name after foreach.
+At line:10 char:14
++ foreach ( in ) {
++              ~
+Unexpected token ')' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : MissingVariableNameAfterForeach

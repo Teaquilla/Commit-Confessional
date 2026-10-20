@@ -1,0 +1,14 @@
+Command:
+npx skills add challengepost/learn-ai-basics --all -y
+
+Exit Code: 0 (with partial symlink warnings)
+
+Warning Output:
+x  Failed to install 7
+|    ✗ 3-prd → Zencoder: ENOENT: no such file or directory, mkdir 'D:\yayaya\.agents\skills\3-prd\templates'
+|    ✗ 3-prd → Zenflow: EBUSY: resource busy or locked, unlink 'D:\yayaya\.agents\skills\3-prd\SKILL.md'
+|    ✗ 3-prd → Neovate: ENOENT: no such file or directory, mkdir 'D:\yayaya\.agents\skills\3-prd\templates'
+|    ✗ 3-prd → Pochi: EBUSY: resource busy or locked, unlink 'D:\yayaya\.agents\skills\3-prd\SKILL.md'
+|    ✗ 3-prd → PromptScript: ENOENT: no such file or directory, mkdir 'D:\yayaya\.agents\skills\3-prd\templates'
+|    ✗ 3-prd → AdaL: EBUSY: resource busy or locked, unlink 'D:\yayaya\.agents\skills\3-prd\SKILL.md'
+|    ✗ 3-prd → Universal: EBUSY: resource busy or locked, unlink 'D:\yayaya\.agents\skills\3-prd\SKILL.md'

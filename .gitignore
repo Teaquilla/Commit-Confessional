@@ -1,0 +1,36 @@
+# Environment variables & secrets
+.env
+.env.local
+.env.*.local
+*.env
+
+# Devpost learner profile (per learn-ai-basics instructions)
+devpost/learner-profile.md
+
+# Dependencies
+node_modules/
+/.pnp
+.pnp.js
+
+# Production build outputs
+.next/
+out/
+build/
+dist/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# OS and Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

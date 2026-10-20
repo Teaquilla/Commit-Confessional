@@ -1,0 +1,6 @@
+Command:
+git status
+
+Exit Code: 1
+Output:
+fatal: not a git repository (or any of the parent directories): .git
