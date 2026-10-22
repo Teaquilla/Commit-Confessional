@@ -113,6 +113,35 @@ Dokumen ini mencatat setiap kegagalan, error perintah, kegagalan panggilan API, 
 - **Bukti perbaikan:** Eksekusi `git grep -n "v3" docs/plan/execution-plan.md` atau `Select-String -Pattern "v3" -Path docs/plan/execution-plan.md` berjalan sukses dengan exit code 0.
 - **Dampak ke klaim:** Tidak ada klaim publik yang terpengaruh.
 
+---
+
+## F-008 | 2026-10-22 10:09 WIB | Fase 2
+- **Kategori:** kode
+- **Severity:** P2
+- **Gejala:** 3 tes gagal pada eksekusi `node --test tests/panic-score.test.ts`: (1) baris deleted diff terserap ke dalam commit message pada parsing git show, (2) word-boundary `\b` pada regex debug gagal mendeteksi `print('...'`, dan (3) kalibrasi fixture test clamping multi-signal belum mencapai ambang skor CRITICAL (75+).
+- **Perintah / konteks:** `node --test tests/panic-score.test.ts`
+- **Log mentah:** `docs/failures/raw/2026-10-22-F-008.txt`
+- **Dugaan penyebab:** Status `inIndentedMessage` pada parser tidak menghentikan pembacaan saat menemukan baris penambahan/penghapusan diff; regex debug memuat `\b` di belakang karakter non-kata `(` sehingga tidak cocok dengan kutip; fixture test clamping belum mencakup baris diff >100 untuk memaksimalkan sinyal 5.
+- **Tindakan:** Menghentikan `inIndentedMessage` saat baris penanda diff (`diff `, `---`, `+++`, `@@`, `+`, `-`) terdeteksi; memperbaiki regex debug keywords; melengkapi fixture test clamping.
+- **Status:** diperbaiki
+- **Bukti perbaikan:** Eksekusi `node --test tests/panic-score.test.ts` menghasilkan 17 pass, 0 fail (exit code 0):
+  ```text
+  ▶ validateGitInput (1.3922ms)
+  ▶ parseInput (1.569ms)
+  ▶ calculatePanicScore (3.0342ms)
+  ℹ tests 17
+  ℹ suites 3
+  ℹ pass 17
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 99.237
+  ```
+- **Dampak ke klaim:** Tidak ada klaim publik yang terpengaruh.
+
+
+
 
 
 

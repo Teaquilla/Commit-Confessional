@@ -1,0 +1,90 @@
+Command: node --test tests/panic-score.test.ts
+Exit Code: 1
+Time: 2026-10-22T10:09:01+07:00
+
+Output:
+▶ validateGitInput
+  ✔ rejects input shorter than 20 characters (0.483ms)
+  ✔ rejects non-git text even if longer than 20 characters (0.1504ms)
+  ✔ accepts inputs containing specific git markers (0.0799ms)
+✔ validateGitInput (1.3756ms)
+▶ parseInput
+  ✔ parses default git log format (0.4563ms)
+  ✔ parses git oneline format (0.1486ms)
+  ✖ parses git show / unified diff and excludes +++ and --- from added/deleted lines (1.0905ms)
+  ✔ parses git log -p with multiple commits and associates files per commit (0.1691ms)
+✖ parseInput (2.1094ms)
+▶ calculatePanicScore
+  ✔ rejects nonsensical input and returns standard friendly error (0.4041ms)
+  ✔ computes score 50 (MAJOR) for diff-only input with >300 lines and no other signals (0.4519ms)
+  ✔ does not trigger shouting signal for singular short acronyms like WIP or API (0.225ms)
+  ✔ triggers shouting signal for ALL CAPS word with >= 4 letters or repeated punctuation (0.1677ms)
+  ✔ triggers mashing signal for characters repeated 5 times or more (0.0775ms)
+  ✔ calculates rushed commits accurately with low-effort keywords, single-words, and duplicates (0.0751ms)
+  ✔ awards 20 points for repeated file touches when a file is modified across >= 3 commits (0.0945ms)
+  ✖ calculates debug leftovers (4 pts each, capped at 20) (0.2694ms)
+  ✔ handles a large diff of 50,000 characters rapidly without regex catastrophic backtracking (0.8584ms)
+  ✖ clamps final score strictly between 0 and 100 (0.2162ms)
+✖ calculatePanicScore (3.1582ms)
+ℹ tests 17
+ℹ suites 3
+ℹ pass 14
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 104.9452
+
+✖ failing tests:
+
+test at tests\panic-score.test.ts:78:3
+✖ parses git show / unified diff and excludes +++ and --- from added/deleted lines (1.0905ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 1
+  
+      at TestContext.<anonymous> (file:///D:/yayaya/tests/panic-score.test.ts:99:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests\panic-score.test.ts:266:3
+✖ calculates debug leftovers (4 pts each, capped at 20) (0.2694ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '5 debug statements found in added lines'
+  - '6 debug statements found in added lines'
+  
+      at TestContext.<anonymous> (file:///D:/yayaya/tests/panic-score.test.ts:283:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '5 debug statements found in added lines',
+    expected: '6 debug statements found in added lines',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests\panic-score.test.ts:305:3
+✖ clamps final score strictly between 0 and 100 (0.2162ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'MAJOR'
+  - 'CRITICAL'
