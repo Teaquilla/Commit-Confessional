@@ -29,7 +29,7 @@ Dokumen satu halaman ini adalah ringkasan status terkini repositori yang wajib d
   8. **T-006:** Halaman landing `/` (Hero, HowItWorks, PricingCards) — dijadwalkan Sabtu, bukan syarat Gate 2
 - **Hambatan / Isu Aktif:** Probe ketersediaan model (`scripts/model-probe.mjs`, 72 panggilan berurutan) telah dijalankan untuk 4 kandidat model dan dicatat di `docs/evidence/model-probe-2026-10-22.md`. Menunggu keputusan pemilik untuk pemilihan model resmi Fase 2 sebelum melangkah ke T-007a.
 - **Temuan P0 / P1 Terbuka:** **0** (Temuan P1 auditor pada Gate 1 dikalibrasi ulang sebagai status wajar klaim terbuka sesuai DEC-010)
-- **Hash Commit Terakhir:** `b39bd27` (feat(t004): implement /api/confess route handler, sample diffs, and exploratory live checks)
+- **Hash Commit Terakhir:** `312459c` (feat: probe model availability, calibrate live check, and update panic presets)
 
 ---
 
