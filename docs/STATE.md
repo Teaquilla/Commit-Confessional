@@ -29,7 +29,7 @@ Dokumen satu halaman ini adalah ringkasan status terkini repositori yang wajib d
   8. **T-006:** Halaman landing `/` (Hero, HowItWorks, PricingCards) — dijadwalkan Sabtu, bukan syarat Gate 2
 - **Hambatan / Isu Aktif:** Model `gemini-3.8-flash` dan `gemini-3.5-flash` mengalami lonjakan beban periodik (HTTP 503) di sisi server Google; mekanisme retry bounded dan penanganan error 502/504 terbukti melindungi kestabilan server tanpa kebocoran secret.
 - **Temuan P0 / P1 Terbuka:** **0** (Temuan P1 auditor pada Gate 1 dikalibrasi ulang sebagai status wajar klaim terbuka sesuai DEC-010)
-- **Hash Commit Terakhir:** `49881c8` (feat(t003): scaffold Next.js app, Zod schemas, and swappable AI engine)
+- **Hash Commit Terakhir:** `b39bd27` (feat(t004): implement /api/confess route handler, sample diffs, and exploratory live checks)
 
 ---
 
