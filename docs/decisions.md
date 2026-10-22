@@ -118,6 +118,33 @@ Dokumen ini mencatat setiap keputusan arsitektural, teknis, atau penyesuaian sco
 - **Rasional:** Menjaga transparansi teknis, memelihara jejak historis audit secara utuh, dan mendokumentasikan konteks objektif di balik temuan audit tanpa mengubah integritas berkas laporan asli auditor.
 - **Status:** Disetujui (Zidane).
 
+---
+
+## DEC-010 | 2026-10-22 | Penerimaan Gate 1 oleh Pemilik, Pemeriksaan Mekanis, Hasil Tes Unit, dan Koreksi Target Verifikasi Klaim
+- **Keputusan:**
+  1. **Penerimaan Gate 1:** Gate 1 diterima oleh pemilik dengan keterbatasan (lihat DEC-009). Pemeriksaan mekanis dijalankan pemilik: pemindaian rahasia bersih (satu hit 'AIza' di commit 38eff75 hanya teks perintah pemindaian di docs/plan/execution-plan.md).
+  2. **Hasil Tes Unit:** Builder telah menjalankan tes unit deterministik secara langsung di lingkungan lokal dan mengonfirmasi tes lulus 100%:
+     ```text
+     ▶ Panic Score - Diff Only Edge Cases
+       ✔ computes score 50 (MAJOR) for diff-only input with >300 lines and no other signals (0.6502ms)
+     ✔ Panic Score - Diff Only Edge Cases (1.259ms)
+     ℹ tests 1
+     ℹ suites 1
+     ℹ pass 1
+     ℹ fail 0
+     ℹ cancelled 0
+     ℹ skipped 0
+     ℹ todo 0
+     ℹ duration_ms 83.5341
+     ```
+  3. **Koreksi Target Verifikasi Klaim (Koreksi terhadap Evaluasi DEC-009):** Sebagai koreksi atas catatan target verifikasi klaim pada DEC-009 (dicatat lewat entri baru ini tanpa menulis ulang dokumen historis):
+     - **C-003** (*Hard spending quota dikonfigurasi pada provider AI sebelum deployment*): Wajib terbukti sebelum deployment (Gate 2).
+     - **C-005** (*Model gemini-3.8-flash dapat menghasilkan teks respons yang valid (generateContent)*): Wajib terbukti sebelum model dipilih untuk Fase 2.
+     - **C-002** (*Body text contrast ratio memenuhi standar WCAG AA (> 4.5:1)*): Hanya klaim ini yang ditargetkan untuk diverifikasi pada Gate 3.
+- **Rasional:** Menegaskan kesiapan resmi memasuki Fase 2 (Build Core Loop) dengan parameter verifikasi klaim yang telah dikalibrasi secara tepat sesuai fase pengerjaan.
+- **Status:** Disetujui (Zidane).
+
+
 
 
 
