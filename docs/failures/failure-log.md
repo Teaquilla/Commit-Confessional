@@ -167,10 +167,17 @@ Dokumen ini mencatat setiap kegagalan, error perintah, kegagalan panggilan API, 
   ```
 - **Dampak ke klaim:** Tidak ada klaim publik yang terpengaruh.
 
+---
 
-
-
-
-
-
+## F-010 | 2026-10-22 10:55 WIB | Fase 2
+- **Kategori:** alat
+- **Severity:** P3
+- **Gejala:** Perintah compound `git add docs/ && git commit ...` gagal dieksekusi dengan exit code 1 (`ParserError: The token '&&' is not a valid statement separator in this version`).
+- **Perintah / konteks:** `git add docs/ && git commit -m "docs: calibrate claims and terminology for file name guardrails"`
+- **Log mentah:** `docs/failures/raw/2026-10-22-F-010.txt`
+- **Dugaan penyebab:** Lingkungan shell host Windows PowerShell (versi 5.1) tidak mendukung operator chaining `&&` sebagai pemisah statement; memerlukan titik koma `;` atau perintah terpisah.
+- **Tindakan:** Menjalankan `git add docs/` dan `git commit` secara terpisah atau menggunakan `;`.
+- **Status:** diperbaiki
+- **Bukti perbaikan:** Eksekusi `git add docs/` secara terpisah sukses dengan exit code 0.
+- **Dampak ke klaim:** Tidak ada klaim publik yang terpengaruh.
 

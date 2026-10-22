@@ -123,7 +123,7 @@ Dokumen ini mencatat setiap keputusan arsitektural, teknis, atau penyesuaian sco
 ## DEC-010 | 2026-10-22 | Penerimaan Gate 1 oleh Pemilik, Pemeriksaan Mekanis, Hasil Tes Unit, dan Koreksi Target Verifikasi Klaim
 - **Keputusan:**
   1. **Penerimaan Gate 1:** Gate 1 diterima oleh pemilik dengan keterbatasan (lihat DEC-009). Pemeriksaan mekanis dijalankan pemilik: pemindaian rahasia bersih (satu hit 'AIza' di commit 38eff75 hanya teks perintah pemindaian di docs/plan/execution-plan.md).
-  2. **Hasil Tes Unit:** Builder telah menjalankan tes unit deterministik secara langsung di lingkungan lokal dan mengonfirmasi tes lulus 100%:
+  2. **Hasil Tes Unit:** Builder telah menjalankan tes unit deterministik secara langsung di lingkungan lokal dan mengonfirmasi seluruh tes lulus:
      ```text
      ▶ Panic Score - Diff Only Edge Cases
        ✔ computes score 50 (MAJOR) for diff-only input with >300 lines and no other signals (0.6502ms)

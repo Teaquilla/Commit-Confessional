@@ -17,6 +17,5 @@ Status yang digunakan:
 | C-003 | Hard spending quota dikonfigurasi pada provider AI sebelum deployment | devpost/spec.md > 4. Where It Runs | Screenshot / bukti konfigurasi kuota provider | tidak terbukti | Wajib diverifikasi sebelum deployment produksi |
 | C-004 | Kredensial lingkungan lokal aman (.env* terabaikan git, tidak terlacak) dan transmisi API terverifikasi | docs/decisions.md > DEC-004, scripts/ | git ls-files kosong, check-ignore aktif, smoke test HTTP 200 (1152 chars) | terverifikasi | Kredensial baru terpasang di .env.local |
 | C-005 | Model gemini-3.8-flash dapat menghasilkan teks respons yang valid (generateContent) | devpost/spec.md > 3. Stack, docs/decisions.md > DEC-004 | Menunggu pengujian respons HTTP 200 (saat ini HTTP 503 / timeout) | tidak terbukti | Belum dibuktikan menghasilkan teks sampai ada HTTP 200 |
-
-
-
+| C-006 | T-001: 17 tes lulus | docs/log/2026-10-22-05.md, docs/failures/failure-log.md | Log mentah F-008 & eksekusi 17 tes lulus setelah perbaikan di commit 4fb7232 | dikoreksi | Dikoreksi: ada 3 tes yang tadinya gagal (F-008) lalu diperbaiki |
+| C-007 | 32 tes lulus pada 22 Okt 2026, lihat keluaran | docs/tasks/T-002.md, docs/STATE.md | Keluaran lengkap eksekusi "node --test tests/guardrails.test.ts tests/panic-score.test.ts" (32 pass, 0 fail) | terverifikasi | 21 tes panic-score dan 11 tes guardrail nama file |

@@ -15,7 +15,7 @@ Dokumen satu halaman ini adalah daftar periksa wajib sebelum perekaman video dem
 - [ ] **Struktur Aha-Moment (30 Detik Pertama):** Video langsung menampilkan aksi inti dalam 30 detik awal: menempelkan diff/commit berantakan, menekan Confess, lalu memunculkan dua panel berdampingan (Confession kiri, PR formal kanan) bersama Panic Score.
 - [ ] **Durasi Video Tepat:** Durasi total video berada di rentang **1 hingga 3 menit** (memenuhi batas resmi aturan Devpost).
 - [ ] **Aksesibilitas Tautan Video:** Video diunggah (YouTube/Loom/Vimeo) dengan setelan publik/unlisted dan telah diuji dapat diputar langsung tanpa login dari peramban privat (incognito).
-- [ ] **Kesesuaian Klaim:** Setiap narasi yang disampaikan dalam video dan teks pendukung diverifikasi selaras 100% dengan status `terverifikasi` di `docs/failures/claims-register.md`.
+- [ ] **Kesesuaian Klaim:** Setiap narasi yang disampaikan dalam video dan teks pendukung diverifikasi selaras sepenuhnya dengan status `terverifikasi` di `docs/failures/claims-register.md`.
 
 ---
 

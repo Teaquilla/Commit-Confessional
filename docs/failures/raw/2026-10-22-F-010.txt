@@ -1,0 +1,9 @@
+Command: git add docs/ && git commit -m "docs: calibrate claims and terminology for file name guardrails"
+Exit Code: 1
+Error output:
+At line:1 char:15
++ git add docs/ && git commit -m "docs: calibrate claims and terminolog ...
++               ~~
+The token '&&' is not a valid statement separator in this version.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : InvalidEndOfLine
