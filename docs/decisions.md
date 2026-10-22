@@ -88,5 +88,13 @@ Dokumen ini mencatat setiap keputusan arsitektural, teknis, atau penyesuaian sco
   ```
 - **Status:** Disetujui (Zidane).
 
+---
+
+## DEC-007 | 2026-10-22 | Adopsi Tata Kerja dan Berkas Kelayakan Demo (Workflow v3)
+- **Keputusan:** Mengadopsi struktur tata kerja rekayasa v3 mencakup pembaruan `AGENTS.md` (alur build terstruktur, protokol recovery, checkpoint serah-terima sesi, aturan dependensi `npm ci`), template kontrak tugas (`docs/tasks/TASK_TEMPLATE.md`), lembar status sesi (`docs/STATE.md`), daftar kelayakan demo & freeze (`docs/DEMO_READINESS.md`), pencatatan bukti evaluasi (`docs/evidence/preset-runs.md` dan `docs/evidence/eval-report.md`), serta kredit referensi (`docs/references.md`).
+- **Rasional & Asal Usul:** Terinspirasi dari kerangka kerja repositori rekan tim (`Teaquilla/Hakaton`) guna meningkatkan disiplin eksekusi, kesiapan demo, dan integritas pengujian tanpa menyalin isi berkasnya secara mentah (ditulis ulang dengan kata-kata sendiri sesuai konteks Commit Confessional).
+- **Status:** Disetujui (Zidane).
+
+
 
 

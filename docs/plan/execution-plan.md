@@ -1,6 +1,6 @@
-# Rencana Eksekusi BWAI Basics: Antigravity (Build) + Codex (Audit)
+# Rencana Eksekusi BWAI Basics: Antigravity (Build) + Auditor Independen (Audit)
 
-**Hackathon:** Build With AI: Basics (Devpost, learn-ai-basics.devpost.com) **Pemilik:** Zidane Zulfanali Hafid **Deadline resmi:** 26 Okt 2026, 17.00 EDT (= 27 Okt 2026, 04.00 WIB) **Target submit internal:** Senin 26 Okt 2026, malam WIB (buffer ±6 jam) **Status dokumen:** v2, diperbarui 20 Okt 2026 (ditambah pencatatan kegagalan dan laporan klaim menyesatkan)
+**Hackathon:** Build With AI: Basics (Devpost, learn-ai-basics.devpost.com) **Pemilik:** Zidane Zulfanali Hafid **Deadline resmi:** 26 Okt 2026, 17.00 EDT (= 27 Okt 2026, 04.00 WIB) **Target submit internal:** Senin 26 Okt 2026, malam WIB (buffer ±6 jam) **Status dokumen:** v3, diperbarui 21 Okt 2026 (ditambah aturan lintas gate dan Demo Freeze, bukti AI, referensi, auditor GPT-OSS, dan hosting mandiri)
 
 > **Asumsi kerja:** tema yang dieksekusi adalah **Commit Confessional & PR Therapist** dalam kemasan SaaS (GitHub-style PR description generator dengan panel Confession vs PR formal, plus Panic Score). Jika tema diganti (mis. Excuse Mirror), hanya Bagian 3 dan isi `devpost/*.md` yang berubah; seluruh proses, log, dan protokol audit tetap berlaku.
 
@@ -32,7 +32,9 @@
 | --- | --- | --- | --- |
 | **Zidane** | Pengambil keputusan | Menyetujui scope, memilih tema, memutuskan temuan audit | Melewati gate tanpa audit |
 | **Antigravity (builder)** | Merencanakan dan membangun | Menulis kode, dokumen `devpost/*`, menjalankan perintah, mencatat log | Mengaudit pekerjaannya sendiri, mengubah scope tanpa persetujuan |
-| **Codex (auditor)** | Auditor independen | Membaca repo, menjalankan build/test/lint, menulis laporan di `docs/audit/` | Mengubah kode produk atau dokumen planning (hanya melaporkan) |
+| **Auditor independen (GPT-OSS 120B Medium; Codex bila tersedia)** | Auditor independen | Membaca repo, menjalankan build/test/lint, menulis laporan di `docs/audit/` | Mengubah kode produk atau dokumen planning (hanya melaporkan) |
+
+**Catatan peran auditor:** di seluruh dokumen ini 'Codex' berarti auditor independen. Saat ini auditornya GPT-OSS 120B (Medium) di percakapan baru yang terpisah dari builder (lihat Bagian 9.7). Jika Codex atau model lain yang lebih kuat tersedia, ia mengambil peran yang sama tanpa mengubah protokol.
 
 **Prinsip:**
 
@@ -56,8 +58,9 @@
 
 ```
 repo-root/
-├── AGENTS.md                # aturan kerja untuk semua agen (dibaca Codex; juga dipasang sebagai rule workspace di Antigravity)
-├── README.md                # ringkasan, cara menjalankan, tautan video, Known limitations
+├── AGENTS.md                # aturan kerja semua agen (perintahkan eksplisit di awal sesi; pemuatan otomatis tidak terjamin)
+├── README.md                # ringkasan, cara menjalankan, tautan video, Known limitations, Credits
+├── .env.example             # nama variabel saja, tanpa nilai
 ├── devpost/
 │   ├── scope.md             # wajib
 │   ├── prd.md               # wajib
@@ -65,19 +68,28 @@ repo-root/
 ├── docs/
 │   ├── plan/
 │   │   └── execution-plan.md      # salinan dokumen ini
+│   ├── STATE.md                   # status singkat + serah-terima sesi (diperbarui saat 'checkpoint')
+│   ├── DEMO_READINESS.md          # daftar periksa video, Demo Freeze, submit
+│   ├── references.md              # referensi dan kredit (model AI, font, pustaka, skill pack, inspirasi)
+│   ├── decisions.md               # keputusan dan perubahan scope
+│   ├── tasks/
+│   │   └── TASK_TEMPLATE.md       # kontrak satu tugas untuk Fase 2
 │   ├── log/
 │   │   └── YYYY-MM-DD-NN.md       # log sesi Antigravity
 │   ├── failures/
-│   │   ├── failure-log.md         # kronologi semua kegagalan (append-only)
+│   │   ├── failure-log.md         # kronologi kegagalan (append-only)
 │   │   ├── claims-register.md     # register klaim berisiko menyesatkan
 │   │   └── raw/                   # output error mentah (secret disamarkan)
+│   ├── evidence/
+│   │   ├── preset-runs.md         # 3 preset x 5 percobaan (hasil nyata)
+│   │   └── eval-report.md         # opsional: himpunan held-out dan baseline
 │   ├── reports/
-│   │   └── failure-report-gate-N.md  # laporan kegagalan per gate
-│   ├── audit/
-│   │   └── gate-N-YYYY-MM-DD.md   # laporan audit Codex
-│   └── decisions.md               # catatan keputusan dan perubahan scope
-├── src/ ...                 # kode produk
-└── .env.example             # tanpa nilai rahasia
+│   │   └── failure-report-gate-N.md
+│   └── audit/
+│       └── gate-N-YYYY-MM-DD.md   # laporan auditor
+├── scripts/                 # check-env, smoke-test (tidak pernah mencetak key)
+├── tests/                   # tes unit (node:test)
+└── src/ ...                 # kode produk
 ```
 
 Catatan: `docs/` dan `AGENTS.md` boleh ikut publik; ini justru memperlihatkan proses yang disiplin.
@@ -91,16 +103,19 @@ Salin isi ini ke `AGENTS.md` di root repo.
 ```markdown
 # AGENTS.md
 
+Awal setiap sesi: baca AGENTS.md, docs/STATE.md, dan tugas aktif di docs/tasks/.
+
 ## Konteks
 Proyek hackathon BWAI Basics. Deadline 27 Okt 2026 04.00 WIB. PoC kecil, satu core loop.
 Sumber kebenaran scope: devpost/scope.md. Jangan menambah fitur di luar scope tanpa entri di docs/decisions.md yang disetujui pemilik.
 
 ## Aturan umum (semua agen)
 1. Baca devpost/scope.md, prd.md, spec.md sebelum bekerja.
-2. Jangan commit secret. Gunakan .env dan perbarui .env.example.
+2. Jangan commit secret. Jangan pernah membuka atau mencetak berkas .env*; jangan menaruh secret di argumen perintah; baca dari environment variable.
 3. Jangan menambah auth, pembayaran, atau database multi-tenant.
 4. Commit kecil dengan pesan jelas (format: tipe: ringkasan).
 5. Setiap klaim 'selesai' harus punya bukti (file, commit, perintah, atau screenshot).
+6. Pasang dependensi hanya dengan npm ci dari lockfile. Dependensi baru perlu alasan di docs/decisions.md.
 
 ## Pencatatan kegagalan (wajib, semua agen)
 1. Setiap error, perintah gagal (exit code non-nol), panggilan API gagal, output AI rusak, retry, rollback, atau revert dicatat di docs/failures/failure-log.md pada saat terjadi, SEBELUM mencoba memperbaikinya.
@@ -111,21 +126,38 @@ Sumber kebenaran scope: devpost/scope.md. Jangan menambah fitur di luar scope ta
 6. Sebelum setiap gate, Builder menyusun docs/reports/failure-report-gate-N.md.
 7. Kegagalan yang disembunyikan atau tidak dicatat dianggap pelanggaran proses.
 
+## Build workflow (Builder)
+1. Baca dan periksa kode serta status git sebelum mengubah apa pun.
+2. Tulis rencana singkat: berkas yang berubah, pendekatan, tes, risiko.
+3. Tantang rencana itu: adakah yang lebih sederhana? Apa yang terjadi pada input rusak dan kegagalan model? Apakah ini membuat demo lebih rapuh?
+4. Implementasi seminimal mungkin, tanpa refactor di luar tugas.
+5. Jalankan verifikasi. Jangan menyatakan berhasil jika tidak dijalankan; jika tidak bisa dijalankan, tulis penyebab persisnya.
+6. Tinjau diff sendiri seperti PR orang lain.
+7. Laporkan: berkas yang berubah, hasil verifikasi, risiko tersisa, hal yang sengaja dilewatkan.
+Berhenti dan tanya jika: persyaratan bertentangan, cakupan melebar di luar tugas, butuh dependensi baru, perilaku privasi/keamanan tidak jelas, atau tugas tampak melanggar aturan hackathon.
+
+## Recovery (saat ada yang rusak)
+Jangan menambal acak. Urutan: kembali ke tag known-good terakhir (di salinan atau branch), reproduksi, isolasi, ukur, putuskan perbaikan atau rollback atau potong scope (jangan biarkan biaya yang sudah terpakai menentukan), verifikasi, catat di failure-log.md.
+
+## Serah-terima sesi
+Perintah 'checkpoint' dari pemilik berarti: perbarui docs/STATE.md.
+
 ## Builder (Antigravity)
 - Tulis log sesi di docs/log/ memakai template log dan rujuk ID kegagalan (F-NNN) yang terjadi di sesi itu.
 - Jalankan build/lint/test sebelum menyatakan tugas selesai dan catat hasilnya, termasuk yang gagal.
 - Jangan menulis atau mengedit file di docs/audit/.
 - Jika ada ketidakjelasan scope, catat di docs/decisions.md sebagai 'Pertanyaan' dan berhenti, jangan menebak.
 
-## Auditor (Codex)
-- Mode read-only terhadap src/ dan devpost/. Hanya boleh menulis ke docs/audit/.
+## Auditor independen
+- Hanya boleh menulis ke docs/audit/. Tidak mengubah src/, devpost/, atau berkas lain.
 - Gunakan checklist di docs/plan/execution-plan.md Bagian 9.
 - Verifikasi docs/failures/failure-log.md, claims-register.md, dan failure-report gate terkait. Kegagalan tak tercatat atau klaim menyesatkan wajib dilaporkan.
-- Setiap temuan wajib: ID, severity (P0/P1/P2), lokasi file:baris, bukti, dampak, rekomendasi.
+- Setiap temuan wajib: ID, severity (P0/P1/P2), lokasi file:baris, kutipan persis, dampak, rekomendasi.
+- Jangan menyatakan menjalankan perintah yang tidak dijalankan; tulis TIDAK TERVERIFIKASI jika tidak bisa.
 - Jangan memperbaiki temuan sendiri. Laporkan saja.
 
 ## Definisi selesai (per tugas)
-Kode berjalan lokal, lint bersih, log sesi ditulis, semua kegagalan tercatat, tidak ada secret, sesuai scope.
+Kode berjalan lokal, lint bersih, tes lolos, log sesi ditulis, semua kegagalan tercatat, tidak ada secret, sesuai scope.
 ```
 
 ---
@@ -138,7 +170,7 @@ Semua tanggal dan waktu dalam WIB. Di setiap fase, semua kegagalan dicatat sesua
 
 **Tugas (Antigravity):**
 
-- Buat repo publik, tambahkan `AGENTS.md`, struktur folder (Bagian 4), `.gitignore`, `.env.example`.
+- Buat repo di GitHub (mulai privat; jadikan publik saat submit), tambahkan `AGENTS.md`, struktur folder (Bagian 4), `.gitignore`, `.env.example`.
 - Jalankan `npx skills add challengepost/learn-ai-basics --all -y`.
 - Simpan dokumen ini ke `docs/plan/execution-plan.md`.
 
@@ -159,7 +191,7 @@ Semua tanggal dan waktu dalam WIB. Di setiap fase, semua kegagalan dicatat sesua
 
 **Tugas (Antigravity), urutan:**
 
-1. Scaffold app (stack usulan: Next.js + Tailwind, panggilan Claude API di route server, deploy Vercel).
+1. Scaffold app (Next.js + Tailwind; panggilan Gemini API di route server dengan model dari AI\_MODEL\_NAME; deploy ke server milik teman tim, Vercel gratis sebagai cadangan).
 2. Endpoint analisis: input diff/log -> output JSON `{ confession, pr_description, panic_score, panic_reasons[] }` sesuai spec.
 3. UI app: input, dua panel, Panic Score, tombol salin, state loading dan error.
 4. Contoh input bawaan (3 sampel diff berantakan) agar demo tidak bergantung ketikan live.
@@ -188,6 +220,24 @@ Semua tanggal dan waktu dalam WIB. Di setiap fase, semua kegagalan dicatat sesua
 **Gate 4 (audit akhir Codex, wajib, Senin 26 Okt sore):** checklist submit (Bagian 9.5). Tidak ada temuan P0 yang terbuka.
 
 **Submit:** Senin 26 Okt malam WIB. Sisa waktu sampai 04.00 WIB 27 Okt hanya buffer darurat.
+
+---
+
+## 6A. Aturan tambahan lintas gate (v3)
+
+Ide-ide ini terinspirasi struktur kerja repo teman tim (Teaquilla/Hakaton) dan ditulis ulang dengan kata-kata sendiri, bukan disalin.
+
+**Demo Freeze (akhir Gate 3, Sabtu malam).** Kode, sample diff, nama model, dan teks landing dibekukan; hasil uji preset dikunci. Setelahnya hanya perbaikan kritis (P0/P1 yang mengancam demo), dan setiap perubahan dicatat di `failure-log.md` dan `decisions.md`. Tidak ada perubahan produk, gaya, atau fitur.
+
+**Pemeriksaan manual oleh Zidane (Gate 2 dan 3).** Jalankan alur dari awal sampai Copy dari kondisi bersih, di komputer atau peramban lain atau ponsel, dengan 3 preset dan 1 input sendiri, lalu catat hasilnya di log sesi. Audit oleh model tidak menggantikan pemeriksaan ini.
+
+**Titik kembali (known-good).** Setelah tiap gate lolos: `git tag known-good-gateN`.
+
+**Urutan pemulihan saat ada yang rusak.** Jangan menambal acak. (1) Kembali ke tag known-good terakhir di salinan atau branch, (2) reproduksi, (3) isolasi, (4) ukur, (5) putuskan perbaikan, rollback, atau pemotongan scope (jangan biarkan biaya yang sudah terpakai menentukan), (6) verifikasi, (7) catat di `failure-log.md`.
+
+**Penyedia AI bermasalah (503 atau 429 berulang).** Keputusan mengganti model ada pada Zidane. Langkahnya: ubah `AI_MODEL_NAME`, uji ulang 3 preset x 5, catat di DEC-004 dan `claims-register.md`. Tidak ada pergantian model otomatis.
+
+**Serah-terima sesi.** `docs/STATE.md` diperbarui di akhir sesi atau saat perintah 'checkpoint'. Isinya: fase, verdict gate terakhir, tujuan berikutnya, hambatan, P0/P1 terbuka, hash commit, lokasi penting (URL repo, URL deploy, model), angka bukti uji, 'hal yang BELUM boleh dikerjakan', dan pesan serah-terima untuk sesi baru. Awal setiap sesi: perintahkan agen membaca `AGENTS.md`, `docs/STATE.md`, dan tugas aktif, karena pemuatan otomatis `AGENTS.md` tidak terjamin.
 
 ---
 
@@ -295,6 +345,46 @@ Sebelum Codex mengaudit sebuah gate, Antigravity menyusun `docs/reports/failure-
 Codex memverifikasi: (1) setiap kegagalan yang terlihat di output build, riwayat commit bertipe fix/revert/retry, dan log sesi punya entri di `failure-log.md`; (2) bukti perbaikan benar, dijalankan ulang bila memungkinkan; (3) klaim di README, landing page, dan naskah video selaras dengan register; (4) laporan gate akurat dan lengkap.
 
 Laporan gate terakhir menjadi dasar bagian **Known limitations** di README, ditulis jujur.
+
+---
+
+## 7B. Bukti AI (evaluasi ringan)
+
+Prinsip (ide dari repo teman tim, bukan salinan): kualitas AI tidak boleh diklaim tanpa bukti, dan bukti kecil pun harus jujur. Pertanyaan yang dijawab: bagaimana kita tahu bagian AI membantu, dan di mana ia gagal?
+
+### 7B.1 Dua jenis bukti
+
+- **Keandalan:** 3 sample diff x 5 percobaan berturut-turut (kriteria pemilihan model di DEC-004), dicatat di `docs/evidence/preset-runs.md`: JSON valid, lolos guardrail, latensi, model, tanggal. Hanya hasil nyata, tanpa angka perkiraan.
+- **Kualitas pagar (opsional, bila waktu cukup):** himpunan kecil yang tidak dipakai menyetel bobot Panic Score.
+
+### 7B.2 Himpunan evaluasi
+
+- 3 preset ditandai 'tuned' karena dipakai menyetel bobot, jadi tidak dihitung sebagai bukti kualitas.
+- 5-8 kasus held-out: kasus normal, hanya-diff tanpa log commit, perubahan bergaya vibe coding dengan pesan rapi, input non-Inggris, input melebihi 10.000 karakter, dan input tidak masuk akal.
+- Himpunan diberi versi dan asal-usul (ditulis sendiri), dan tidak diubah setelah melihat hasil tanpa catatan.
+
+### 7B.3 Baseline dan metrik (stretch, hanya jika core loop selesai Jumat siang)
+
+- Pembanding paling sederhana yang masuk akal: model yang sama dengan prompt polos (tanpa struktur dan guardrail) versus versi kita.
+- Metrik: nama file karangan (nama file yang tidak ada di input) per keluaran, validitas skema JSON, dan latensi.
+- Tujuan: mendukung klaim 'membatasi nama file karangan' dengan data, bukan menyatakan 'lebih akurat'. Jika tidak sempat dikerjakan, klaim itu tetap berstatus 'tidak terbukti' di `claims-register.md`.
+
+### 7B.4 Taksonomi error
+
+Subkategori untuk kategori `output-ai` di `failure-log.md`: `model_refusal`, `malformed_output`, `unsupported_claim` (nama file di luar input), `timeout`, `rate_limited`, `validation_failure`, `unknown`.
+
+### 7B.5 Pelaporan dan integritas
+
+- Laporkan: ukuran himpunan, hasil tiap metrik, mode gagal utama, dan keterbatasan. Jangan hanya angka agregat.
+- Dilarang: menghapus kasus gagal secara diam-diam, mengganti metrik setelah melihat hasil tanpa dicatat, menyebut contoh pilihan sendiri sebagai benchmark, dan mengklaim kepastian statistik dari data kecil.
+- Panic Score adalah heuristik tanpa ground truth. Yang diuji hanya konsistensinya (tes deterministik), bukan 'akurasinya'.
+
+## 7C. Referensi dan kredit
+
+- **Catat saat sebuah sumber menjadi bagian proyek, bukan saat submit.** Berkas: `docs/references.md`; ringkasannya masuk README bagian Credits.
+- Format entri: judul, jenis (model, font, pustaka, skill pack, inspirasi, aset), dipakai untuk apa, sumber atau URL, lisensi atau ketentuan, dan catatan.
+- Wajib dicatat: model AI (penyedia, ID model, peran, tanggal), font (IBM Plex; cek lisensi dan cara memuatnya), pustaka utama (Next.js, Tailwind, Zod, SDK Gemini) beserta lisensinya, skill pack Devpost (challengepost/learn-ai-basics) yang dipakai untuk perencanaan, inspirasi struktur kerja dari repo teman tim (tanpa menyalin isinya), dan sample diff (ditulis sendiri).
+- Lisensi diisi dari sumber resminya, bukan dari ingatan.
 
 ---
 
@@ -408,17 +498,30 @@ Akhiri dengan verdict: LULUS / LULUS DENGAN CATATAN / TIDAK LULUS.
 - Laporan kegagalan gate tersedia dan akurat; kegagalan terbuka tercantum di 'Known limitations' README.
 - Keluaran AI produk (Confession, PR description, Panic Score) diuji terhadap diff: PR description tidak boleh menyebut perubahan yang tidak ada di diff.
 
+**G. Bukti AI dan referensi**
+
+- Bukti uji preset (3 x 5) ada di `docs/evidence/preset-runs.md` dengan hasil nyata, model, dan tanggal; tidak ada angka perkiraan.
+- Jika himpunan held-out dibuat: tidak dipakai menyetel bobot, kasus gagal tidak dihapus diam-diam, dan metrik tidak diganti setelah melihat hasil tanpa catatan.
+- Klaim tentang kualitas AI mencerminkan ukuran data; tidak ada klaim kepastian statistik dari data kecil.
+- `docs/references.md` memuat model AI (penyedia, ID, peran), font, pustaka utama, skill pack, dan inspirasi; lisensi dicek dari sumber, bukan dari ingatan.
+
 ### 9.5 Checklist submit (Gate 4)
 
 - [ ] Tiga dokumen di `devpost/` lengkap dan konsisten
-- [ ] README berisi deskripsi, cara menjalankan, tautan app dan video, serta 'Known limitations' yang jujur
+- [ ] README berisi deskripsi, cara menjalankan, tautan app dan video, 'Known limitations' yang jujur, dan bagian Credits
+- [ ] `docs/references.md` lengkap (model AI, font, pustaka utama, skill pack, inspirasi); lisensi dicek dari sumbernya
 - [ ] App publik dapat diakses dan core loop berjalan dari kondisi bersih
-- [ ] Video 1-3 menit terunggah dan dapat diputar tanpa login
+- [ ] `docs/evidence/preset-runs.md` berisi hasil nyata 3 preset x 5 percobaan dengan model dan tanggal
+- [ ] Video 1-3 menit terunggah dan dapat diputar tanpa login, diuji dari akun lain sesuai aturan Devpost
+- [ ] Semua tautan (repo, video, app) diuji dari akun lain
+- [ ] Daftar anggota tim di form Devpost benar
+- [ ] Cek akhir terhadap aturan Devpost dilakukan dan dicatat
 - [ ] Tidak ada secret di repo dan riwayat
 - [ ] `failure-log.md`, `claims-register.md`, dan laporan kegagalan Gate 0-4 lengkap; tidak ada kegagalan P0 terbuka
 - [ ] Tidak ada klaim berstatus 'tidak terbukti' atau 'menyesatkan' di README, landing page, atau video
+- [ ] Demo Freeze dihormati: perubahan setelah freeze hanya perbaikan kritis dan tercatat; tag `known-good-gate3` ada
 - [ ] Laporan audit Gate 0-4 ada di `docs/audit/`, tanpa P0 terbuka
-- [ ] Form Devpost terisi, repo publik terlampir
+- [ ] Repo dijadikan publik dan form Devpost terisi
 - [ ] Submit dilakukan sebelum Senin 26 Okt malam WIB
 
 ### 9.6 Siklus penanganan temuan
@@ -428,6 +531,111 @@ Akhiri dengan verdict: LULUS / LULUS DENGAN CATATAN / TIDAK LULUS.
 3. Antigravity memperbaiki dan menulis log sesi yang merujuk ID temuan.
 4. Codex melakukan **re-audit terbatas** hanya pada temuan P0 dan P1.
 5. Gate dinyatakan lulus bila tidak ada P0 terbuka.
+
+### 9.7 Menjalankan auditor GPT-OSS 120B (Medium)
+
+Model ini lebih lemah dan lebih mudah melewatkan langkah atau mengarang temuan, jadi proses di sekelilingnya yang menjaga kualitas. Pelajaran dari percobaan audit Gate 1 pertama: laporan tanpa verdict, tanpa hasil per pemeriksaan, dan tanpa daftar perintah tidak dihitung sebagai gate.
+
+- Gunakan **percakapan baru dan kosong**, bukan lanjutan sesi builder. Penulisan berkas perlu persetujuan, dan hanya laporan audit yang boleh ditulis.
+- Minta **satu bagian pemeriksaan per pesan** (B, lalu C, lalu D, lalu E), bukan semuanya sekaligus.
+- **Pemindaian rahasia dijalankan Zidane sendiri**, hasilnya ditempel ke laporan:
+
+```powershell
+git ls-files | Select-String "\.env"            # hanya .env.example yang boleh muncul
+git grep -n -I -E "AIza|AQ\.|sk-|BEGIN PRIVATE KEY"   # tidak boleh ada hasil berisi key
+git log --all -S"AIza" --oneline                # harus kosong
+```
+
+- Setelah audit, `git status --short` harus hanya menunjukkan satu berkas baru di `docs/audit/`. Jika ada berkas lain berubah: pelanggaran proses, pulihkan dengan `git restore` dan catat di `failure-log.md`.
+- Periksa **3 temuan acak** terhadap berkas aslinya. Jika ada kutipan yang tidak ada di berkas, laporan tidak dipercaya dan diulang.
+- Auditor tidak boleh membuka berkas `.env*` dan tidak boleh mencetak nilai secret.
+
+### 9.8 Prompt auditor per bagian (Gate 1)
+
+Dipakai di percakapan baru dan kosong dengan GPT-OSS 120B (Medium). Kirim **satu pesan per langkah** dan tunggu jawabannya sebelum pesan berikutnya. Prompt ini menggantikan prompt Gate 1 tunggal yang panjang, karena model yang lebih lemah lebih andal pada tugas pendek.
+
+**Pesan 1: peran dan aturan**
+
+```text
+PERAN
+Kamu auditor independen untuk proyek hackathon 'Commit Confessional'. Kamu TIDAK ikut membangunnya dan tidak punya konteks sebelumnya. Tugasmu mencari masalah, bukan memuji. Tulis laporan dalam bahasa Indonesia; kutipan dari berkas tetap dalam bahasa aslinya.
+
+ATURAN MUTLAK
+1. Kamu hanya boleh membuat SATU berkas: docs/audit/gate-1-<tanggal>.md. Jangan membuat, mengubah, atau menghapus berkas lain. Jangan menjalankan git add, commit, reset, checkout, atau perintah lain yang mengubah berkas.
+2. Jangan pernah membuka, membaca, atau mencetak berkas yang namanya diawali '.env'. Jangan mencetak nilai secret. Jika menemukan sesuatu yang tampak seperti secret, laporkan hanya path dan nomor baris.
+3. Setiap temuan wajib memuat kutipan persis dari berkas, path, dan nomor baris. Tanpa kutipan, jangan laporkan.
+4. Jangan menyatakan menjalankan perintah atau memeriksa sesuatu kecuali benar-benar kamu lakukan dan bisa menempelkan keluarannya. Jika tidak bisa diverifikasi, tulis TIDAK TERVERIFIKASI beserta alasannya.
+5. Jangan mengarang masalah. 'Tidak ada temuan' adalah hasil yang sah.
+6. Kerjakan HANYA bagian yang diminta di setiap pesan, lalu berhenti dan tunggu pesan berikutnya.
+
+SEVERITY
+P0: memblokir gate (secret terbuka, dokumen wajib hilang atau belum approved, aturan hackathon dilanggar, klaim palsu di dokumen submit).
+P1: merusak kualitas (dokumen saling bertentangan, klaim tidak terbukti ditulis sebagai fakta, kegagalan tidak tercatat).
+P2: kejelasan atau konsistensi kecil.
+
+Balas hanya dengan: 'Siap. Menunggu bagian pertama.'
+```
+
+**Pesan 2: bagian A dan B (aturan dan konsistensi)**
+
+```text
+Baca: AGENTS.md, devpost/scope.md, devpost/prd.md, devpost/spec.md, docs/decisions.md.
+Kerjakan HANYA bagian A dan B, lalu berhenti.
+A1. Ketiga dokumen devpost ada dan front matter-nya 'status: approved'.
+A2. Ketiga dokumen berbahasa Inggris (laporkan teks non-Inggris yang bukan kutipan).
+B. Bandingkan antar scope.md, prd.md, spec.md dan laporkan SETIAP ketidakcocokan dengan kutipan dari kedua berkas: B1 pita severity dan rentang angkanya; B2 lima sinyal Panic Score dan poin maksimumnya; B3 batas input 10.000 karakter dan teks peringatan pemotongan; B4 label tombol; B5 daftar Explicitly Cut vs Non-Goals vs spec; B6 batas waktu (28 detik total, retry hanya jika sisa 10 detik, proxy 35 detik, dan penyebutan '30s' di tempat lain); B7 nama tiga preset; B8 nama model dan fakta tentangnya.
+Untuk tiap item tulis: LULUS / ADA TEMUAN / TIDAK TERVERIFIKASI + satu baris alasan.
+```
+
+**Pesan 3: bagian C (klaim berisiko)**
+
+```text
+Baca: devpost/scope.md, prd.md, spec.md, docs/decisions.md, docs/failures/claims-register.md.
+Kerjakan HANYA bagian C, lalu berhenti.
+C1. Cari kata-kata ini di ketiga dokumen devpost dan docs/decisions.md, laporkan setiap pemakaian dengan kutipan: eliminate, never, always, guarantee, 100%, perfect, zero, verified, validated, proven, accurate, hallucination, secure, safe. Untuk tiap pemakaian, nyatakan apakah kalimat itu didukung bukti di repo.
+C2. Untuk setiap baris di claims-register.md: cocokkan status (terverifikasi / tidak terbukti / ...) dengan cara klaim itu ditulis di dokumen. Laporkan klaim yang ditulis sebagai fakta padahal statusnya 'tidak terbukti'.
+```
+
+**Pesan 4: bagian D (rahasia), dijalankan Zidane sendiri**
+
+Zidane menjalankan tiga perintah di Bagian 9.7 dan menempelkan keluarannya:
+
+```text
+Berikut hasil pemindaian rahasia yang kujalankan sendiri. Masukkan apa adanya ke bagian D laporan, tanpa menafsirkan ulang dan tanpa mencetak nilai apa pun. Periksa juga: .gitignore mengabaikan '.env*' kecuali '.env.example', dan .env.example hanya berisi nama variabel tanpa nilai (JANGAN membuka .env.local).
+
+[tempel keluaran tiga perintah]
+```
+
+**Pesan 5: bagian E dan F (proses dan tes)**
+
+```text
+Baca: AGENTS.md, docs/failures/failure-log.md, docs/failures/raw/, docs/log/, docs/decisions.md, dan tests/ (jika ada). Gunakan 'git log --oneline' untuk riwayat commit.
+Kerjakan HANYA bagian E dan F, lalu berhenti.
+E1. Setiap kegagalan (F-xxx) punya kategori, severity, status, dan bukti perbaikan atau alasan masih terbuka.
+E2. Setiap keputusan (DEC-xxx) punya tanggal dan alasan.
+E3. Untuk tiap log sesi: apakah mencatat perintah yang dijalankan dan kegagalan? Bandingkan dengan 'git log': adakah commit yang pesannya menyebut fix, revert, atau error tetapi tidak punya entri di failure-log.md? Daftarkan.
+E4. AGENTS.md memuat aturan pencatatan kegagalan, larangan membuka .env*, dan scope lock (tanpa auth, pembayaran, database).
+F1. Jika ada tests/, jalankan 'node --test tests/' dan tempel keluarannya. Jika gagal dijalankan, laporkan galatnya persis dan JANGAN memperbaikinya. Jika tidak bisa dijalankan, tulis TIDAK TERVERIFIKASI.
+```
+
+**Pesan 6: susun laporan**
+
+```text
+Susun laporan lengkap dari semua jawaban sebelumnya ke docs/audit/gate-1-<tanggal>.md dengan format:
+# Audit Gate 1: <tanggal>
+- Commit yang diaudit: (keluaran git rev-parse --short HEAD)
+- Verdict: LULUS / LULUS DENGAN CATATAN / TIDAK LULUS (TIDAK LULUS jika ada P0 terbuka)
+## Ringkasan (3-5 kalimat)
+## Hasil per pemeriksaan (A1, A2, B1-B8, C1, C2, D, E1-E4, F1 masing-masing LULUS / ADA TEMUAN / TIDAK TERVERIFIKASI + satu baris alasan)
+## Temuan
+| ID | Severity | Lokasi (file:baris) | Kutipan persis | Dampak | Rekomendasi |
+## Perintah yang dijalankan (dengan keluarannya; tanpa secret)
+## Hal yang tidak bisa diverifikasi
+## Hal yang sudah baik
+Setelah selesai, jalankan 'git status --short' dan tempel keluarannya di akhir balasanmu. Jangan memperbaiki apa pun.
+```
+
+Untuk Gate 2 sampai 4, ganti bagian A dan B dengan area C dan D dari Bagian 9.4 (kode, keamanan, rubrik juri) memakai pola yang sama: satu bagian per pesan, kutipan wajib, dan pemindaian rahasia dijalankan sendiri.
 
 ---
 
@@ -472,6 +680,21 @@ Polish visual aplikasi agar tidak terlihat default: tentukan satu palet dan satu
 Jangan mengklaim fitur yang tidak ada. Tulis log sesi.
 ```
 
+### 10.5 Misi tambahan: berkas tata kerja (v3)
+
+```text
+Baca AGENTS.md dulu. Lakukan perubahan berikut, ditulis dengan kata-kata sendiri (jangan menyalin teks dari repo lain). Catat di docs/decisions.md bahwa ini terinspirasi struktur kerja repo teman tim (Teaquilla/Hakaton) tanpa menyalin isinya.
+
+1. AGENTS.md: samakan dengan Bagian 5 versi terbaru (Build workflow, Recovery, perintah 'checkpoint', aturan npm ci, aturan .env, kalimat awal sesi).
+2. docs/tasks/TASK_TEMPLATE.md: ID, tujuan (satu hasil yang bisa diamati), alasan (termasuk kriteria juri terkait), konteks, berkas yang dibaca dulu, persyaratan, di luar scope, batasan, invarian, kasus tepi (input rusak, timeout, kegagalan penyedia, hasil kosong), kriteria selesai yang bisa diamati dari luar, perintah verifikasi dan keluaran yang ditempel, anggaran perubahan (jika pekerjaan melebihinya secara material: berhenti dan tanya), ID kegagalan F-xxx dan klaim C-xxx terkait.
+3. docs/DEMO_READINESS.md satu halaman: URL app bisa dibuka dari jaringan lain; 3 sample diff lolos 5 kali berturut-turut dengan model yang dicatat; tidak ada satu respons model yang bisa menghancurkan demo; rencana cadangan jika API gagal dan rekaman cadangan; tidak ada secret atau .env di layar atau riwayat terminal; notifikasi mati dan layar terbaca; 30 detik pertama menampilkan tempel lalu dua panel berdampingan; durasi 1-3 menit; tautan video diuji dari akun lain; setiap klaim di narasi cocok dengan claims-register.md. Tambahkan bagian Demo Freeze dan bagian Submission (semua tautan diuji dari akun lain, daftar anggota tim benar, cek akhir terhadap aturan Devpost).
+4. docs/STATE.md satu halaman: fase, verdict gate terakhir, tujuan berikutnya, hambatan, P0/P1 terbuka, hash commit terakhir, lokasi penting (URL repo, URL deploy, model yang dipakai), angka bukti uji terbaru, 'hal yang BELUM boleh dikerjakan', dan pesan serah-terima untuk memulai sesi baru.
+5. docs/evidence/preset-runs.md: tabel kosong dengan kolom preset, percobaan (1-5), JSON valid, lolos guardrail, latensi, model, tanggal. Diisi hanya dengan hasil nyata.
+6. docs/evidence/eval-report.md: kerangka kosong (opsional) untuk himpunan held-out, baseline, metrik, mode gagal utama, dan keterbatasan, sesuai Bagian 7B.
+7. docs/references.md: kerangka dengan format entri dan entri awal yang benar-benar sudah terjadi (model AI dari DEC-004, skill pack Devpost, inspirasi struktur kerja dari repo teman tim). Lisensi font dan pustaka diisi hanya setelah dicek dari sumbernya.
+8. Setelah semuanya di-commit dan git status bersih: git tag known-good-gate1 (jangan push dulu). Tampilkan diff dan hasil perintahnya.
+```
+
 ---
 
 ## 11. Risiko dan fallback
@@ -486,6 +709,10 @@ Jangan mengklaim fitur yang tidak ada. Tulis log sesi.
 | Codex menemukan masalah besar di Gate 3-4 | Waktu mepet | Gate dijadwalkan dengan jeda; perbaiki hanya P0/P1; P2 masuk daftar "Later" |
 | Terlambat submit karena zona waktu | Gugur | Target internal Senin malam WIB; ingat 17.00 EDT = 04.00 WIB 27 Okt |
 | Klaim menyesatkan lolos ke README, landing page, atau video | Integritas turun, penilaian Presentation dan Design bisa dipertanyakan | Register klaim (Bagian 7A.4), audit area F di tiap gate, kegagalan terbuka dicantumkan di Known limitations |
+| Model utama 503 atau rate limit berulang | Alur utama gagal saat demo | Zidane memutuskan mengganti AI\_MODEL\_NAME, uji ulang 3 preset x 5 dan catat di DEC-004; tidak ada pergantian otomatis; rekaman cadangan siap |
+| Perubahan terlambat setelah Demo Freeze | Demo yang sudah teruji jadi rusak | Demo Freeze di akhir Gate 3, tag known-good-gate3, hanya perbaikan kritis yang tercatat |
+| Auditor model tidak teliti atau mengarang temuan | Gate lolos palsu | Satu bagian per pesan, pemindaian rahasia dijalankan sendiri, cek 3 temuan acak, git status setelah audit (Bagian 9.7) |
+| Server teman tidak siap saat Gate 2 | Tidak ada URL publik | Deployment checklist di spec; Vercel gratis sebagai cadangan; video direkam dari versi lokal bila perlu |
 
 ---
 
@@ -496,6 +723,6 @@ Jangan mengklaim fitur yang tidak ada. Tulis log sesi.
 | Selasa 20 Okt | Fase 0 setup; mulai Fase 1 | Gate 0 |
 | Rabu 21 Okt | Fase 1 selesai (scope, prd, spec) | Gate 1 |
 | Kamis-Jumat 22-23 Okt | Fase 2 build core loop + deploy | Gate 2 (Jumat malam) |
-| Sabtu 24 Okt | Fase 3 polish + landing + pricing | Gate 3 (Sabtu malam) |
+| Sabtu 24 Okt | Fase 3 polish + landing + pricing | Gate 3 + Demo Freeze (Sabtu malam) |
 | Minggu 25 Okt | Fase 4 video | (re-audit P0/P1 bila ada) |
 | Senin 26 Okt | Audit akhir + submit | Gate 4 (sore), submit malam |
