@@ -9,11 +9,11 @@ Dokumen satu halaman ini adalah ringkasan status terkini repositori yang wajib d
 - **Fase Aktif:** Fase 1 (Perencanaan Produk & Spesifikasi Teknis) — Menunggu Audit Gate 1
 - **Status Audit per Gate:**
   - **Gate 0:** belum ada laporan audit
-  - **Gate 1:** laporan `docs/audit/gate-1-2026-10-20.md` tidak valid (tidak mengikuti format 9.3, tanpa verdict dan hasil per pemeriksaan); audit ulang menunggu
+  - **Gate 1:** laporan docs/audit/gate-1-2026-10-22.md ada (verdict LULUS DENGAN CATATAN, kualitas pemeriksaan terbatas, lihat DEC-009)
   - **Gate 2:** belum ada laporan audit
   - **Gate 3:** belum ada laporan audit
   - **Gate 4:** belum ada laporan audit
-- **Tujuan Berikutnya:** Pelaksanaan Audit Ulang Gate 1 oleh Auditor Independen, diikuti persiapan scaffolding Fase 2 (Build Core Loop)
+- **Tujuan Berikutnya:** Persiapan scaffolding Fase 2 (Build Core Loop) pasca penyelesaian Gate 1
 - **Hambatan / Isu Aktif:** Model `gemini-3.8-flash` mengalami lonjakan trafik di sisi server Google (HTTP 503); kredensial dan alur komunikasi `x-goog-api-key` terbukti berfungsi via `gemini-3.5-flash` (HTTP 200)
 - **Temuan P0 / P1 Terbuka:** **0** (Insiden keamanan F-005 P1 telah selesai diverifikasi dan ditutup)
 - **Hash Commit Terakhir:** `e1fb119` (docs: update commit hash in STATE.md and session log)
@@ -49,4 +49,4 @@ Dokumen satu halaman ini adalah ringkasan status terkini repositori yang wajib d
 ---
 
 ## 5. Pesan Serah-Terima (Handover Message)
-> Seluruh perencanaan Fase 1 telah tuntas dengan tiga dokumen inti (`devpost/scope.md`, `devpost/prd.md`, dan `devpost/spec.md`) berstatus `approved`. Laporan audit lama gate-1-2026-10-20.md dinyatakan tidak valid dan audit ulang resmi sedang menunggu. Repositori siap diaudit ulang oleh Auditor Independen pada Gate 1 sebelum pembangunan core loop Fase 2 dimulai.
+> Seluruh perencanaan Fase 1 telah tuntas dengan tiga dokumen inti (`devpost/scope.md`, `devpost/prd.md`, dan `devpost/spec.md`) berstatus `approved`. Audit Gate 1 telah diselesaikan dengan laporan `docs/audit/gate-1-2026-10-22.md` (verdict LULUS DENGAN CATATAN, kualitas pemeriksaan terbatas, lihat DEC-009). Repositori siap melanjutkan ke persiapan scaffolding Fase 2 (Build Core Loop).

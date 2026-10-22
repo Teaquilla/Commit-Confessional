@@ -105,6 +105,20 @@ Dokumen ini mencatat setiap keputusan arsitektural, teknis, atau penyesuaian sco
 - **Rasional:** Menjaga transparansi, mencegah klaim verdict palsu tanpa laporan yang valid, dan mematuhi batasan publikasi hackathon.
 - **Status:** Disetujui (Zidane).
 
+---
+
+## DEC-009 | 2026-10-22 | Sinkronisasi Batas Waktu PRD ke 28 Detik dan Evaluasi Keterbatasan Laporan Audit Gate 1
+- **Keputusan:**
+  1. **Sinkronisasi Batas Waktu PRD:** Memperbarui frasa "Timeout (30s)" pada bagian API Failure di `devpost/prd.md` menjadi "Timeout (28s total deadline)". Ini merupakan perbaikan konsistensi semata agar selaras dengan batas total 28 detik yang telah didefinisikan di `devpost/spec.md` (bagian 3.2.1), dan sama sekali tidak mengubah definisi maupun perilaku produk. Status dokumen `devpost/prd.md` tetap **approved**.
+  2. **Penerimaan & Evaluasi Keterbatasan Laporan Audit Gate 1 (2026-10-22):** Kedua laporan audit (`docs/audit/gate-1-2026-10-20.md` dan `docs/audit/gate-1-2026-10-22.md`) dimasukkan ke repositori apa adanya. Berdasarkan evaluasi, laporan `docs/audit/gate-1-2026-10-22.md` yang memberikan verdict "LULUS DENGAN CATATAN" memiliki sejumlah keterbatasan:
+     - **Bagian D:** Dinyatakan lulus tanpa melampirkan bukti pemindaian teks/rahasia (*secret scan output*).
+     - **Pemeriksaan F1:** Mengalami salah tafsir, di mana perintah `node --test tests/` gagal karena sintaks argumen Node.js test runner terhadap folder tanpa wildcard/berkas spesifik, bukan karena tes unit tidak ada (tes unit deterministik `tests/panic-score.test.ts` ada dan lulus saat dijalankan secara spesifik).
+     - **Tiga Temuan P1 Salah Kalibrasi:** Temuan C-002, C-003, dan C-005 dikategorikan P1 padahal ketiga klaim tersebut memang berstatus wajar `tidak terbukti` pada Fase 1 karena ditargetkan untuk diverifikasi pada fase deployment/Gate 3 (bukan cacat pemblokir Gate 1).
+     - **Commit Basis Audit:** Commit yang diaudit oleh auditor adalah `e1fb119`, yaitu kondisi repositori sebelum perbaikan berkas tata kerja dan sinkronisasi batas waktu dilakukan.
+- **Rasional:** Menjaga transparansi teknis, memelihara jejak historis audit secara utuh, dan mendokumentasikan konteks objektif di balik temuan audit tanpa mengubah integritas berkas laporan asli auditor.
+- **Status:** Disetujui (Zidane).
+
+
 
 
 

@@ -163,7 +163,7 @@ Source: `scope.md > Output Specifications & Guardrails`.
 - **Success State:** Panels render smoothly. Panic Score animates count-up from 0. Copy buttons active.
 - **Input Truncation State (>10,000 chars):** Warning banner placed above results: *"Your input was longer than 10,000 characters. Only the first 10,000 were used."*
 - **Nonsensical / Empty Input Error:** Friendly notice: *"That doesn't look like commits or code changes. Paste a git diff or commit messages and try again."*
-- **API Failure / Timeout (30s) / Malformed JSON State:** Notice: *"Something went wrong and no report was filed. Please try again."* with a *"Try again"* button that retries using the exact same preserved input. (No unverified cause stated).
+- **API Failure / Timeout (28s total deadline) / Malformed JSON State:** Notice: *"Something went wrong and no report was filed. Please try again."* with a *"Try again"* button that retries using the exact same preserved input. (No unverified cause stated).
 - **Session Persistence:** Zero server persistence. Input is preserved locally in memory while the user stays on the page.
 
 ---
