@@ -215,29 +215,76 @@ export async function generateReport(
 
       clearTimeout(timeoutId);
 
-      // Handle retryable status codes: HTTP 503 (high demand) and HTTP 429 (rate limit)
-      if (response.status === 503 || response.status === 429) {
-        const currentRemaining = deadlineMs - (Date.now() - startTime);
-
-        // Only retry if this is the first attempt and remaining time is at least 10s
-        if (attempt === 0 && currentRemaining >= 10000) {
-          // Log strictly error code, NEVER input content or secret key
-          console.warn(`[AI_RETRY] ${response.status}`);
-          attempt++;
-          // Wait 1.5 seconds before retrying
-          await new Promise((resolve) => setTimeout(resolve, 1500));
-          continue;
-        }
-
-        // Cannot retry: out of time or retry exhausted
-        if (response.status === 429) {
-          throw new Error("AI_GENERATION_FAILED: Rate limit exceeded (HTTP 429)");
-        }
-        throw new Error("AI_GENERATION_FAILED: Service unavailable (HTTP 503)");
-      }
-
+      // Handle non-OK HTTP responses
       if (!response.ok) {
-        throw new Error(`AI_GENERATION_FAILED: HTTP ${response.status}`);
+        let errorStatus: string | undefined;
+        let retryDelay: string | undefined;
+
+        try {
+          const respForJson = typeof response.clone === "function" ? response.clone() : response;
+          const errJson = await respForJson.json();
+          if (errJson && typeof errJson === "object" && "error" in errJson) {
+            const errObj = (errJson as Record<string, unknown>).error;
+            if (errObj && typeof errObj === "object") {
+              const castErr = errObj as Record<string, unknown>;
+              if (typeof castErr.status === "string") {
+                errorStatus = castErr.status;
+              }
+              if (Array.isArray(castErr.details)) {
+                for (const d of castErr.details) {
+                  if (d && typeof d === "object" && typeof (d as Record<string, unknown>).retryDelay === "string") {
+                    retryDelay = (d as Record<string, unknown>).retryDelay as string;
+                  }
+                }
+              }
+            }
+          }
+        } catch {
+          // Body not JSON or not parseable
+        }
+
+        const logParts = [`status: ${response.status}`];
+        if (errorStatus) logParts.push(`error.status: ${errorStatus}`);
+        if (retryDelay) logParts.push(`retryDelay: ${retryDelay}`);
+        console.warn(`[AI_HTTP_ERROR] ${logParts.join(", ")}`);
+
+        // Handle retryable status codes: HTTP 503 (high demand) and HTTP 429 (rate limit)
+        if (response.status === 503 || response.status === 429) {
+          const currentRemaining = deadlineMs - (Date.now() - startTime);
+
+          // Only retry if this is the first attempt and remaining time is at least 10s
+          if (attempt === 0 && currentRemaining >= 10000) {
+            console.warn(
+              `[AI_RETRY] ${response.status}${errorStatus ? ` (${errorStatus})` : ""}${
+                retryDelay ? ` retryDelay=${retryDelay}` : ""
+              }`
+            );
+            attempt++;
+            // Wait 1.5 seconds before retrying
+            await new Promise((resolve) => setTimeout(resolve, 1500));
+            continue;
+          }
+
+          // Cannot retry: out of time or retry exhausted
+          if (response.status === 429) {
+            throw new Error(
+              `AI_GENERATION_FAILED: Rate limit exceeded (HTTP 429${
+                errorStatus ? `, ${errorStatus}` : ""
+              }${retryDelay ? `, retryDelay: ${retryDelay}` : ""})`
+            );
+          }
+          throw new Error(
+            `AI_GENERATION_FAILED: Service unavailable (HTTP 503${
+              errorStatus ? `, ${errorStatus}` : ""
+            })`
+          );
+        }
+
+        throw new Error(
+          `AI_GENERATION_FAILED: HTTP ${response.status}${
+            errorStatus ? ` (${errorStatus})` : ""
+          }`
+        );
       }
 
       const data = await response.json();

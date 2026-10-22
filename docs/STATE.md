@@ -43,7 +43,7 @@ Dokumen satu halaman ini adalah ringkasan status terkini repositori yang wajib d
 
 ## 3. Bukti Pengujian Terbaru
 - **Uji Unit Lengkap (Scoring, Guardrail, AI Engine, Confess Handler, Samples):**
-  - 58 tes lulus pada 22 Okt 2026, lihat keluaran (`npm test` $\rightarrow$ **58 pass, 0 fail**).
+  - 59 tes lulus pada 22 Okt 2026, lihat keluaran (`npm test` $\rightarrow$ **59 pass, 0 fail**).
   - Next.js build sukses (`next build` $\rightarrow$ exit code 0, route dynamic `/api/confess`).
 - **Uji Transmisi API Eksploratori (`scripts/live-check.mjs` & `scripts/model-probe.mjs`):**
   - Model `gemini-3.5-flash` berhasil memproses sampel `late-night-hotfix` (HTTP 200, 9363ms) dengan verifikasi gaya suara deadpan baru via `--show-text`.
@@ -58,9 +58,10 @@ Dokumen satu halaman ini adalah ringkasan status terkini repositori yang wajib d
 2. **DILARANG** menambahkan sistem autentikasi pengguna, basis data persisten multi-tenant, pembayaran, atau webhook GitHub App.
 3. **DILARANG** merancang logika perpindahan model otomatis (*no automatic fallback*). Model strictly dibaca dari `AI_MODEL_NAME`.
 4. **DILARANG** membuka, mencetak, atau menyalin isi berkas `.env*` ke layar atau dokumen.
+5. **DILARANG** menjalankan panggilan live ke Gemini API sampai diizinkan secara eksplisit oleh pemilik (Zidane).
 
 ---
 
 ## 5. Pesan Serah-Terima (Handover Message)
-> DEC-017 (penetapan `gemini-3.5-flash`) dan DEC-018 (revisi suara deadpan Incident Report & penerusan sinyal fakta) telah dicatat. Rekonsiliasi tabel probe dan pencatatan 72 status panggilan mentah telah disimpan di `docs/evidence/model-probe-2026-10-22.md` (F-021). Opsi `--spacing-ms` telah ditambahkan ke skrip pendukung. Eksekusi `live-check.mjs --show-text` berhasil mengekstrak teks keluaran insiden gaya baru pada sampel `late-night-hotfix` (HTTP 200). Seluruh 58 tes unit lulus. Siap untuk tahap berikutnya (T-007a).
+> Output teks sampel late-night-hotfix (Incident Report 5 baris & PR Description) telah ditempel utuh dari berkas mentah. Ketiadaan rincian body 429 pada F-022 dijelaskan secara faktual. Penanganan galat HTTP telah disanitasi di `src/lib/ai/index.ts` dan `scripts/live-check.mjs` (DEC-019), diverifikasi dengan tes unit baru (total 59 tes lulus tanpa panggilan jaringan). Audit total panggilan live hari ini (91 panggilan) telah dihitung. Seluruh operasi live Gemini dihentikan menunggu izin Zidane.
 

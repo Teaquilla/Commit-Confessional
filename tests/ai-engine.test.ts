@@ -263,4 +263,70 @@ describe("AI Engine (generateReport)", () => {
       assert.equal(msg.includes(sensitiveKey), false, "Error message must not leak API key");
     }
   });
+
+  it("logs only status, error.status, and retryDelay without leaking input or keys on provider HTTP error", async () => {
+    const sensitiveInput = "SECRET_PAYLOAD_TOKEN_NEVER_LOG_987654";
+    const sensitiveKey = "AIzaSy_SUPER_SECRET_KEY_123456";
+
+    const loggedWarnings: string[] = [];
+    const origWarn = console.warn;
+    console.warn = (...args: unknown[]) => {
+      loggedWarnings.push(args.map(String).join(" "));
+      origWarn(...args);
+    };
+
+    try {
+      const fakeFetch: typeof fetch = async () => {
+        return {
+          ok: false,
+          status: 429,
+          clone() {
+            return this;
+          },
+          json: async () => ({
+            error: {
+              code: 429,
+              message: "Quota exceeded for project",
+              status: "RESOURCE_EXHAUSTED",
+              details: [
+                {
+                  "@type": "type.googleapis.com/google.rpc.RetryInfo",
+                  retryDelay: "30s",
+                },
+              ],
+            },
+          }),
+        } as unknown as Response;
+      };
+
+      await assert.rejects(
+        async () => {
+          await generateReport(sensitiveInput, undefined, {
+            fetchFn: fakeFetch,
+            apiKey: sensitiveKey,
+            deadlineMs: 5000, // < 10s so retry is skipped
+          });
+        },
+        (err: Error) => {
+          assert.ok(err.message.includes("AI_GENERATION_FAILED"));
+          assert.ok(err.message.includes("429"));
+          assert.ok(err.message.includes("RESOURCE_EXHAUSTED"));
+          assert.ok(err.message.includes("30s"));
+          assert.equal(err.message.includes(sensitiveInput), false, "Error message must not leak input");
+          assert.equal(err.message.includes(sensitiveKey), false, "Error message must not leak API key");
+          return true;
+        }
+      );
+
+      const allWarns = loggedWarnings.join("\n");
+      assert.ok(allWarns.includes("[AI_HTTP_ERROR]"));
+      assert.ok(allWarns.includes("status: 429"));
+      assert.ok(allWarns.includes("error.status: RESOURCE_EXHAUSTED"));
+      assert.ok(allWarns.includes("retryDelay: 30s"));
+      assert.equal(allWarns.includes(sensitiveInput), false, "Console warnings must not leak input");
+      assert.equal(allWarns.includes(sensitiveKey), false, "Console warnings must not leak API key");
+    } finally {
+      console.warn = origWarn;
+    }
+  });
 });

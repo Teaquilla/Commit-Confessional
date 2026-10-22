@@ -256,3 +256,15 @@ Dokumen ini mencatat setiap keputusan arsitektural, teknis, atau penyesuaian sco
 - **Rasional:** Menyelaraskan kepribadian laporan insiden dengan spesifikasi deadpan tanpa kehilangan ketepatan teknis dan tanpa melanggar guardrail nama berkas.
 - **Status:** Disetujui (Zidane).
 
+---
+
+## DEC-019 | 2026-10-22 | Logging Galat HTTP Provider yang Disanitasi (status, error.status, retryDelay)
+- **Keputusan:**
+  1. Memperbarui penanganan galat non-OK di `src/lib/ai/index.ts` agar mengekstrak metadata galat dari JSON penyedia (`error.status` dan `retryDelay` dari `error.details`) dan mencetak ke konsol HANYA format ringkas: `[AI_HTTP_ERROR] status: <HTTP_CODE>, error.status: <STATUS>, retryDelay: <DELAY>`.
+  2. Memastikan seluruh pencatatan galat dan pesan galat sama sekali tidak memuat isi input pengguna maupun kunci API rahasia.
+  3. Memperbarui `scripts/live-check.mjs` agar mencetak kode galat dan status HTTP secara aman.
+  4. Menambahkan tes unit di `tests/ai-engine.test.ts` untuk memverifikasi secara deterministik bahwa konsol dan objek galat tidak membocorkan input atau kredensial saat terjadi error HTTP 429/500/503.
+  5. Kebijakan retry bounded (maksimal 2 percobaan, threshold sisa waktu >= 10s, delay 1.5s) tetap dipertahankan tanpa perubahan.
+- **Rasional:** Memastikan bukti telemetri kuota dan laju permintaan dari penyedia API terekam secara transparan untuk kebutuhan audit tanpa mengorbankan privasi data dan keamanan kredensial.
+- **Status:** Disetujui (Zidane).
+

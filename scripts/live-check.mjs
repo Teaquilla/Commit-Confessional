@@ -97,12 +97,13 @@ for (let i = 0; i < samples.length; i++) {
     } else {
       console.log(`Schema Valid: false`);
       console.log(`Error Code: ${res.data?.error?.code || "UNKNOWN"}`);
+      console.log(`HTTP Status: ${res.status}`);
     }
   } catch (err) {
     const latencyMs = Math.round(performance.now() - t0);
     console.log(`Status: 500 (Exception)`);
     console.log(`Latency: ${latencyMs} ms`);
-    console.log(`Exception: ${err instanceof Error ? err.name : String(err)}`);
+    console.log(`Exception: ${err instanceof Error ? err.name : "Error"}`);
   }
   console.log("");
   if (i < samples.length - 1 && spacingMs > 0) {
