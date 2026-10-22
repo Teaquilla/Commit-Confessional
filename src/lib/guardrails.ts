@@ -72,6 +72,10 @@ const EXCLUDED_CODE_TOKENS = new Set([
   "console.info",
   "console.debug",
   "console.trace",
+  "res.json",
+  "req.json",
+  "response.json",
+  "request.json",
   "e.g.",
   "i.e.",
 ]);
@@ -92,6 +96,34 @@ function cleanToken(token: string): string {
   // Strip leading opening parens/brackets
   cleaned = cleaned.replace(/^[\(\"'\<\[]+/g, "");
   return cleaned.trim();
+}
+
+/**
+ * Detects if a token represents a function call (contains '()' or followed directly by '(').
+ */
+function isFunctionCall(rawToken: string, textAfter: string = ""): boolean {
+  if (rawToken.includes("()")) return true;
+  if (/\b\w+\s*\(/.test(rawToken)) return true;
+  if (textAfter.trimStart().startsWith("(")) return true;
+  return false;
+}
+
+/**
+ * Checks if a token satisfies the file characteristics rule:
+ * Contains path separator '/' OR ends with a registered file extension.
+ */
+function hasFileCharacteristics(token: string): boolean {
+  if (token.includes("/") && !token.startsWith("//")) {
+    return true;
+  }
+  const lastDot = token.lastIndexOf(".");
+  if (lastDot > 0 && lastDot < token.length - 1) {
+    const ext = token.slice(lastDot + 1).toLowerCase();
+    if (FILE_EXTENSIONS.has(ext)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 /**
@@ -125,11 +157,23 @@ export function extractCandidateFileTokens(text: string): string[] {
   let btMatch: RegExpExecArray | null;
   while ((btMatch = backtickRegex.exec(text)) !== null) {
     const raw = btMatch[1];
+    const textAfter = text.slice(btMatch.index + btMatch[0].length);
+
+    // Rule: tokens containing '()' or followed directly by '(' are function calls, not files
+    if (isFunctionCall(raw, textAfter)) {
+      continue;
+    }
+
     const cleaned = cleanToken(raw);
     if (!cleaned || isExcludedToken(cleaned)) {
       continue;
     }
-    // Any non-excluded token inside backticks is considered a candidate
+
+    // Refined rule: backtick token is considered a file only if it contains '/' or has a registered extension
+    if (!hasFileCharacteristics(cleaned)) {
+      continue;
+    }
+
     if (!seen.has(cleaned.toLowerCase())) {
       seen.add(cleaned.toLowerCase());
       candidates.push(cleaned);
@@ -142,28 +186,17 @@ export function extractCandidateFileTokens(text: string): string[] {
   const words = maskedText.split(/\s+/);
 
   for (let i = 0; i < words.length; i++) {
-    const word = cleanToken(words[i]);
+    const rawWord = words[i];
+    if (isFunctionCall(rawWord)) {
+      continue;
+    }
+
+    const word = cleanToken(rawWord);
     if (!word || isExcludedToken(word)) {
       continue;
     }
 
-    let isCandidate = false;
-
-    // Rule (b): Path format (contains '/')
-    if (word.includes("/") && !word.startsWith("//")) {
-      isCandidate = true;
-    } else {
-      // Rule (c): Registered file extension
-      const lastDot = word.lastIndexOf(".");
-      if (lastDot > 0 && lastDot < word.length - 1) {
-        const ext = word.slice(lastDot + 1).toLowerCase();
-        if (FILE_EXTENSIONS.has(ext)) {
-          isCandidate = true;
-        }
-      }
-    }
-
-    if (isCandidate) {
+    if (hasFileCharacteristics(word)) {
       const lower = word.toLowerCase();
       if (!seen.has(lower)) {
         seen.add(lower);

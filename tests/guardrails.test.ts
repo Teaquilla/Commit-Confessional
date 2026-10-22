@@ -97,12 +97,31 @@ describe("checkFileNames", () => {
 
   it("rejects tokens in backticks that do not exist in the input", () => {
     const aiTexts = [
-      "Extracted logic into `mystery_module` without specifying an extension.",
+      "Extracted logic into `ghost_module.ts` without specifying in diff.",
     ];
 
     const result = checkFileNames(aiTexts, sampleDiff);
     assert.equal(result.ok, false);
-    assert.equal(result.invalid.includes("mystery_module"), true);
+    assert.equal(result.invalid.includes("ghost_module.ts"), true);
+  });
+
+  it("applies refined backtick rules: ignores non-file tokens and function calls, detects paths and registered extensions", () => {
+    const aiTexts = [
+      "Called `calculatePanicScore` and helper `parse()`.",
+      "Used `mystery_module` internally.",
+      "Returned data via `res.json`.",
+      "Updated `config.json` and altered `src/config`.",
+    ];
+
+    const result = checkFileNames(aiTexts, sampleDiff);
+    assert.equal(result.ok, false);
+    assert.equal(result.invalid.includes("config.json"), true);
+    assert.equal(result.invalid.includes("src/config"), true);
+    assert.equal(result.invalid.includes("mystery_module"), false);
+    assert.equal(result.invalid.includes("calculatePanicScore"), false);
+    assert.equal(result.invalid.includes("res.json"), false);
+    assert.equal(result.invalid.includes("parse()"), false);
+    assert.equal(result.invalid.includes("parse"), false);
   });
 
   it("handles input that is commit-log-only without diffs", () => {

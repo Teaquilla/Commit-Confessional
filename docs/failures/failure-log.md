@@ -181,3 +181,33 @@ Dokumen ini mencatat setiap kegagalan, error perintah, kegagalan panggilan API, 
 - **Bukti perbaikan:** Eksekusi `git add docs/` secara terpisah sukses dengan exit code 0.
 - **Dampak ke klaim:** Tidak ada klaim publik yang terpengaruh.
 
+---
+
+## F-011 | 2026-10-22 14:07 WIB | Fase 2
+- **Kategori:** kode
+- **Severity:** P2
+- **Gejala:** 2 tes baru gagal pada `node --test tests/panic-score.test.ts`: baris konteks diff Python (4 spasi) dan Go (tab) terserap ke dalam commit message `currentCommit.message` (`fix def process_request():` bukannya `fix`, dan `wip func main() {` bukannya `wip`).
+- **Perintah / konteks:** `node --test tests/panic-score.test.ts`
+- **Log mentah:** `docs/failures/raw/2026-10-22-F-011.txt`
+- **Dugaan penyebab:** Kondisi pengecekan pesan terindentasi `/^(\s{4}|\t)/` tetap aktif mengevaluasi baris-baris konteks diff setelah penanda diff (`diff --git` atau `@@`) muncul karena tidak ada flag penutup penerimaan pesan commit hingga header commit baru.
+- **Tindakan:** Menambahkan flag boolean (misal `diffStarted = true`) saat menemui `diff ` atau `@@`, sehingga setelah baris diff/hunk dimulai, pesan commit tidak boleh bertambah lagi sampai header `commit ` berikutnya ditemukan.
+- **Status:** diperbaiki
+- **Bukti perbaikan:** Modul `src/lib/panic-score.ts` diperbarui dengan flag `inDiffSection`. Eksekusi `node --test tests/panic-score.test.ts` menghasilkan 23 pass, 0 fail (exit code 0).
+- **Dampak ke klaim:** Tidak ada klaim publik yang terpengaruh.
+
+---
+
+## F-012 | 2026-10-22 14:14 WIB | Fase 2
+- **Kategori:** konfigurasi
+- **Severity:** P2
+- **Gejala:** `node --test tests/guardrails.test.ts tests/panic-score.test.ts` gagal dengan exit code 1 (`SyntaxError: Cannot use import statement outside a module`).
+- **Perintah / konteks:** `node --test tests/guardrails.test.ts tests/panic-score.test.ts`
+- **Log mentah:** `docs/failures/raw/2026-10-22-F-012.txt`
+- **Dugaan penyebab:** Inisialisasi awal `npm init -y` menyetel `"type": "commonjs"` di `package.json`, sehingga test runner Node.js memperlakukan berkas pengujian `.ts` berbasis ESM sebagai CommonJS.
+- **Tindakan:** Mengubah `"type": "commonjs"` menjadi `"type": "module"` di `package.json`.
+- **Status:** diperbaiki
+- **Bukti perbaikan:** `package.json` diperbarui dengan `"type": "module"`. Eksekusi `node --test tests/guardrails.test.ts tests/panic-score.test.ts` sukses menghasilkan 35 pass, 0 fail (exit code 0).
+- **Dampak ke klaim:** Tidak ada klaim publik yang terpengaruh.
+
+
+

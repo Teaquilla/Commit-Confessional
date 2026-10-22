@@ -144,9 +144,37 @@ Dokumen ini mencatat setiap keputusan arsitektural, teknis, atau penyesuaian sco
 - **Rasional:** Menegaskan kesiapan resmi memasuki Fase 2 (Build Core Loop) dengan parameter verifikasi klaim yang telah dikalibrasi secara tepat sesuai fase pengerjaan.
 - **Status:** Disetujui (Zidane).
 
+---
 
+## DEC-011 | 2026-10-22 | Penyempurnaan Spesifikasi Aturan Ekstraksi Token Backtick pada Guardrail Nama File
+- **Keputusan:**
+  1. Token di dalam backtick (`...`) hanya dianggap sebagai kandidat nama file jika memuat karakter pemisah path `/` ATAU berakhiran salah satu dari 30 ekstensi terdaftar (`ts, tsx, js, jsx, mjs, cjs, py, json, md, css, scss, html, yml, yaml, toml, sh, java, kt, go, rs, c, cpp, h, hpp, php, rb, sql, vue, svelte, txt`).
+  2. Pengecualian pemanggilan fungsi: token yang diikuti langsung oleh `(` atau memuat `()` (contoh: `parse()`) adalah pemanggilan fungsi kode, bukan nama berkas.
+  3. Pengecualian tetap metode/properti: `res.json`, `req.json`, `response.json`, dan `request.json` secara permanen dikecualikan dari deteksi nama file.
+  4. Perubahan ini disepakati sebagai perubahan spesifikasi heuristik guardrail untuk meminimalkan *false positive* terhadap nama variabel/fungsi/modul abstrak, dan bukan kegagalan sistem.
+- **Rasional:** Menjaga keandalan guardrail nama file agar tidak salah menandai fungsi atau istilah teknis sah sebagai nama file fiktif, tanpa mengurangi kemampuan menangkap berkas fiktif nyata.
+- **Status:** Disetujui (Zidane).
 
+---
 
-
-
+## DEC-012 | 2026-10-22 | Inisialisasi Kerangka Kerja Next.js App Router, Tailwind CSS, Zod, dan Pembentukan Lockfile
+- **Keputusan:**
+  1. Menginisialisasi kerangka aplikasi web Next.js (App Router, TypeScript, Tailwind CSS) langsung di repositori tanpa menimpa direktori yang sudah ada (`docs/`, `devpost/`, `tests/`, `src/lib/`, `AGENTS.md`, `scripts/`).
+  2. Ini adalah satu-satunya momen eksekusi `npm install` diperbolehkan untuk membentuk `package-lock.json` awal; seluruh instalasi dependensi setelah ini strictly menggunakan `npm ci`.
+  3. Versi dependensi yang terpasang dan terkunci dalam lockfile:
+     - `next`: `16.4.2`
+     - `react`: `19.3.1`
+     - `react-dom`: `19.3.1`
+     - `zod`: `4.6.7`
+     - `tailwindcss`: `4.3.3`
+     - `@tailwindcss/postcss`: `4.3.3`
+     - `typescript`: `7.0.2`
+     - `@types/node`: `26.6.5`
+     - `@types/react`: `19.3.0`
+     - `@types/react-dom`: `19.3.0`
+     - `postcss`: `8.5.31`
+     - `autoprefixer`: `10.6.1`
+  4. Menyetel `"type": "module"` di `package.json` dan mengaktifkan `"allowImportingTsExtensions": true` pada `tsconfig.json` sehingga test runner Node.js native (`node --test`) dapat menjalankan berkas `.ts` secara langsung bersamaan dengan build Next.js.
+- **Rasional:** Memenuhi arsitektur tumpukan teknologi Fase 2 (T-003) untuk mendukung runtime server RSC, Route Handler `/api/confess`, validasi Zod, dan styling Tailwind tanpa merusak eksekusi suite tes deterministik yang telah ada.
+- **Status:** Disetujui (Zidane).
 

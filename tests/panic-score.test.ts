@@ -148,6 +148,56 @@ describe("parseInput", () => {
     assert.equal(parsed.commits[1].files.includes("src/auth.ts"), true);
     assert.equal(parsed.commits[2].files.includes("src/auth.ts"), true);
   });
+
+  it("does not leak indented python context lines into commit message in git show", () => {
+    const gitShowPython = [
+      "commit 4278f79e1fb11938eff754278f79e1fb11938ef",
+      "Author: Developer <dev@example.com>",
+      "Date:   Thu Oct 22 10:00:00 2026 +0700",
+      "",
+      "    fix",
+      "",
+      "diff --git a/app.py b/app.py",
+      "--- a/app.py",
+      "+++ b/app.py",
+      "@@ -10,4 +10,4 @@",
+      "     def process_request():",
+      "-        return False",
+      "+        return True",
+    ].join("\n");
+
+    const parsed = parseInput(gitShowPython);
+    assert.equal(parsed.commits.length, 1);
+    assert.equal(parsed.commits[0].message, "fix");
+
+    const scoreResult = calculatePanicScore(gitShowPython);
+    assert.equal(scoreResult.signals.rushedCommits.points, 30);
+  });
+
+  it("does not leak tab-indented context lines into commit message in git log -p", () => {
+    const gitLogPTab = [
+      "commit 1111111111111111111111111111111111111111",
+      "Author: Dev <dev@example.com>",
+      "Date:   Thu Oct 22 10:00:00 2026 +0700",
+      "",
+      "    wip",
+      "",
+      "diff --git a/main.go b/main.go",
+      "--- a/main.go",
+      "+++ b/main.go",
+      "@@ -1,3 +1,3 @@",
+      "\tfunc main() {",
+      "-\t\tprintln(1)",
+      "+\t\tprintln(2)",
+    ].join("\n");
+
+    const parsed = parseInput(gitLogPTab);
+    assert.equal(parsed.commits.length, 1);
+    assert.equal(parsed.commits[0].message, "wip");
+
+    const scoreResult = calculatePanicScore(gitLogPTab);
+    assert.equal(scoreResult.signals.rushedCommits.points, 30);
+  });
 });
 
 describe("calculatePanicScore", () => {

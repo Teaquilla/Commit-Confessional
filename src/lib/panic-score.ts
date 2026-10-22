@@ -95,6 +95,7 @@ export function parseInput(input: string): ParsedInput {
 
   let currentCommit: ParsedCommit | null = null;
   let inIndentedMessage = false;
+  let inDiffSection = false;
 
   const defaultCommitHeaderRegex = /^commit\s+([a-f0-9]{7,40})/i;
   const onelineCommitRegex = /^([a-f0-9]{7,40})\s+(.+)$/;
@@ -122,6 +123,7 @@ export function parseInput(input: string): ParsedInput {
         files: [],
       };
       inIndentedMessage = false;
+      inDiffSection = false;
       continue;
     }
 
@@ -141,33 +143,37 @@ export function parseInput(input: string): ParsedInput {
     // Parsing inside a full commit block
     if (currentCommit) {
       // Check author/date lines or blank separator
-      if (/^(Author|Date|Merge|AuthorDate|Commit|CommitDate):/i.test(line)) {
+      if (!inDiffSection && /^(Author|Date|Merge|AuthorDate|Commit|CommitDate):/i.test(line)) {
         inIndentedMessage = false;
         continue;
       }
 
-      if (line.trim() === "") {
-        inIndentedMessage = true;
-        continue;
-      }
-
-      // If we encounter diff markers or diff lines, stop treating as commit message
+      // If we encounter diff markers, diff lines, or stat lines, stop treating as commit message
       if (
         line.startsWith("diff ") ||
         line.startsWith("---") ||
         line.startsWith("+++") ||
         line.startsWith("@@") ||
         line.startsWith("+") ||
-        line.startsWith("-")
+        line.startsWith("-") ||
+        statLineRegex.test(line)
       ) {
+        inDiffSection = true;
         inIndentedMessage = false;
-      } else if (inIndentedMessage || /^(\s{4}|\t)/.test(line)) {
-        if (!line.startsWith("commit ") && !line.startsWith("diff ")) {
-          const msgLine = line.trim();
-          if (msgLine) {
-            currentCommit.message = currentCommit.message ? `${currentCommit.message} ${msgLine}` : msgLine;
-          }
+      } else if (!inDiffSection) {
+        if (line.trim() === "") {
+          inIndentedMessage = true;
           continue;
+        }
+
+        if (inIndentedMessage || /^(\s{4}|\t)/.test(line)) {
+          if (!line.startsWith("commit ") && !line.startsWith("diff ")) {
+            const msgLine = line.trim();
+            if (msgLine) {
+              currentCommit.message = currentCommit.message ? `${currentCommit.message} ${msgLine}` : msgLine;
+            }
+            continue;
+          }
         }
       }
     }
