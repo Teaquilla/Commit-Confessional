@@ -95,6 +95,17 @@ Dokumen ini mencatat setiap keputusan arsitektural, teknis, atau penyesuaian sco
 - **Rasional & Asal Usul:** Terinspirasi dari kerangka kerja repositori rekan tim (`Teaquilla/Hakaton`) guna meningkatkan disiplin eksekusi, kesiapan demo, dan integritas pengujian tanpa menyalin isi berkasnya secara mentah (ditulis ulang dengan kata-kata sendiri sesuai konteks Commit Confessional).
 - **Status:** Disetujui (Zidane).
 
+---
+
+## DEC-008 | 2026-10-22 | Status Audit Gate 1, Siklus Tag Git, dan Repositori Remote
+- **Keputusan:**
+  1. **Status Laporan Audit Gate 1:** Berkas laporan audit lama `docs/audit/gate-1-2026-10-20.md` ditandai **tidak valid** karena tidak mengikuti format standar Bagian 9.3 (tanpa verdict resmi dan tanpa rincian hasil per pemeriksaan). Berkas tersebut **tidak dihapus** dari riwayat untuk menjaga integritas jejak audit (*auditability*), dan akan digantikan oleh audit ulang resmi oleh Auditor Independen.
+  2. **Tag Git `known-good-gate1`:** Tag `known-good-gate1` dibuat sementara sebagai penanda checkpoint sebelum pelaksanaan audit Gate 1, dan akan dibuat ulang (*re-tagged*) secara resmi setelah Gate 1 dinyatakan **LULUS** oleh Auditor Independen.
+  3. **Konfigurasi Repositori Remote:** Repositori remote resmi beralamat di `https://github.com/Teaquilla/Commit-Confessional` dengan status saat ini **privat**, dan baru akan diubah menjadi publik pada fase submit akhir sesuai aturan Devpost.
+- **Rasional:** Menjaga transparansi, mencegah klaim verdict palsu tanpa laporan yang valid, dan mematuhi batasan publikasi hackathon.
+- **Status:** Disetujui (Zidane).
+
+
 
 
 

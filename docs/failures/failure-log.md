@@ -99,6 +99,21 @@ Dokumen ini mencatat setiap kegagalan, error perintah, kegagalan panggilan API, 
   - Belum ada bukti respons HTTP 200 dari `gemini-3.8-flash`.
 - **Dampak ke klaim:** Klaim kemampuan teks `gemini-3.8-flash` dicatat sebagai `tidak terbukti` di `claims-register.md` (C-005) hingga diperoleh respons HTTP 200.
 
+---
+
+## F-007 | 2026-10-22 09:36 WIB | Fase 1
+- **Kategori:** proses
+- **Severity:** P2
+- **Gejala:** CommandNotFoundException pada shell Windows PowerShell (`The term 'grep' is not recognized as the name of a cmdlet, function, script file, or operable program`).
+- **Perintah / konteks:** `grep -n "v3" docs/plan/execution-plan.md`
+- **Log mentah:** `docs/failures/raw/2026-10-22-F-007.txt`
+- **Dugaan penyebab:** Utilitas Unix `grep` tidak terdaftar secara mandiri di PATH PowerShell sistem Windows lokal.
+- **Tindakan:** Menggunakan utilitas yang tersedia di lingkungan Windows, yaitu `Select-String` (PowerShell) atau `git grep`.
+- **Status:** diperbaiki
+- **Bukti perbaikan:** Eksekusi `git grep -n "v3" docs/plan/execution-plan.md` atau `Select-String -Pattern "v3" -Path docs/plan/execution-plan.md` berjalan sukses dengan exit code 0.
+- **Dampak ke klaim:** Tidak ada klaim publik yang terpengaruh.
+
+
 
 
 

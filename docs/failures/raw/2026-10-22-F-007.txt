@@ -1,0 +1,10 @@
+Perintah:
+grep -n "v3" docs/plan/execution-plan.md
+
+Keluaran:
+grep : The term 'grep' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:1
++ grep -n "v3" docs/plan/execution-plan.md
++ ~~~~
+    + CategoryInfo          : ObjectNotFound: (grep:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
