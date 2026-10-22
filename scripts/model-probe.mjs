@@ -6,7 +6,11 @@ import { SYSTEM_PROMPT, formatUserPrompt } from "../src/lib/ai/index.ts";
 import { lateNightHotfix } from "../src/samples/late-night-hotfix.ts";
 import { worksOnMachine } from "../src/samples/works-on-machine.ts";
 
-const rawArg = process.argv[2];
+const spacingArg = process.argv.find((arg) => arg.startsWith("--spacing-ms="));
+const spacingMs = spacingArg ? parseInt(spacingArg.split("=")[1], 10) : 8000;
+
+const modelArgs = process.argv.slice(2).filter((arg) => !arg.startsWith("--"));
+const rawArg = modelArgs[0];
 const models = rawArg
   ? rawArg.split(",").map((s) => s.trim()).filter(Boolean)
   : [
@@ -67,9 +71,10 @@ async function runProbeSet(model, testType, makeBody, count = 6) {
     const body = makeBody();
     const res = await callModel(model, body);
     results.push(res);
-    process.stdout.write(`.`);
-    // 1 second delay between calls
-    await new Promise((r) => setTimeout(r, 1000));
+    process.stdout.write(` [${i + 1}:${res.status || res.error}(${res.latency}ms)]`);
+    if (i < count - 1 && spacingMs > 0) {
+      await new Promise((r) => setTimeout(r, spacingMs));
+    }
   }
   return results;
 }
@@ -165,6 +170,11 @@ for (const model of models) {
 
   allSummaries.push({
     model,
+    rawCalls: [
+      { jenis: "minimal", calls: minResults },
+      { jenis: "late-night-hotfix", calls: hotfixResults },
+      { jenis: "works-on-machine", calls: womResults },
+    ],
     rows: [
       { jenis: "minimal", ...sMin },
       { jenis: "late-night-hotfix", ...sHotfix },
@@ -194,5 +204,16 @@ for (const s of allSummaries) {
         r.max
       )} |`
     );
+  }
+}
+
+console.log("\n### STATUS HTTP TIAP PANGGILAN MENTAH:\n");
+for (const s of allSummaries) {
+  console.log(`Model: ${s.model}`);
+  for (const rc of s.rawCalls) {
+    const callDetails = rc.calls
+      .map((c, idx) => `#${idx + 1}:${c.status || c.error}(${c.latency}ms)`)
+      .join(", ");
+    console.log(`  - ${rc.jenis}: [${callDetails}]`);
   }
 }

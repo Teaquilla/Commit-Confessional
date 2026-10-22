@@ -320,3 +320,31 @@ Dokumen ini mencatat setiap kegagalan, error perintah, kegagalan panggilan API, 
 - **Status:** dimitigasi
 - **Bukti perbaikan:** Sampel `rebase-conflict` berhasil (HTTP 200) dan teks AI berhasil diekstraksi dan diverifikasi sesuai skema.
 - **Dampak ke klaim:** Tidak ada klaim publik yang terpengaruh.
+
+---
+
+## F-021 | 2026-10-22 18:30 WIB | Fase 2
+- **Kategori:** data / pelaporan
+- **Severity:** P2
+- **Gejala:** Ketidakkonsistenan penulisan rincian per-baris pada tabel pesan balasan sebelumnya untuk gemini-2.5-flash (tertulis 429 pada dua jenis sampel sementara totalnya 0) serta dokumen `docs/evidence/model-probe-2026-10-22.md` awal belum menyertakan log status HTTP granular per panggilan mentah (72 panggilan).
+- **Perintah / konteks:** Evaluasi hasil `docs/evidence/model-probe-2026-10-22.md` dan tabel balasan asisten.
+- **Log mentah:** `docs/failures/raw/2026-10-22-F-021.txt`
+- **Dugaan penyebab:** Agregasi in-memory skrip probe mengelompokkan hasil ke `summarizeResults` tanpa mencetak rincian status HTTP panggilan per panggilan ke dokumen bukti, dan terjadi kesalahan transkripsi nilai baris per jenis pada teks balasan.
+- **Tindakan:** Menambahkan pencatatan status HTTP granular per panggilan mentah, menghitung ulang semua TOTAL dengan catatan rekonsiliasi di bawah tabel tanpa menghapus data historis, serta menambahkan opsi `--spacing-ms` (bawaan 8000ms) pada skrip probe dan live-check.
+- **Status:** diperbaiki
+- **Bukti perbaikan:** Status HTTP per panggilan mentah (72 status) dicatat di `docs/evidence/model-probe-2026-10-22.md` dengan rekonsiliasi tabel total yang tervalidasi.
+- **Dampak ke klaim:** Tidak ada klaim publik yang terpengaruh; transparansi audit diperketat.
+
+---
+
+## F-022 | 2026-10-22 18:34 WIB | Fase 2
+- **Kategori:** api
+- **Severity:** P2
+- **Gejala:** Panggilan API Gemini untuk sampel `rebase-conflict` dan `works-on-machine` pada live-check putaran 3 (dengan `--spacing-ms=8000`) menghasilkan galat HTTP 429 ganda (kuota laju permintaan/RPM terlampaui) sehingga route handler mengembalikan HTTP 502 `AI_GENERATION_FAILED`.
+- **Perintah / konteks:** `node --env-file=.env.local scripts/live-check.mjs --show-text --spacing-ms=8000`
+- **Log mentah:** `docs/failures/raw/2026-10-22-F-022.txt`
+- **Dugaan penyebab:** Jeda antar-sampel 8 detik belum cukup untuk mereset kuota limit RPM/TPM pada akun pengujian Google Gemini setelah sampel pertama (`late-night-hotfix`) berhasil tereksekusi. Jeda retry 1,5 detik di dalam aplikasi masih berada dalam jendela exhaustion rate limit yang sama.
+- **Tindakan:** Mengisolasi kegagalan secara aman (tidak ada kebocoran secret), mengekstrak teks keluaran AI untuk sampel yang berhasil (`late-night-hotfix`), dan mencatat data empiris di log dan DEC-018.
+- **Status:** dimitigasi
+- **Bukti perbaikan:** Teks keluaran AI sampel `late-night-hotfix` tervalidasi memenuhi gaya suara deadpan baru; rincian galat 429 dicatat tanpa regresi pada penanganan kesalahan.
+- **Dampak ke klaim:** Pengujian final 3x5 (T-007b) memerlukan pengaturan jeda waktu yang memadai untuk menghindari batas laju 429.

@@ -17,11 +17,16 @@ const samples = [
 ];
 
 const showText = process.argv.includes("--show-text");
+const spacingArg = process.argv.find((arg) => arg.startsWith("--spacing-ms="));
+const spacingMs = spacingArg ? parseInt(spacingArg.split("=")[1], 10) : 8000;
+
 const modelName = process.env.AI_MODEL_NAME || "gemini-3.8-flash";
 console.log(`=== LIVE CHECK (EKSPLORATORI, BUKAN BUKTI 3X5) ===`);
-console.log(`Target Model: ${modelName}\n`);
+console.log(`Target Model: ${modelName}`);
+console.log(`Spacing: ${spacingMs} ms between samples\n`);
 
-for (const sample of samples) {
+for (let i = 0; i < samples.length; i++) {
+  const sample = samples[i];
   console.log(`--- Sample: ${sample.name} ---`);
   const t0 = performance.now();
   try {
@@ -100,4 +105,7 @@ for (const sample of samples) {
     console.log(`Exception: ${err instanceof Error ? err.name : String(err)}`);
   }
   console.log("");
+  if (i < samples.length - 1 && spacingMs > 0) {
+    await new Promise((r) => setTimeout(r, spacingMs));
+  }
 }

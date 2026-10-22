@@ -27,16 +27,16 @@ Dokumen satu halaman ini adalah ringkasan status terkini repositori yang wajib d
   6. **T-005:** Antarmuka pengguna dedicated core loop screen `/app` (input, preset chips, loading, ScoreBar, popover, dual panel, copy buttons)
   7. **T-007b:** Verifikasi preset runs 3x5 + pencatatan evaluasi di `docs/evidence/preset-runs.md` (syarat Gate 2)
   8. **T-006:** Halaman landing `/` (Hero, HowItWorks, PricingCards) — dijadwalkan Sabtu, bukan syarat Gate 2
-- **Hambatan / Isu Aktif:** Probe ketersediaan model (`scripts/model-probe.mjs`, 72 panggilan berurutan) telah dijalankan untuk 4 kandidat model dan dicatat di `docs/evidence/model-probe-2026-10-22.md`. Menunggu keputusan pemilik untuk pemilihan model resmi Fase 2 sebelum melangkah ke T-007a.
+- **Hambatan / Isu Aktif:** Pembatasan laju kuota permintaan API (HTTP 429) terjadi jika eksekusi sampel beruntun dilakukan tanpa jeda waktu memadai (F-022); diantisipasi dengan penambahan `--spacing-ms` dan penjadwalan run yang terukur pada uji coba Gate 2 (T-007b).
 - **Temuan P0 / P1 Terbuka:** **0** (Temuan P1 auditor pada Gate 1 dikalibrasi ulang sebagai status wajar klaim terbuka sesuai DEC-010)
-- **Hash Commit Terakhir:** `312459c` (feat: probe model availability, calibrate live check, and update panic presets)
+- **Hash Commit Terakhir:** `56cb92a` (docs: update HEAD commit hash in STATE.md)
 
 ---
 
 ## 2. Lokasi Penting & Konfigurasi
 - **Repositori Git:** `d:\yayaya` (Remote: `https://github.com/Teaquilla/Commit-Confessional`, status: privat)
 - **Target URL Deploy:** Self-hosted Linux server dengan HTTPS reverse proxy (Fallback: Vercel Free Plan)
-- **Model AI Aktif:** Dikonfigurasi dinamis via `AI_MODEL_NAME` (Kandidat diprobe: `gemini-3.5-flash`, `gemini-3.8-flash`, `gemini-3.5-flash-lite`, `gemini-2.5-flash`; menunggu keputusan pemilihan)
+- **Model AI Aktif:** `gemini-3.5-flash` (Ditetapkan Zidane via DEC-017, dibaca dari `AI_MODEL_NAME`)
 - **Kredensial:** `.env.local` terisolasi dari Git (aturan ignore aktif di `.gitignore`)
 
 ---
@@ -46,8 +46,8 @@ Dokumen satu halaman ini adalah ringkasan status terkini repositori yang wajib d
   - 58 tes lulus pada 22 Okt 2026, lihat keluaran (`npm test` $\rightarrow$ **58 pass, 0 fail**).
   - Next.js build sukses (`next build` $\rightarrow$ exit code 0, route dynamic `/api/confess`).
 - **Uji Transmisi API Eksploratori (`scripts/live-check.mjs` & `scripts/model-probe.mjs`):**
-  - Model `gemini-3.5-flash` berhasil memproses sampel `rebase-conflict` (HTTP 200) dengan verifikasi string output AI via `--show-text`.
-  - Probe model 72 panggilan berurutan tanpa retry selesai dan disajikan ke pemilik proyek.
+  - Model `gemini-3.5-flash` berhasil memproses sampel `late-night-hotfix` (HTTP 200, 9363ms) dengan verifikasi gaya suara deadpan baru via `--show-text`.
+  - Rekonsiliasi perhitungan tabel probe dan pencatatan status HTTP mentah 72 panggilan lengkap di `docs/evidence/model-probe-2026-10-22.md`.
 - **Audit Jejak Kunci Lama & Pemindaian Rahasia:**
   - `git grep` & `git log` $\rightarrow$ **0 kecocokan secret**. Pemindaian mekanis pemilik bersih. Seluruh berkas dokumentasi telah disamarkan (`[key-prefix]`).
 
@@ -58,10 +58,9 @@ Dokumen satu halaman ini adalah ringkasan status terkini repositori yang wajib d
 2. **DILARANG** menambahkan sistem autentikasi pengguna, basis data persisten multi-tenant, pembayaran, atau webhook GitHub App.
 3. **DILARANG** merancang logika perpindahan model otomatis (*no automatic fallback*). Model strictly dibaca dari `AI_MODEL_NAME`.
 4. **DILARANG** membuka, mencetak, atau menyalin isi berkas `.env*` ke layar atau dokumen.
-5. **DILARANG** memilih model sendiri tanpa keputusan eksplisit pemilik proyek.
 
 ---
 
 ## 5. Pesan Serah-Terima (Handover Message)
-> Probe ketersediaan model (Bagian A) selesai dieksekusi untuk 4 kandidat dan tersimpan di `docs/evidence/model-probe-2026-10-22.md`. Laporan live-check dan DEC-015 telah dikalibrasi secara faktual (Bagian B) dan teks keluaran AI berhasil diekstrak via `--show-text`. Preset sampel `rebase-conflict.ts` dan `works-on-machine.ts` telah ditulis ulang agar mewakili sesi panik otentik (6 commit, DEC-016) dan seluruh 58 tes unit tetap lulus (Bagian C & D). Menunggu keputusan pemilik proyek untuk model AI sebelum implementasi T-007a.
+> DEC-017 (penetapan `gemini-3.5-flash`) dan DEC-018 (revisi suara deadpan Incident Report & penerusan sinyal fakta) telah dicatat. Rekonsiliasi tabel probe dan pencatatan 72 status panggilan mentah telah disimpan di `docs/evidence/model-probe-2026-10-22.md` (F-021). Opsi `--spacing-ms` telah ditambahkan ke skrip pendukung. Eksekusi `live-check.mjs --show-text` berhasil mengekstrak teks keluaran insiden gaya baru pada sampel `late-night-hotfix` (HTTP 200). Seluruh 58 tes unit lulus. Siap untuk tahap berikutnya (T-007a).
 

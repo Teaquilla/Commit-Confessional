@@ -222,3 +222,37 @@ Dokumen ini mencatat setiap keputusan arsitektural, teknis, atau penyesuaian sco
 - **Rasional:** Memberikan variasi multi-commit yang representatif terhadap sesi panik nyata (memungkinkan deteksi sinyal penelusuran berulang pada berkas yang sama dan shouting), tanpa melebihi batas panjang yang wajar untuk demo.
 - **Status:** Disetujui (Zidane).
 
+---
+
+## DEC-017 | 2026-10-22 | Pemilihan AI_MODEL_NAME = gemini-3.5-flash untuk Fase 2
+- **Keputusan:**
+  1. Zidane (pemilik proyek) menetapkan konfigurasi model AI aktif: `AI_MODEL_NAME = gemini-3.5-flash`.
+  2. Dasar pemilihan: Hasil live-check eksploratori (3 dari 6 panggilan berakhir 503, panggilan sukses menghasilkan latensi 8,5–11,9 detik dengan keluaran terstruktur valid) dan data probe ketersediaan model.
+  3. Keterbatasan yang dicatat:
+     - Probe dilakukan beruntun dengan jeda 1 detik sehingga respon 429 pada panggilan ke-7 dan seterusnya kemungkinan besar dipicu oleh batas laju (*rate limiting* / RPM) akun free tier (dugaan, belum terbukti secara definitif).
+     - Model alternatif `gemini-3.5-flash-lite` berhasil 18 dari 18 panggilan probe, tetapi memiliki median latensi 9,8 detik dan belum memiliki bukti evaluasi kualitas tekstual keluarannya.
+     - Kriteria reliabilitas 5 dari 5 sukses per preset pada uji coba Gate 2 tetap berlaku tanpa kompromi.
+- **Rasional:** Memilih model dengan jalur inferensi yang telah terbukti menghasilkan struktur dan kualitas respon yang memadai di pengujian langsung, sambil mengantisipasi batas laju melalui jeda antar-panggilan yang lebih longgar.
+- **Status:** Disetujui (Zidane).
+
+---
+
+## DEC-018 | 2026-10-22 | Penyesuaian Suara Incident Report di Prompt Sistem dan Penerusan Sinyal Fakta
+- **Keputusan:**
+  1. Merevisi instruksi bagian Incident Report pada `SYSTEM_PROMPT` di `src/lib/ai/index.ts` agar menghasilkan suara insiden yang *understated*, kering, dan pasif:
+     - Kalimat pendek dan pernyataan sengaja diperkecil.
+     - Menyebut fakta konkret dari input atau dari sinyal deterministik apa adanya (misal jumlah commit, berkas disentuh berulang, sisa debug).
+     - Tanpa tanda seru, tanpa emoji, dan tanpa lelucon/humor eksplisit.
+     - Lessons learned wajib satu kalimat kering.
+     - Root cause tetap 'Under investigation' bila tidak tampak jelas dari input.
+     - Tidak menyalahkan pembuat perubahan kecuali didukung bukti di input (seperti pesan commit berulang/malas).
+  2. Meneruskan fakta sinyal (evidence) deterministik ke dalam `formatUserPrompt` agar dapat dikutip oleh model sebagai fakta teramati.
+  3. Mengubah dua contoh format laporan insiden pada `SYSTEM_PROMPT` ke gaya suara baru tanpa mencantumkan nama berkas apa pun.
+  4. Menambahkan opsi `--spacing-ms=<n>` (bawaan 8000ms) pada `scripts/live-check.mjs` dan `scripts/model-probe.mjs`.
+  5. Hasil eksekusi `node --env-file=.env.local scripts/live-check.mjs --show-text --spacing-ms=8000`:
+     - Sampel `late-night-hotfix` berhasil (HTTP 200, latensi 9363 ms, guardrail lolos). Teks laporan insiden mengutip jumlah commit ("across 2 consecutive commits"), tanpa lelucon, dan menggunakan kalimat pendek pasif.
+     - Sampel `rebase-conflict` dan `works-on-machine` berakhir HTTP 502 akibat pembatasan kuota laju permintaan HTTP 429 beruntun (F-022).
+     - Tidak ada klaim 'lebih baik' atau 'meningkat'; yang tercatat adalah fakta tekstual dan status jaringan yang teramati secara empiris.
+- **Rasional:** Menyelaraskan kepribadian laporan insiden dengan spesifikasi deadpan tanpa kehilangan ketepatan teknis dan tanpa melanggar guardrail nama berkas.
+- **Status:** Disetujui (Zidane).
+

@@ -1,0 +1,9 @@
+[DISCREPANCY_AND_RAW_DATA_GAP]
+File: docs/evidence/model-probe-2026-10-22.md
+Issue:
+1. In the assistant's previous message table, gemini-2.5-flash rows for late-night-hotfix and works-on-machine listed '429: 6' while the TOTAL row listed '429: 0, Lainnya: 18', creating an internal contradiction in the reply table.
+2. The initial scripts/model-probe.mjs summarized calls in-memory without printing or saving the granular per-call HTTP status and latency (all 72 calls) into docs/evidence/model-probe-2026-10-22.md.
+Action:
+- Add --spacing-ms option (default 8000ms).
+- Add raw per-call HTTP status and latency logging.
+- Retain previous table and add recalculation and explicit per-call raw status in docs/evidence/model-probe-2026-10-22.md.

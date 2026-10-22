@@ -1,0 +1,53 @@
+=== LIVE CHECK (EKSPLORATORI, BUKAN BUKTI 3X5) ===
+Target Model: gemini-3.5-flash
+Spacing: 8000 ms between samples
+
+--- Sample: late-night-hotfix ---
+Status: 200
+Latency: 9363 ms
+Schema Valid: true
+Guardrail Passed: true
+Final Score: 41 (Base: 33, Adj: 8)
+Severity: MODERATE
+String Lengths vs Limits:
+  aiAdjustmentReason: 93 / 240
+  whatHappened:       98 / 300
+  cause:              91 / 300
+  fix:                89 / 300
+  lessonsLearned:     70 / 300
+  prSummary:          118 / 400
+  whatChanged:        [79, 54, 48] / max 200 each (count: 3/4)
+  howToCheck:         [72, 70] / max 200 each (count: 2/2)
+
+--- [AI Output Text] ---
+Incident Report (5 lines):
+  Severity: MODERATE
+  What happened: Order processing in src/payments/checkout.ts failed during execution across 2 consecutive commits.
+  Cause: Order payloads lacked validation for customer and billing address objects before execution.
+  Fix: Added a validation check for customer billing details and disabled a debug log statement.
+  Lessons learned: Input payloads were not validated prior to payment gateway invocation.
+PR Description:
+  Summary: Adds validation for customer billing address in src/payments/checkout.ts to prevent unhandled order processing errors.
+  What changed:
+    - Added validation check for customer billing address in src/payments/checkout.ts
+    - Added early failure return for missing billing details
+    - Disabled debug log statement in checkout handler
+  How to check:
+    - Submit order payload without billing address and verify graceful failure
+    - Verify payment gateway charge proceeds when billing address is present
+
+--- Sample: rebase-conflict ---
+[AI_RETRY] 429
+[API_ERROR] AI_GENERATION_FAILED attempts=2
+Status: 502
+Latency: 2219 ms
+Schema Valid: false
+Error Code: AI_GENERATION_FAILED
+
+--- Sample: works-on-machine ---
+[AI_RETRY] 429
+[API_ERROR] AI_GENERATION_FAILED attempts=2
+Status: 502
+Latency: 2511 ms
+Schema Valid: false
+Error Code: AI_GENERATION_FAILED

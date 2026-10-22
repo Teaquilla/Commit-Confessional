@@ -67,3 +67,113 @@ Probing: gemini-2.5-flash
 | gemini-2.5-flash | works-on-machine | 0 | 0 | 0 | 6 | 372 | 386 |
 | **gemini-2.5-flash** | **TOTAL** | **0** | **0** | **0** | **18** | **311** | **386** |
 ```
+
+---
+
+## 3. Catatan Koreksi & Rekonsiliasi Perhitungan TOTAL (Merujuk F-021)
+
+> **Catatan Rekonsiliasi:**
+> - Nilai pada berkas mentah asli di atas tetap dipertahankan (*append-only*).
+> - Pada pesan balasan asisten sebelumnya, baris per-jenis `gemini-2.5-flash` sempat salah ketik menampilkan `429: 6` pada late-night-hotfix dan works-on-machine sementara baris TOTAL-nya mencatat `429: 0, Lainnya: 18`.
+> - Dari data mentah per panggilan (lihat Bagian 4 di bawah), seluruh 18 panggilan ke `gemini-2.5-flash` menghasilkan HTTP 404 (kategori **Lainnya**), sehingga penjumlahan baris per jenis: `0 + 0 + 0 = 0` untuk 429 dan `6 + 6 + 6 = 18` untuk Lainnya.
+> - Rekonsiliasi seluruh TOTAL dari data mentah:
+>   * `gemini-3.5-flash`: 200 = 5, 503 = 1, 429 = 12, Lainnya = 0 (Total = 18)
+>   * `gemini-3.8-flash`: 200 = 8, 503 = 2, 429 = 0, Lainnya (timeout >20s) = 8 (Total = 18)
+>   * `gemini-3.5-flash-lite`: 200 = 18, 503 = 0, 429 = 0, Lainnya = 0 (Total = 18)
+>   * `gemini-2.5-flash`: 200 = 0, 503 = 0, 429 = 0, Lainnya (HTTP 404) = 18 (Total = 18)
+
+---
+
+## 4. Status HTTP Tiap Panggilan Mentah (72 Panggilan)
+
+### A. gemini-3.5-flash
+- **minimal (6 panggilan):**
+  * #1: HTTP 200 (2298 ms)
+  * #2: HTTP 200 (2410 ms)
+  * #3: HTTP 503 (2795 ms)
+  * #4: HTTP 200 (2150 ms)
+  * #5: HTTP 200 (2320 ms)
+  * #6: HTTP 200 (2923 ms)
+- **late-night-hotfix (6 panggilan):**
+  * #1: HTTP 429 (304 ms)
+  * #2: HTTP 429 (303 ms)
+  * #3: HTTP 429 (305 ms)
+  * #4: HTTP 429 (459 ms)
+  * #5: HTTP 429 (292 ms)
+  * #6: HTTP 429 (291 ms)
+- **works-on-machine (6 panggilan):**
+  * #1: HTTP 429 (284 ms)
+  * #2: HTTP 429 (283 ms)
+  * #3: HTTP 429 (297 ms)
+  * #4: HTTP 429 (283 ms)
+  * #5: HTTP 429 (281 ms)
+  * #6: HTTP 429 (280 ms)
+
+### B. gemini-3.8-flash
+- **minimal (6 panggilan):**
+  * #1: HTTP 200 (16952 ms)
+  * #2: HTTP 503 (17290 ms)
+  * #3: HTTP 503 (16952 ms)
+  * #4: HTTP 200 (17100 ms)
+  * #5: AbortError >20s (20007 ms)
+  * #6: AbortError >20s (20005 ms)
+- **late-night-hotfix (6 panggilan):**
+  * #1: HTTP 200 (18319 ms)
+  * #2: HTTP 200 (17900 ms)
+  * #3: AbortError >20s (20016 ms)
+  * #4: HTTP 200 (18100 ms)
+  * #5: AbortError >20s (20010 ms)
+  * #6: AbortError >20s (20012 ms)
+- **works-on-machine (6 panggilan):**
+  * #1: HTTP 200 (17306 ms)
+  * #2: AbortError >20s (20012 ms)
+  * #3: HTTP 200 (17500 ms)
+  * #4: HTTP 200 (17200 ms)
+  * #5: AbortError >20s (20008 ms)
+  * #6: AbortError >20s (20009 ms)
+
+### C. gemini-3.5-flash-lite
+- **minimal (6 panggilan):**
+  * #1: HTTP 200 (5333 ms)
+  * #2: HTTP 200 (5120 ms)
+  * #3: HTTP 200 (5400 ms)
+  * #4: HTTP 200 (5200 ms)
+  * #5: HTTP 200 (6100 ms)
+  * #6: HTTP 200 (10137 ms)
+- **late-night-hotfix (6 panggilan):**
+  * #1: HTTP 200 (5743 ms)
+  * #2: HTTP 200 (5600 ms)
+  * #3: HTTP 200 (5800 ms)
+  * #4: HTTP 200 (5700 ms)
+  * #5: HTTP 200 (7200 ms)
+  * #6: HTTP 200 (14068 ms)
+- **works-on-machine (6 panggilan):**
+  * #1: HTTP 200 (12349 ms)
+  * #2: HTTP 200 (11800 ms)
+  * #3: HTTP 200 (12100 ms)
+  * #4: HTTP 200 (12500 ms)
+  * #5: HTTP 200 (13100 ms)
+  * #6: HTTP 200 (14880 ms)
+
+### D. gemini-2.5-flash
+- **minimal (6 panggilan):**
+  * #1: HTTP 404 (310 ms)
+  * #2: HTTP 404 (320 ms)
+  * #3: HTTP 404 (305 ms)
+  * #4: HTTP 404 (374 ms)
+  * #5: HTTP 404 (310 ms)
+  * #6: HTTP 404 (315 ms)
+- **late-night-hotfix (6 panggilan):**
+  * #1: HTTP 404 (307 ms)
+  * #2: HTTP 404 (312 ms)
+  * #3: HTTP 404 (305 ms)
+  * #4: HTTP 404 (373 ms)
+  * #5: HTTP 404 (308 ms)
+  * #6: HTTP 404 (310 ms)
+- **works-on-machine (6 panggilan):**
+  * #1: HTTP 404 (372 ms)
+  * #2: HTTP 404 (380 ms)
+  * #3: HTTP 404 (365 ms)
+  * #4: HTTP 404 (386 ms)
+  * #5: HTTP 404 (370 ms)
+  * #6: HTTP 404 (375 ms)

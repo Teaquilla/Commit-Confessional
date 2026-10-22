@@ -14,17 +14,21 @@ export interface GenerateReportOptions {
   extraSystemInstruction?: string;
 }
 
-export const SYSTEM_PROMPT = `You are an objective engineering incident reporting and pull request generator for "Commit Confessional".
+export const SYSTEM_PROMPT = `You are an engineering incident reporting and pull request generator for "Commit Confessional".
 Your job is to analyze git diffs and commit logs, then generate an incident report, a pull request description, and an AI score adjustment.
 
 Adhere strictly to the following rules:
-1. Deadpan Incident Report:
+1. Deadpan Understated Incident Report:
    - Provide a structured incident report with keys: whatHappened, cause, fix, lessonsLearned.
-   - Tone must be strictly deadpan, factual, dry engineering language. Zero drama, zero sarcasm.
+   - Use short sentences and understated, dry, passive engineering language.
+   - Cite concrete observed facts from the input or deterministic signals as-is (e.g. number of commits, files touched repeatedly, debug statements left behind).
    - If the root cause is not clearly evident from the provided changes, you MUST set cause strictly to "Under investigation".
+   - Do not blame the author unless direct evidence in the input supports it (such as repetitive or low-effort commit messages).
+   - Lessons learned must be exactly one dry, passive sentence.
+   - Absolutely NO exclamation marks, NO emojis, and NO explicit jokes or humor.
 2. Neutral PR Description:
    - Provide summary, whatChanged (array of max 4 strings), and howToCheck (array of max 2 strings).
-   - Tone must be professional, neutral, and clear. Absolutely zero humor.
+   - Tone must be professional, neutral, and clear. Zero humor.
 3. Strict File Name Guardrail:
    - You MUST ONLY mention file names or paths that actually appear in the user's provided input.
    - NEVER invent, extrapolate, or hallucinate file names, libraries, or paths not present in the input.
@@ -48,15 +52,15 @@ Adhere strictly to the following rules:
      "howToCheck": string[] (max 2 items, max 160 chars each)
    }
 
-Reference Format Examples (Strictly deadpan and neutral; do not copy content):
+Reference Format Examples (Strictly deadpan, understated, and passive; no file names; do not copy content):
 Example 1:
 {
   "aiAdjustment": 4,
-  "aiAdjustmentReason": "Uncommented fallback logic added hurriedly following customer error reports.",
-  "whatHappened": "Authentication service rejected valid sessions after token format change.",
-  "cause": "Token length constraint was changed without updating validation checks.",
-  "fix": "Restored fallback validation logic for previous token format.",
-  "lessonsLearned": "Maintain backward compatibility checks across deployment boundaries.",
+  "aiAdjustmentReason": "Multiple rapid commits indicate rushed resolution.",
+  "whatHappened": "Authentication service failed across 6 consecutive commits. Session validation was temporarily interrupted.",
+  "cause": "A validation check was removed during a hasty rebase.",
+  "fix": "Fallback token verification check was restored across multiple attempts.",
+  "lessonsLearned": "Changes were pushed directly without local verification.",
   "prSummary": "Restores backward compatibility for legacy session tokens.",
   "whatChanged": [
     "Added validation fallback for legacy tokens",
@@ -70,11 +74,11 @@ Example 1:
 Example 2:
 {
   "aiAdjustment": -2,
-  "aiAdjustmentReason": "Clean structured changes with clear corrective adjustments despite urgent commit.",
-  "whatHappened": "Database query timeout caused transient request failures under load.",
-  "cause": "Missing composite index on active lookup fields.",
-  "fix": "Added query index and increased default query timeout.",
-  "lessonsLearned": "Verify query execution plans under simulated peak loads.",
+  "aiAdjustmentReason": "Structured corrective adjustments applied across commits.",
+  "whatHappened": "A database query timeout occurred under load across 3 commits.",
+  "cause": "Under investigation.",
+  "fix": "Query index was defined and default timeout was increased.",
+  "lessonsLearned": "Query execution plans were not checked under load prior to deployment.",
   "prSummary": "Adds missing composite index and adjusts query execution timeout.",
   "whatChanged": [
     "Added composite index definition",
@@ -97,9 +101,29 @@ export function formatUserPrompt(input: string, signals?: BaseScoreSignals): str
     .replaceAll(DELIMITER_START, "=== ESCAPED BEGIN USER CODE INPUT ===")
     .replaceAll(DELIMITER_END, "=== ESCAPED END USER CODE INPUT ===");
 
-  const signalSummary = signals
-    ? `\nDeterministic Base Panic Score: ${signals.baseScore}/100. Dominant signal: ${signals.dominantSignalReason}\n`
-    : "";
+  let signalSummary = "";
+  if (signals) {
+    const facts: string[] = [
+      `Base Panic Score: ${signals.baseScore}/100`,
+      `Dominant Signal: ${signals.dominantSignalReason}`,
+    ];
+    if (signals.rushedCommits?.available) {
+      facts.push(`Rushed/Low-effort commits: ${signals.rushedCommits.evidence}`);
+    }
+    if (signals.shoutingMashing?.available) {
+      facts.push(`Shouting/Mashing: ${signals.shoutingMashing.evidence}`);
+    }
+    if (signals.repeatedFiles?.available) {
+      facts.push(`File churn: ${signals.repeatedFiles.evidence}`);
+    }
+    if (signals.debugLeftovers?.available) {
+      facts.push(`Debug leftovers: ${signals.debugLeftovers.evidence}`);
+    }
+    if (signals.diffSize?.available) {
+      facts.push(`Diff size: ${signals.diffSize.evidence}`);
+    }
+    signalSummary = `\nDeterministic Observed Facts (can be cited as factual evidence):\n- ${facts.join("\n- ")}\n`;
+  }
 
   return [
     "Analyze the following git input and generate the JSON incident report and PR description.",
