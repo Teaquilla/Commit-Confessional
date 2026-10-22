@@ -340,4 +340,131 @@ describe("calculatePanicScore", () => {
     assert.ok(panicResult.baseScore >= 0 && panicResult.baseScore <= 100);
     assert.equal(panicResult.severity, "CRITICAL");
   });
+
+  it("handles commit log without diff: signals 1-2 available, 3-5 unavailable, normalized from 40 points", () => {
+    const commitOnlyInput = [
+      "4278f79 fix",
+      "38eff75 wip",
+      "e1fb119 custom feature implemented cleanly",
+      "ce8a85b custom feature implemented cleanly", // duplicate -> low effort
+    ].join("\n");
+
+    const result = calculatePanicScore(commitOnlyInput);
+
+    assert.equal(result.valid, true);
+    assert.equal(result.signals.rushedCommits.available, true);
+    assert.equal(result.signals.shoutingMashing.available, true);
+    assert.equal(result.signals.repeatedFiles.available, false);
+    assert.equal(result.signals.debugLeftovers.available, false);
+    assert.equal(result.signals.diffSize.available, false);
+
+    // 3 of 4 commits are low effort -> round((3/4)*30) = 23 points earned out of 40 available
+    // Normalized score: round((23 * 100) / 40) = 58
+    assert.equal(result.signals.rushedCommits.points, 23);
+    assert.equal(result.signals.shoutingMashing.points, 0);
+    assert.equal(result.baseScore, 58);
+    assert.equal(result.finalScore, 58);
+    assert.equal(result.severity, "MAJOR");
+  });
+
+  it("handles valid diff with 0 changed lines without division by zero", () => {
+    const zeroDiff = [
+      "diff --git a/empty.txt b/empty.txt",
+      "new file mode 100644",
+      "index 0000000..e69de29",
+    ].join("\n");
+
+    const result = calculatePanicScore(zeroDiff);
+
+    assert.equal(result.valid, true);
+    assert.equal(result.baseScore, 0);
+    assert.equal(result.finalScore, 0);
+    assert.equal(result.severity, "MINOR");
+    assert.equal(result.signals.diffSize.points, 0);
+    assert.equal(result.signals.debugLeftovers.points, 0);
+    assert.equal(result.signals.diffSize.evidence, "0 total lines changed in diff");
+  });
+
+  it("awards 10 points when a file is modified across exactly 2 commits", () => {
+    const gitLogP2 = [
+      "commit 1111111",
+      "    feat: initial endpoint",
+      "diff --git a/src/service.ts b/src/service.ts",
+      "--- a/src/service.ts",
+      "+++ b/src/service.ts",
+      "@@ -1 +1 @@",
+      "+step 1",
+      "",
+      "commit 2222222",
+      "    fix: patch endpoint",
+      "diff --git a/src/service.ts b/src/service.ts",
+      "--- a/src/service.ts",
+      "+++ b/src/service.ts",
+      "@@ -1 +1 @@",
+      "+step 2",
+      "",
+      "commit 3333333",
+      "    docs: add readme",
+      "diff --git a/README.md b/README.md",
+      "--- a/README.md",
+      "+++ b/README.md",
+      "@@ -1 +1 @@",
+      "+readme line",
+    ].join("\n");
+
+    const result = calculatePanicScore(gitLogP2);
+
+    assert.equal(result.valid, true);
+    assert.equal(result.signals.repeatedFiles.available, true);
+    assert.equal(result.signals.repeatedFiles.points, 10);
+    assert.equal(result.signals.repeatedFiles.evidence, '"src/service.ts" modified across 2 commits');
+  });
+
+  it("verifies exact score boundaries of 0 and 100", () => {
+    // Exact 0 score: clean single-line diff without debug statements
+    const zeroInput = "diff --git a/clean.ts b/clean.ts\n--- a/clean.ts\n+++ b/clean.ts\n@@ -1 +1 @@\n+const x = 1;\n";
+    const zeroResult = calculatePanicScore(zeroInput);
+    assert.equal(zeroResult.baseScore, 0);
+    assert.equal(zeroResult.finalScore, 0);
+    assert.equal(zeroResult.severity, "MINOR");
+
+    // Exact 100 score: all 5 signals maxed out (30 + 10 + 20 + 20 + 20 = 100/100)
+    const largeDiff350 = Array.from({ length: 350 }, (_, i) => `+const line_${i} = ${i};`).join("\n");
+    const hundredInput = [
+      "commit 1111111",
+      "    fix",
+      "diff --git a/churn.ts b/churn.ts",
+      "--- a/churn.ts",
+      "+++ b/churn.ts",
+      "@@ -1 +1 @@",
+      "+console.log('1'); debugger; print('2'); var_dump($3); console.log('4');",
+      "",
+      "commit 2222222",
+      "    ASDFGHHH!!!",
+      "diff --git a/churn.ts b/churn.ts",
+      "--- a/churn.ts",
+      "+++ b/churn.ts",
+      "@@ -1 +1 @@",
+      "+console.log('5');",
+      "",
+      "commit 3333333",
+      "    wip",
+      "diff --git a/churn.ts b/churn.ts",
+      "--- a/churn.ts",
+      "+++ b/churn.ts",
+      "@@ -1,1 +1,350 @@",
+      largeDiff350,
+    ].join("\n");
+
+    const hundredResult = calculatePanicScore(hundredInput);
+    assert.equal(hundredResult.signals.rushedCommits.points, 30); // 3 of 3 low effort
+    assert.equal(hundredResult.signals.shoutingMashing.points, 10); // FIX NOW!!!
+    assert.equal(hundredResult.signals.repeatedFiles.points, 20); // churn.ts in 3 commits
+    assert.equal(hundredResult.signals.debugLeftovers.points, 20); // >= 5 debugs
+    assert.equal(hundredResult.signals.diffSize.points, 20); // > 300 lines
+    assert.equal(hundredResult.baseScore, 100);
+    assert.equal(hundredResult.finalScore, 100);
+    assert.equal(hundredResult.severity, "CRITICAL");
+  });
 });
+

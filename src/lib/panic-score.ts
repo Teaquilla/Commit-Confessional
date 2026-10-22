@@ -161,8 +161,8 @@ export function parseInput(input: string): ParsedInput {
         line.startsWith("-")
       ) {
         inIndentedMessage = false;
-      } else if (inIndentedMessage) {
-        if (/^(\s{4}|\t)/.test(line) || (!line.startsWith("commit ") && !line.startsWith("diff "))) {
+      } else if (inIndentedMessage || /^(\s{4}|\t)/.test(line)) {
+        if (!line.startsWith("commit ") && !line.startsWith("diff ")) {
           const msgLine = line.trim();
           if (msgLine) {
             currentCommit.message = currentCommit.message ? `${currentCommit.message} ${msgLine}` : msgLine;

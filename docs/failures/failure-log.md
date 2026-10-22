@@ -140,6 +140,34 @@ Dokumen ini mencatat setiap kegagalan, error perintah, kegagalan panggilan API, 
   ```
 - **Dampak ke klaim:** Tidak ada klaim publik yang terpengaruh.
 
+---
+
+## F-009 | 2026-10-22 10:17 WIB | Fase 2
+- **Kategori:** tes
+- **Severity:** P2
+- **Gejala:** Tes `verifies exact score boundaries of 0 and 100` gagal pada assertion `rushedCommits.points`: actual 20 !== expected 30.
+- **Perintah / konteks:** `node --test tests/panic-score.test.ts`
+- **Log mentah:** `docs/failures/raw/2026-10-22-F-009.txt`
+- **Dugaan penyebab:** Pesan commit kedua pada fixture tes seratus poin menggunakan frasa `"FIX NOW!!!"` yang memuat dua kata (bukan single-word dan bukan kata dalam daftar tetap), sehingga hanya 2 dari 3 commit yang terdeteksi low-effort (`Math.round((2/3)*30) = 20` poin, bukan 30 poin).
+- **Tindakan:** Mengganti pesan commit kedua menjadi single-word shouting `"ASDFGHHH!!!"` agar memenuhi kriteria low-effort sekaligus kriteria shouting.
+- **Status:** diperbaiki
+- **Bukti perbaikan:** Eksekusi `node --test tests/panic-score.test.ts` menghasilkan 21 pass, 0 fail (exit code 0):
+  ```text
+  ▶ validateGitInput (1.4972ms)
+  ▶ parseInput (1.4972ms)
+  ▶ calculatePanicScore (4.0371ms)
+  ℹ tests 21
+  ℹ suites 3
+  ℹ pass 21
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 105.7945
+  ```
+- **Dampak ke klaim:** Tidak ada klaim publik yang terpengaruh.
+
+
 
 
 
