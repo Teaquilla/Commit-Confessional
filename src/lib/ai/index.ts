@@ -10,6 +10,8 @@ export interface GenerateReportOptions {
   modelName?: string;
   apiKey?: string;
   signal?: AbortSignal;
+  callTracker?: { count: number };
+  extraSystemInstruction?: string;
 }
 
 export const SYSTEM_PROMPT = `You are an objective engineering incident reporting and pull request generator for "Commit Confessional".
@@ -31,20 +33,57 @@ Adhere strictly to the following rules:
      * Positive adjustment (+1 to +15): signs of hidden panic, risky patterns (e.g. bypass flags, hardcoded credentials, hasty hotfix comments).
      * Negative adjustment (-1 to -15): clean disciplined changes, thorough comments, structured refactoring despite messy commits.
      * Zero (0): standard change, no additional panic or calming signals.
-   - Provide aiAdjustmentReason as exactly one concise explanatory sentence (max 150 characters).
+   - Provide aiAdjustmentReason as exactly one concise explanatory sentence (max 160 characters).
 5. Output Format:
    - Output MUST be valid, parseable JSON strictly matching this schema:
    {
      "aiAdjustment": number (integer between -15 and 15),
-     "aiAdjustmentReason": string (max 150 chars),
-     "whatHappened": string (max 200 chars),
-     "cause": string (max 200 chars),
-     "fix": string (max 200 chars),
-     "lessonsLearned": string (max 200 chars),
-     "prSummary": string (max 300 chars),
-     "whatChanged": string[] (max 4 items, max 150 chars each),
-     "howToCheck": string[] (max 2 items, max 150 chars each)
-   }`;
+     "aiAdjustmentReason": string (max 160 chars),
+     "whatHappened": string (max 160 chars),
+     "cause": string (max 160 chars),
+     "fix": string (max 160 chars),
+     "lessonsLearned": string (max 160 chars),
+     "prSummary": string (max 250 chars),
+     "whatChanged": string[] (max 4 items, max 160 chars each),
+     "howToCheck": string[] (max 2 items, max 160 chars each)
+   }
+
+Reference Format Examples (Strictly deadpan and neutral; do not copy content):
+Example 1:
+{
+  "aiAdjustment": 4,
+  "aiAdjustmentReason": "Uncommented fallback logic added hurriedly following customer error reports.",
+  "whatHappened": "Authentication service rejected valid sessions after token format change.",
+  "cause": "Token length constraint was changed without updating validation checks.",
+  "fix": "Restored fallback validation logic for previous token format.",
+  "lessonsLearned": "Maintain backward compatibility checks across deployment boundaries.",
+  "prSummary": "Restores backward compatibility for legacy session tokens.",
+  "whatChanged": [
+    "Added validation fallback for legacy tokens",
+    "Restored signature verification check"
+  ],
+  "howToCheck": [
+    "Run session verification test suite against legacy tokens"
+  ]
+}
+
+Example 2:
+{
+  "aiAdjustment": -2,
+  "aiAdjustmentReason": "Clean structured changes with clear corrective adjustments despite urgent commit.",
+  "whatHappened": "Database query timeout caused transient request failures under load.",
+  "cause": "Missing composite index on active lookup fields.",
+  "fix": "Added query index and increased default query timeout.",
+  "lessonsLearned": "Verify query execution plans under simulated peak loads.",
+  "prSummary": "Adds missing composite index and adjusts query execution timeout.",
+  "whatChanged": [
+    "Added composite index definition",
+    "Updated connection timeout configuration"
+  ],
+  "howToCheck": [
+    "Verify query execution plan on staging database"
+  ]
+}`;
 
 export const DELIMITER_START = "=== BEGIN USER CODE INPUT ===";
 export const DELIMITER_END = "=== END USER CODE INPUT ===";
@@ -104,7 +143,13 @@ export async function generateReport(
       },
     ],
     systemInstruction: {
-      parts: [{ text: SYSTEM_PROMPT }],
+      parts: [
+        {
+          text: opts?.extraSystemInstruction
+            ? `${SYSTEM_PROMPT}\n\n${opts.extraSystemInstruction}`
+            : SYSTEM_PROMPT,
+        },
+      ],
     },
     generationConfig: {
       temperature: 0.2,
@@ -130,6 +175,10 @@ export async function generateReport(
     }, remainingMs);
 
     try {
+      if (opts?.callTracker) {
+        opts.callTracker.count++;
+      }
+
       const response = await fetchImpl(endpoint, {
         method: "POST",
         headers: {

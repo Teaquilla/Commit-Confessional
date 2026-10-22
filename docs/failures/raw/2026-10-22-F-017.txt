@@ -1,0 +1,48 @@
+Command:
+node --env-file=.env.local scripts/live-check.mjs
+
+Output:
+=== LIVE CHECK (EKSPLORATORI, BUKAN BUKTI 3X5) ===
+Target Model: gemini-3.5-flash
+
+--- Sample: late-night-hotfix ---
+[AI_RETRY] 503
+[API_ERROR] AI_GENERATION_FAILED attempts=2
+Status: 502
+Latency: 18060 ms
+Schema Valid: false
+Error Code: AI_GENERATION_FAILED
+
+--- Sample: rebase-conflict ---
+Status: 200
+Latency: 9132 ms
+Schema Valid: true
+Guardrail Passed: true
+Final Score: 20 (Base: 14, Adj: 6)
+Severity: MINOR
+String Lengths vs Limits:
+  aiAdjustmentReason: 94 / 240
+  whatHappened:       118 / 300
+  cause:              104 / 300
+  fix:                110 / 300
+  lessonsLearned:     85 / 300
+  prSummary:          105 / 400
+  whatChanged:        [75, 83] / max 200 each (count: 2/4)
+  howToCheck:         [86] / max 200 each (count: 1/2)
+
+--- Sample: works-on-machine ---
+Status: 200
+Latency: 11881 ms
+Schema Valid: true
+Guardrail Passed: true
+Final Score: 19 (Base: 14, Adj: 5)
+Severity: MINOR
+String Lengths vs Limits:
+  aiAdjustmentReason: 122 / 240
+  whatHappened:       101 / 300
+  cause:              116 / 300
+  fix:                128 / 300
+  lessonsLearned:     109 / 300
+  prSummary:          127 / 400
+  whatChanged:        [110, 72, 98] / max 200 each (count: 3/4)
+  howToCheck:         [96, 68] / max 200 each (count: 2/2)

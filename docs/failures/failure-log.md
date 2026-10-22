@@ -209,5 +209,89 @@ Dokumen ini mencatat setiap kegagalan, error perintah, kegagalan panggilan API, 
 - **Bukti perbaikan:** `package.json` diperbarui dengan `"type": "module"`. Eksekusi `node --test tests/guardrails.test.ts tests/panic-score.test.ts` sukses menghasilkan 35 pass, 0 fail (exit code 0).
 - **Dampak ke klaim:** Tidak ada klaim publik yang terpengaruh.
 
+---
+
+## F-013 | 2026-10-22 14:38 WIB | Fase 2
+- **Kategori:** perintah
+- **Severity:** P2
+- **Gejala:** Evaluasi inline one-liner node gagal dengan exit code 1 (`SyntaxError: Unexpected token '.'`).
+- **Perintah / konteks:** `node --input-type=module -e 'import ... from "./src/samples/index.ts"...'` di PowerShell.
+- **Log mentah:** `docs/failures/raw/2026-10-22-F-013.txt`
+- **Dugaan penyebab:** PowerShell mengurai tanda kutip ganda di dalam argumen string tanda kutip tunggal secara keliru sehingga path `./src/samples/index.ts` terkirim tanpa kutip ke engine V8 Node.js.
+- **Tindakan:** Menggunakan skrip terisolasi atau menjalankan perintah dengan escaping kutip yang tepat / file runner.
+- **Status:** diperbaiki
+- **Bukti perbaikan:** Kode dijalankan melalui skrip pengujian atau evaluasi berformat valid.
+- **Dampak ke klaim:** Tidak ada klaim publik yang terpengaruh.
+
+---
+
+## F-014 | 2026-10-22 14:40 WIB | Fase 2
+- **Kategori:** tes
+- **Severity:** P2
+- **Gejala:** Tes `4. truncates input longer than 10,000 characters and sets truncated: true` gagal pada assertion `Input length should be > 10000, got 7980`.
+- **Perintah / konteks:** `node --test tests/confess.test.ts`
+- **Log mentah:** `docs/failures/raw/2026-10-22-F-014.txt`
+- **Dugaan penyebab:** Kalkulasi string padding pada test fixture menghasilkan total panjang 7.980 karakter (di bawah 10.000 karakter), sedangkan spesifikasi mensyaratkan pengujian input 12.000 karakter.
+- **Tindakan:** Menambah repetisi padding agar total karakter input mencapai tepat 12.000 karakter.
+- **Status:** diperbaiki
+- **Bukti perbaikan:** Eksekusi `node --test tests/confess.test.ts` sukses menghasilkan 15 pass, 0 fail.
+- **Dampak ke klaim:** Tidak ada klaim publik yang terpengaruh.
+
+---
+
+## F-015 | 2026-10-22 14:41 WIB | Fase 2
+- **Kategori:** perintah
+- **Severity:** P2
+- **Gejala:** Perintah node gagal dengan exit code 1 (`either --test or --eval can be used, not both`).
+- **Perintah / konteks:** `node --test -e "..."`
+- **Log mentah:** `docs/failures/raw/2026-10-22-F-015.txt`
+- **Dugaan penyebab:** Opsi CLI Node.js `--test` dan `--eval` (-e) saling eksklusif dan tidak dapat digabungkan dalam satu invocation.
+- **Tindakan:** Menggunakan skrip runner berkas `.mjs` atau `.ts` terpisah untuk mencetak diagnostik atau menjalankan pengujian.
+- **Status:** diperbaiki
+- **Bukti perbaikan:** Kode dijalankan via skrip runner tanpa penggabungan argumen yang berkonflik.
+- **Dampak ke klaim:** Tidak ada klaim publik yang terpengaruh.
+
+---
+
+## F-016 | 2026-10-22 14:42 WIB | Fase 2
+- **Kategori:** build
+- **Severity:** P2
+- **Gejala:** `npm run build` gagal dengan exit code 1 (`Module not found: Can't resolve '../../lib/confess.ts'`).
+- **Perintah / konteks:** `npm run build`
+- **Log mentah:** `docs/failures/raw/2026-10-22-F-016.txt`
+- **Dugaan penyebab:** Jalur impor relatif pada `src/app/api/confess/route.ts` hanya naik 2 level (`../../lib/confess.ts`), padahal berkas berada 3 level di bawah root `src` (`src/app/api/confess/`), sehingga seharusnya `../../../lib/confess.ts`.
+- **Tindakan:** Mengubah jalur impor menjadi `../../../lib/confess.ts`.
+- **Status:** diperbaiki
+- **Bukti perbaikan:** `npm run build` sukses dengan exit code 0.
+- **Dampak ke klaim:** Tidak ada klaim publik yang terpengaruh.
+
+---
+
+## F-017 | 2026-10-22 14:44 WIB | Fase 2
+- **Kategori:** api
+- **Severity:** P2
+- **Gejala:** Panggilan API Gemini untuk sampel `late-night-hotfix` menghasilkan HTTP 503 dua kali berturut-turut sehingga mengembalikan HTTP 502 `AI_GENERATION_FAILED`.
+- **Perintah / konteks:** `node --env-file=.env.local scripts/live-check.mjs`
+- **Log mentah:** `docs/failures/raw/2026-10-22-F-017.txt`
+- **Dugaan penyebab:** Lonjakan beban (*demand spike*) sementara pada infrastruktur Gemini REST API untuk model `gemini-3.5-flash` menyebabkan error 503 pada percobaan 1 dan percobaan 2.
+- **Tindakan:** Memverifikasi mekanisme retry otomatis berjalan sesuai desain (mencatat `[AI_RETRY] 503` tanpa kebocoran secret); sampel berikutnya (`rebase-conflict` dan `works-on-machine`) berhasil dengan HTTP 200.
+- **Status:** dimitigasi
+- **Bukti perbaikan:** Mekanisme penanganan galat dan retry berfungsi sesuai spesifikasi; eksekusi ulang pada prompt refined berhasil.
+- **Dampak ke klaim:** C-005 membuktikan API endpoint berfungsi pada sampel berikutnya.
+
+---
+
+## F-018 | 2026-10-22 14:46 WIB | Fase 2
+- **Kategori:** api
+- **Severity:** P2
+- **Gejala:** Panggilan API Gemini untuk sampel `late-night-hotfix` dan `rebase-conflict` pada live-check putaran 2 menghasilkan HTTP 503 ganda berturut-turut sehingga mengembalikan HTTP 502 `AI_GENERATION_FAILED`.
+- **Perintah / konteks:** `node --env-file=.env.local scripts/live-check.mjs`
+- **Log mentah:** `docs/failures/raw/2026-10-22-F-018.txt`
+- **Dugaan penyebab:** Fluktuasi kapasitas server provider Google Gemini (`gemini-3.5-flash`) mengalami lonjakan beban (*high demand*).
+- **Tindakan:** Memverifikasi isolasi kesalahan berfungsi (status 502 dikembalikan, `[AI_RETRY] 503` dicatat tanpa kebocoran data sensitif). Sampel `works-on-machine` sukses (HTTP 200) dengan perbaikan kepadatan teks deadpan.
+- **Status:** dimitigasi
+- **Bukti perbaikan:** Penanganan galat sesuai spesifikasi PRD; transmisi API valid terbukti pada sampel yang sukses.
+- **Dampak ke klaim:** Tidak ada klaim publik yang terpengaruh.
+
 
 

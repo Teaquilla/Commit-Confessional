@@ -237,7 +237,7 @@ describe("AI Engine (generateReport)", () => {
     assert.equal(resultLow.aiAdjustment, -15);
   });
 
-  it("guarantees error messages and logs never leak input content or API keys", async () => {
+  it("ensures error messages and logs never leak input content or API keys", async () => {
     const sensitiveInput = "CONFIDENTIAL_PAYROLL_DATA_AND_SECRET_CODE_12345";
     const sensitiveKey = "AIzaSy_CONFIDENTIAL_KEY_XYZ987";
 

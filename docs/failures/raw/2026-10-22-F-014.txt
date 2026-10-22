@@ -1,0 +1,47 @@
+Command:
+node --test tests/confess.test.ts
+
+Output:
+[API_ERROR] EMPTY_INPUT attempts=0
+[API_ERROR] EMPTY_INPUT attempts=0
+[API_ERROR] EMPTY_INPUT attempts=0
+[API_ERROR] INVALID_INPUT attempts=0
+[API_ERROR] INPUT_TOO_LARGE attempts=0
+[API_ERROR] GUARDRAIL_FAILED attempts=2
+[API_ERROR] GUARDRAIL_FAILED attempts=2
+[API_ERROR] AI_TIMEOUT attempts=0
+[API_ERROR] AI_GENERATION_FAILED attempts=0
+▶ Sample Diffs Validation
+  ✔ validates lateNightHotfix passes validateGitInput and scores reasonably (1.208ms)
+  ✔ validates rebaseConflict passes validateGitInput and scores reasonably (0.1717ms)
+  ✔ validates worksOnMachine passes validateGitInput and scores reasonably (0.1407ms)
+✔ Sample Diffs Validation (2.1962ms)
+▶ handleConfess Integration Unit Tests
+  ✔ 1. handles successful confession request with valid schema response (3.8971ms)
+  ✔ 2. returns EMPTY_INPUT (HTTP 400) for empty or whitespace-only input (0.4462ms)
+  ✔ 3. returns INVALID_INPUT (HTTP 400) for nonsensical non-git input (0.8025ms)
+  ✖ 4. truncates input longer than 10,000 characters and sets truncated: true (0.5121ms)
+  ✔ 5. returns INPUT_TOO_LARGE (HTTP 413) when raw body exceeds 100 KB (0.2622ms)
+  ✔ 6. retries once on guardrail failure and succeeds if second attempt passes (0.8774ms)
+  ✔ 7. returns GUARDRAIL_FAILED (HTTP 502) if guardrail fails on both attempts (0.591ms)
+  ✔ 8. exhausts 2-call quota on 503 retry so guardrail failure cannot retry a 3rd time (0.3559ms)
+  ✔ 9. returns AI_TIMEOUT (HTTP 504) when deadline is exceeded (0.205ms)
+  ✔ 10. returns AI_GENERATION_FAILED (HTTP 502) on malformed AI output (0.218ms)
+  ✔ 11. clamps out-of-range aiAdjustment strictly between -15 and 15 in final score (0.6268ms)
+  ✔ 12. ensures errors and console logs never leak user input or secrets (0.244ms)
+✖ handleConfess Integration Unit Tests (9.5623ms)
+ℹ tests 15
+ℹ suites 2
+ℹ pass 14
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 162.1802
+
+✖ failing tests:
+
+test at tests\confess.test.ts:112:3
+✖ 4. truncates input longer than 10,000 characters and sets truncated: true (0.5121ms)
+  AssertionError [ERR_ASSERTION]: Input length should be > 10000, got 7980
+      at TestContext.<anonymous> (file:///D:/yayaya/tests/confess.test.ts:126:12)

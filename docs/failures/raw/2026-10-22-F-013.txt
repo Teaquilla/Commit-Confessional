@@ -1,0 +1,19 @@
+Command:
+node --input-type=module -e 'import { lateNightHotfix, rebaseConflict, worksOnMachine } from "./src/samples/index.ts"; import { validateGitInput, calculatePanicScore } from "./src/lib/panic-score.ts"; console.log("lateNightHotfix:", validateGitInput(lateNightHotfix), calculatePanicScore(lateNightHotfix).baseScore, calculatePanicScore(lateNightHotfix).severity); console.log("rebaseConflict:", validateGitInput(rebaseConflict), calculatePanicScore(rebaseConflict).baseScore, calculatePanicScore(rebaseConflict).severity); console.log("worksOnMachine:", validateGitInput(worksOnMachine), calculatePanicScore(worksOnMachine).baseScore, calculatePanicScore(worksOnMachine).severity);'
+
+Output:
+file:///D:/yayaya/[eval1]:1
+import { lateNightHotfix, rebaseConflict, worksOnMachine } from ./src/samples/index.ts; import { validateGitInput, calculatePanicScore } from ./src/lib/panic-score.ts; console.log(lateNightHotfix:, validateGitInput(lateNightHotfix), calculatePanicScore(lateNightHotfix).baseScore, calculatePanicScore(lateNightHotfix).severity); console.log(rebaseConflict:, validateGitInput(rebaseConflict), calculatePanicScore(rebaseConflict).baseScore, calculatePanicScore(rebaseConflict).severity); console.log(worksOnMachine:, validateGitInput(worksOnMachine), calculatePanicScore(worksOnMachine).baseScore, calculatePanicScore(worksOnMachine).severity);
+                                                                ^
+
+SyntaxError: Unexpected token '.'
+    at compileSourceTextModule (node:internal/modules/esm/utils:319:16)
+    at ModuleLoader.createModuleWrap (node:internal/modules/esm/loader:209:12)
+    at ModuleLoader.eval (node:internal/modules/esm/loader:247:23)
+    at node:internal/process/execution:77:24
+    at asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:11)
+    at Object.runEntryPointWithESMLoader (node:internal/modules/run_main:123:19)
+    at evalModuleEntryPoint (node:internal/process/execution:76:47)
+    at node:internal/main/eval_string:37:3
+
+Node.js v24.21.0

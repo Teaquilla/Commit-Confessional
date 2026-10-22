@@ -1,0 +1,5 @@
+Command:
+node --test -e "import { lateNightHotfix, rebaseConflict, worksOnMachine } from './src/samples/index.ts'; import { calculatePanicScore } from './src/lib/panic-score.ts'; console.log('lateNightHotfix:', calculatePanicScore(lateNightHotfix).baseScore, calculatePanicScore(lateNightHotfix).severity); console.log('rebaseConflict:', calculatePanicScore(rebaseConflict).baseScore, calculatePanicScore(rebaseConflict).severity); console.log('worksOnMachine:', calculatePanicScore(worksOnMachine).baseScore, calculatePanicScore(worksOnMachine).severity);"
+
+Output:
+D:\Node.js\node.exe: either --test or --eval can be used, not both

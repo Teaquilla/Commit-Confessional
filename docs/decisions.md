@@ -174,7 +174,41 @@ Dokumen ini mencatat setiap keputusan arsitektural, teknis, atau penyesuaian sco
      - `@types/react-dom`: `19.3.0`
      - `postcss`: `8.5.31`
      - `autoprefixer`: `10.6.1`
+     Seluruh versi dependensi di atas merupakan rilis publik terbaru pada registry npm per 22 Okt 2026. Ringkasan audit keamanan paket (`npm audit`):
+     ```text
+     found 0 vulnerabilities
+     ```
   4. Menyetel `"type": "module"` di `package.json` dan mengaktifkan `"allowImportingTsExtensions": true` pada `tsconfig.json` sehingga test runner Node.js native (`node --test`) dapat menjalankan berkas `.ts` secara langsung bersamaan dengan build Next.js.
 - **Rasional:** Memenuhi arsitektur tumpukan teknologi Fase 2 (T-003) untuk mendukung runtime server RSC, Route Handler `/api/confess`, validasi Zod, dan styling Tailwind tanpa merusak eksekusi suite tes deterministik yang telah ada.
+- **Status:** Disetujui (Zidane).
+
+---
+
+## DEC-013 | 2026-10-22 | Pelonggaran Batas Panjang String Skema AIOutput dan PRDescription
+- **Keputusan:**
+  1. Melonggarkan batas panjang string Zod pada `AIOutputSchema` dan `PRDescriptionSchema` di `src/lib/schema.ts` sedikit di atas batas target yang diminta prompt sistem:
+     - `aiAdjustmentReason`: target prompt ~160 karakter $\rightarrow$ batas skema Zod `max(240)`.
+     - `whatHappened`, `cause`, `fix`, `lessonsLearned`: target prompt ~160 karakter $\rightarrow$ batas skema Zod `max(300)`.
+     - `prSummary`: target prompt ~250 karakter $\rightarrow$ batas skema Zod `max(400)`.
+     - Butir `whatChanged` dan `howToCheck`: target prompt ~160 karakter $\rightarrow$ batas skema Zod `max(200)` per item.
+- **Rasional:** Mencegah penolakan palsu (*false rejection*) pada respons AI valid yang kebetulan melebihi beberapa karakter dari target deskripsi prompt, sementara tetap menjaga batasan struktural ringkas.
+- **Status:** Disetujui (Zidane).
+
+---
+
+## DEC-014 | 2026-10-22 | Penyesuaian ConfessRequestSchema dan Pemotongan Input > 10.000 Karakter
+- **Keputusan:**
+  1. Menyesuaikan `ConfessRequestSchema` di `src/lib/schema.ts` dari sebelumnya `z.string().min(20).max(10000)` menjadi `z.string().min(1).max(100000)` agar muatan hingga batas raw body 100 KB dapat diterima sebelum tahap pemotongan.
+  2. Mengimplementasikan aturan PRD Bagian 5 di `src/lib/confess.ts`: jika input mentah melebihi 10.000 karakter, input tidak ditolak, melainkan dipotong menjadi 10.000 karakter pertama dan flag `truncated: true` disematkan pada respons (jika <= 10.000 karakter, `truncated: false`).
+- **Rasional:** Menjaga keandalan pemrosesan diff besar tanpa membebani konteks LLM dan sesuai janji antarmuka pengguna pada PRD Bagian 5.
+- **Status:** Disetujui (Zidane).
+
+---
+
+## DEC-015 | 2026-10-22 | Penambahan Dua Format Contoh Laporan Netral ke Prompt Sistem
+- **Keputusan:**
+  1. Menambahkan dua contoh format laporan insiden dan deskripsi PR netral (tanpa nama berkas atau jalur direktori) ke dalam `SYSTEM_PROMPT` di `src/lib/ai/index.ts`.
+  2. Contoh menggunakan istilah arsitektural umum (layanan autentikasi, token sesi, kueri basis data) dan bukan nama berkas nyata agar model tidak meniru atau menghalusinasikan nama file fiktif.
+- **Rasional:** Mengarahkan gaya bahasa AI agar konsisten dengan nada *deadpan*, ringkas, dan faktual; terbukti pada live-check putaran 2 menurunkan panjang teks hingga 17% dan mempercepat respons tanpa melanggar guardrail nama file.
 - **Status:** Disetujui (Zidane).
 

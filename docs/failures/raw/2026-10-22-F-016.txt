@@ -1,0 +1,21 @@
+Command:
+npm run build
+
+Output:
+▲ Next.js 16.4.2 (Turbopack)
+- Environments: .env.local
+✓ Running next.config.ts took 27ms
+
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 1 error:
+./src/app/api/confess/route.ts:5:1
+Error: Module not found: Can't resolve '../../lib/confess.ts'
+  3 |
+  4 | import { NextResponse } from "next/server";
+> 5 | import { handleConfess } from "../../lib/confess.ts";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  6 |
+  7 | export const runtime = "nodejs";
+  8 | export const maxDuration = 30; // hanya berpengaruh di Vercel

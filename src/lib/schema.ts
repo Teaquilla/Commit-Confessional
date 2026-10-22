@@ -6,21 +6,21 @@ import { z } from "zod";
 
 // --- 8.1 Server Request Schema ---
 export const ConfessRequestSchema = z.object({
-  input: z.string().min(20).max(10000),
+  input: z.string().min(1).max(100000),
 });
 export type ConfessRequest = z.infer<typeof ConfessRequestSchema>;
 
 // --- 8.2 AI Output Schema (Raw LLM Generation Contract) ---
 export const AIOutputSchema = z.object({
   aiAdjustment: z.number().int().min(-15).max(15),
-  aiAdjustmentReason: z.string().max(150),
-  whatHappened: z.string().max(200),
-  cause: z.string().max(200),
-  fix: z.string().max(200),
-  lessonsLearned: z.string().max(200),
-  prSummary: z.string().max(300),
-  whatChanged: z.array(z.string().max(150)).max(4),
-  howToCheck: z.array(z.string().max(150)).max(2),
+  aiAdjustmentReason: z.string().max(240),
+  whatHappened: z.string().max(300),
+  cause: z.string().max(300),
+  fix: z.string().max(300),
+  lessonsLearned: z.string().max(300),
+  prSummary: z.string().max(400),
+  whatChanged: z.array(z.string().max(200)).max(4),
+  howToCheck: z.array(z.string().max(200)).max(2),
 });
 export type AIOutput = z.infer<typeof AIOutputSchema>;
 
@@ -57,8 +57,8 @@ export type IncidentReport = z.infer<typeof IncidentReportSchema>;
 
 export const PRDescriptionSchema = z.object({
   summary: z.string(),
-  whatChanged: z.array(z.string().max(150)).max(4),
-  howToCheck: z.array(z.string().max(150)).max(2),
+  whatChanged: z.array(z.string().max(200)).max(4),
+  howToCheck: z.array(z.string().max(200)).max(2),
 });
 export type PRDescription = z.infer<typeof PRDescriptionSchema>;
 

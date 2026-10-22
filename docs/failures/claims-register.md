@@ -20,3 +20,5 @@ Status yang digunakan:
 | C-006 | T-001: 17 tes lulus | docs/log/2026-10-22-05.md, docs/failures/failure-log.md | Log mentah F-008 & eksekusi 17 tes lulus setelah perbaikan di commit 4fb7232 | dikoreksi | Dikoreksi: ada 3 tes yang tadinya gagal (F-008) lalu diperbaiki |
 | C-007 | 32 tes lulus pada 22 Okt 2026, lihat keluaran | docs/tasks/T-002.md, docs/STATE.md | Keluaran lengkap eksekusi "node --test tests/guardrails.test.ts tests/panic-score.test.ts" (32 pass, 0 fail) | terverifikasi | 21 tes panic-score dan 11 tes guardrail nama file |
 | C-008 | 43 tes lulus pada 22 Okt 2026, lihat keluaran | docs/tasks/T-003.md, docs/STATE.md | Keluaran lengkap eksekusi "npm test" (43 pass, 0 fail) | terverifikasi | 23 tes panic-score, 12 tes guardrail nama file, 8 tes ai-engine |
+| C-009 | 58 tes lulus pada 22 Okt 2026, lihat keluaran | docs/tasks/T-004.md, docs/STATE.md | Keluaran lengkap eksekusi "npm test" (58 pass, 0 fail) | terverifikasi | 23 tes panic-score, 12 tes guardrail, 8 tes ai-engine, 15 tes confess/samples |
+
