@@ -1,0 +1,12 @@
+[PROBE_ERROR_SUMMARY]
+Command: node --env-file=.env.local scripts/model-probe.mjs gemini-3.5-flash,gemini-3.8-flash,gemini-3.5-flash-lite,gemini-2.5-flash
+gemini-3.5-flash:
+  - minimal: 1x 503 (latency: 2795ms)
+  - late-night-hotfix: 6x 429 (latencies: 304, 303, 305, 459, 292, 291 ms)
+  - works-on-machine: 6x 429 (latencies: 284, 283, 297, 283, 281, 280 ms)
+gemini-3.8-flash:
+  - minimal: 2x 503 (latencies: 17290, 16952 ms), 2x abort/timeout >20000ms
+  - late-night-hotfix: 3x abort/timeout >20000ms
+  - works-on-machine: 3x abort/timeout >20000ms
+gemini-2.5-flash:
+  - 18x HTTP 404 / 400 (model name unsupported or not available for generateContent endpoint)

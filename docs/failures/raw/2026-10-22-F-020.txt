@@ -1,0 +1,18 @@
+=== LIVE CHECK (EKSPLORATORI, BUKAN BUKTI 3X5) ===
+Target Model: gemini-3.5-flash
+
+--- Sample: late-night-hotfix ---
+[AI_RETRY] 503
+[API_ERROR] AI_GENERATION_FAILED attempts=2
+Status: 502
+Latency: 12093 ms
+Schema Valid: false
+Error Code: AI_GENERATION_FAILED
+
+--- Sample: works-on-machine ---
+[AI_RETRY] 503
+[API_ERROR] AI_GENERATION_FAILED attempts=2
+Status: 502
+Latency: 27467 ms
+Schema Valid: false
+Error Code: AI_GENERATION_FAILED

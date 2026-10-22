@@ -117,11 +117,14 @@ String Lengths vs Limits:
 
 | Metrik / Indikator | Putaran 1 (Tanpa Contoh Format) | Putaran 2 (Dengan 2 Contoh Format Deadpan) | Evaluasi Dampak |
 | :--- | :--- | :--- | :--- |
-| **Panjang `whatHappened` (`works-on-machine`)** | 101 karakter | 84 karakter | Lebih ringkas & padat (-17%) |
-| **Panjang `cause` (`works-on-machine`)** | 116 karakter | 96 karakter | Lebih langsung ke akar masalah (-17%) |
-| **Panjang `fix` (`works-on-machine`)** | 128 karakter | 107 karakter | Nada teknik lebih deadpan & hemat (-16%) |
-| **Panjang `lessonsLearned` (`works-on-machine`)** | 109 karakter | 98 karakter | Tidak bertele-tele (-10%) |
+| **Panjang `whatHappened` (`works-on-machine`)** | 101 karakter | 84 karakter | Jumlah karakter: 101 vs 84 |
+| **Panjang `cause` (`works-on-machine`)** | 116 karakter | 96 karakter | Jumlah karakter: 116 vs 96 |
+| **Panjang `fix` (`works-on-machine`)** | 128 karakter | 107 karakter | Jumlah karakter: 128 vs 107 |
+| **Panjang `lessonsLearned` (`works-on-machine`)** | 109 karakter | 98 karakter | Jumlah karakter: 109 vs 98 |
 | **Kepatuhan Guardrail Nama File** | Lolos (`Guardrail Passed: true`) | Lolos (`Guardrail Passed: true`) | Tetap aman; contoh tanpa nama berkas tidak memicu halusinasi |
-| **Latensi Eksekusi Sukses (`works-on-machine`)** | 11.881 ms | 8.538 ms | Penurunan latensi sebesar ~28% |
-| **Stabilitas Server Provider (HTTP 503)** | 1 gagal, 2 sukses | 2 gagal, 1 sukses | Fluktuasi eksternal pada endpoint Google (terisolasi aman di kode) |
+| **Latensi Eksekusi Sukses (`works-on-machine`)** | 11.881 ms | 8.538 ms | Latensi dipengaruhi beban server |
+| **Stabilitas Server Provider (HTTP 503)** | 1 gagal, 2 sukses | 2 gagal, 1 sukses | Fakta: 3 dari 6 panggilan berakhir 503 |
+
+> **Catatan Evaluasi:** Pengujian hanya berupa satu run per putaran, keluaran tidak deterministik, latensi dipengaruhi beban server, dan tidak ada kesimpulan kualitas. Fakta: 3 dari 6 panggilan berakhir 503.
+
 

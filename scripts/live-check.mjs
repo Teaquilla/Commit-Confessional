@@ -16,6 +16,7 @@ const samples = [
   { name: "works-on-machine", input: worksOnMachine },
 ];
 
+const showText = process.argv.includes("--show-text");
 const modelName = process.env.AI_MODEL_NAME || "gemini-3.8-flash";
 console.log(`=== LIVE CHECK (EKSPLORATORI, BUKAN BUKTI 3X5) ===`);
 console.log(`Target Model: ${modelName}\n`);
@@ -68,6 +69,26 @@ for (const sample of samples) {
 
       const hcLens = data.prDescription.howToCheck.map((s) => s.length);
       console.log(`  howToCheck:         [${hcLens.join(", ")}] / max 200 each (count: ${hcLens.length}/2)`);
+
+      if (showText) {
+        console.log(`\n--- [AI Output Text] ---`);
+        console.log(`Incident Report (5 lines):`);
+        console.log(`  Severity: ${data.incidentReport.severity}`);
+        console.log(`  What happened: ${data.incidentReport.whatHappened}`);
+        console.log(`  Cause: ${data.incidentReport.cause}`);
+        console.log(`  Fix: ${data.incidentReport.fix}`);
+        console.log(`  Lessons learned: ${data.incidentReport.lessonsLearned}`);
+        console.log(`PR Description:`);
+        console.log(`  Summary: ${data.prDescription.summary}`);
+        console.log(`  What changed:`);
+        for (const item of data.prDescription.whatChanged) {
+          console.log(`    - ${item}`);
+        }
+        console.log(`  How to check:`);
+        for (const item of data.prDescription.howToCheck) {
+          console.log(`    - ${item}`);
+        }
+      }
     } else {
       console.log(`Schema Valid: false`);
       console.log(`Error Code: ${res.data?.error?.code || "UNKNOWN"}`);

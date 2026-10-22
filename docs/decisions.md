@@ -209,6 +209,16 @@ Dokumen ini mencatat setiap keputusan arsitektural, teknis, atau penyesuaian sco
 - **Keputusan:**
   1. Menambahkan dua contoh format laporan insiden dan deskripsi PR netral (tanpa nama berkas atau jalur direktori) ke dalam `SYSTEM_PROMPT` di `src/lib/ai/index.ts`.
   2. Contoh menggunakan istilah arsitektural umum (layanan autentikasi, token sesi, kueri basis data) dan bukan nama berkas nyata agar model tidak meniru atau menghalusinasikan nama file fiktif.
-- **Rasional:** Mengarahkan gaya bahasa AI agar konsisten dengan nada *deadpan*, ringkas, dan faktual; terbukti pada live-check putaran 2 menurunkan panjang teks hingga 17% dan mempercepat respons tanpa melanggar guardrail nama file.
+- **Rasional:** Mengarahkan gaya bahasa AI agar konsisten dengan nada *deadpan*, ringkas, dan faktual tanpa melanggar guardrail nama file. Hasil live-check merupakan satu run per putaran, keluaran tidak deterministik, latensi dipengaruhi beban server, fakta: 3 dari 6 panggilan berakhir 503, dan tidak ada kesimpulan kualitas.
+- **Status:** Disetujui (Zidane).
+
+---
+
+## DEC-016 | 2026-10-22 | Pelonggaran Batas Panjang Baris Sampel Diff Menjadi Maksimal 70 Baris
+- **Keputusan:**
+  1. Melonggarkan batas panjang baris sampel diff di `src/samples/` dari sebelumnya 20–40 baris menjadi maksimal 70 baris (perubahan detail scope).
+  2. Menulis ulang `rebase-conflict.ts` (68 baris) dan `works-on-machine.ts` (67 baris) untuk memuat 6 commit realistis dengan diff ringkas, pesan commit malas/berulang, satu pesan shouting kapital, dan sisa debug log/comment.
+  3. Menandai ketiga sampel dengan catatan: *"Ditulis agar mewakili sesi panik; skor dihitung, bukan disetel."* Tanpa mengubah bobot atau kode pada kalkulator Panic Score.
+- **Rasional:** Memberikan variasi multi-commit yang representatif terhadap sesi panik nyata (memungkinkan deteksi sinyal penelusuran berulang pada berkas yang sama dan shouting), tanpa melebihi batas panjang yang wajar untuk demo.
 - **Status:** Disetujui (Zidane).
 

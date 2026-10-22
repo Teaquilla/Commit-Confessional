@@ -1,6 +1,6 @@
 // src/samples/late-night-hotfix.ts
 // Sample input: Late night production checkout hotfix with frantic commits.
-// Formatted as git log -p, 20-40 lines, written from scratch.
+// Ditulis agar mewakili sesi panik; skor dihitung, bukan disetel.
 
 export const lateNightHotfix = `commit a1b2c3d4e5f6789012345678901234567890abcd
 Author: Panic Dev <dev@example.com>

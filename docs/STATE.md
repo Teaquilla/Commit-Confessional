@@ -27,7 +27,7 @@ Dokumen satu halaman ini adalah ringkasan status terkini repositori yang wajib d
   6. **T-005:** Antarmuka pengguna dedicated core loop screen `/app` (input, preset chips, loading, ScoreBar, popover, dual panel, copy buttons)
   7. **T-007b:** Verifikasi preset runs 3x5 + pencatatan evaluasi di `docs/evidence/preset-runs.md` (syarat Gate 2)
   8. **T-006:** Halaman landing `/` (Hero, HowItWorks, PricingCards) — dijadwalkan Sabtu, bukan syarat Gate 2
-- **Hambatan / Isu Aktif:** Model `gemini-3.8-flash` dan `gemini-3.5-flash` mengalami lonjakan beban periodik (HTTP 503) di sisi server Google; mekanisme retry bounded dan penanganan error 502/504 terbukti melindungi kestabilan server tanpa kebocoran secret.
+- **Hambatan / Isu Aktif:** Probe ketersediaan model (`scripts/model-probe.mjs`, 72 panggilan berurutan) telah dijalankan untuk 4 kandidat model dan dicatat di `docs/evidence/model-probe-2026-10-22.md`. Menunggu keputusan pemilik untuk pemilihan model resmi Fase 2 sebelum melangkah ke T-007a.
 - **Temuan P0 / P1 Terbuka:** **0** (Temuan P1 auditor pada Gate 1 dikalibrasi ulang sebagai status wajar klaim terbuka sesuai DEC-010)
 - **Hash Commit Terakhir:** `b39bd27` (feat(t004): implement /api/confess route handler, sample diffs, and exploratory live checks)
 
@@ -36,7 +36,7 @@ Dokumen satu halaman ini adalah ringkasan status terkini repositori yang wajib d
 ## 2. Lokasi Penting & Konfigurasi
 - **Repositori Git:** `d:\yayaya` (Remote: `https://github.com/Teaquilla/Commit-Confessional`, status: privat)
 - **Target URL Deploy:** Self-hosted Linux server dengan HTTPS reverse proxy (Fallback: Vercel Free Plan)
-- **Model AI Aktif:** Dikonfigurasi dinamis via `AI_MODEL_NAME` (Target utama: `gemini-3.8-flash`; pembanding teruji: `gemini-3.5-flash`)
+- **Model AI Aktif:** Dikonfigurasi dinamis via `AI_MODEL_NAME` (Kandidat diprobe: `gemini-3.5-flash`, `gemini-3.8-flash`, `gemini-3.5-flash-lite`, `gemini-2.5-flash`; menunggu keputusan pemilihan)
 - **Kredensial:** `.env.local` terisolasi dari Git (aturan ignore aktif di `.gitignore`)
 
 ---
@@ -45,8 +45,9 @@ Dokumen satu halaman ini adalah ringkasan status terkini repositori yang wajib d
 - **Uji Unit Lengkap (Scoring, Guardrail, AI Engine, Confess Handler, Samples):**
   - 58 tes lulus pada 22 Okt 2026, lihat keluaran (`npm test` $\rightarrow$ **58 pass, 0 fail**).
   - Next.js build sukses (`next build` $\rightarrow$ exit code 0, route dynamic `/api/confess`).
-- **Uji Transmisi API Eksploratori (`scripts/live-check.mjs`):**
-  - Model `gemini-3.5-flash` berhasil memproses sampel (`works-on-machine` dan `rebase-conflict`) dengan HTTP 200, schema valid, dan guardrail lolos tanpa kebocoran rahasia.
+- **Uji Transmisi API Eksploratori (`scripts/live-check.mjs` & `scripts/model-probe.mjs`):**
+  - Model `gemini-3.5-flash` berhasil memproses sampel `rebase-conflict` (HTTP 200) dengan verifikasi string output AI via `--show-text`.
+  - Probe model 72 panggilan berurutan tanpa retry selesai dan disajikan ke pemilik proyek.
 - **Audit Jejak Kunci Lama & Pemindaian Rahasia:**
   - `git grep` & `git log` $\rightarrow$ **0 kecocokan secret**. Pemindaian mekanis pemilik bersih. Seluruh berkas dokumentasi telah disamarkan (`[key-prefix]`).
 
@@ -57,9 +58,10 @@ Dokumen satu halaman ini adalah ringkasan status terkini repositori yang wajib d
 2. **DILARANG** menambahkan sistem autentikasi pengguna, basis data persisten multi-tenant, pembayaran, atau webhook GitHub App.
 3. **DILARANG** merancang logika perpindahan model otomatis (*no automatic fallback*). Model strictly dibaca dari `AI_MODEL_NAME`.
 4. **DILARANG** membuka, mencetak, atau menyalin isi berkas `.env*` ke layar atau dokumen.
+5. **DILARANG** memilih model sendiri tanpa keputusan eksplisit pemilik proyek.
 
 ---
 
 ## 5. Pesan Serah-Terima (Handover Message)
-> T-004 telah selesai diimplementasikan. Route handler `/api/confess`, logika handler murni `src/lib/confess.ts`, tiga sampel diff di `src/samples/`, dan pengujian unit komprehensif (15 tes baru, total 58 tes di test suite) telah lulus tanpa regresi. Build produksi Next.js terbukti sukses. Selanjutnya siap untuk T-007a (deployment kerangka awal ke server/Vercel).
+> Probe ketersediaan model (Bagian A) selesai dieksekusi untuk 4 kandidat dan tersimpan di `docs/evidence/model-probe-2026-10-22.md`. Laporan live-check dan DEC-015 telah dikalibrasi secara faktual (Bagian B) dan teks keluaran AI berhasil diekstrak via `--show-text`. Preset sampel `rebase-conflict.ts` dan `works-on-machine.ts` telah ditulis ulang agar mewakili sesi panik otentik (6 commit, DEC-016) dan seluruh 58 tes unit tetap lulus (Bagian C & D). Menunggu keputusan pemilik proyek untuk model AI sebelum implementasi T-007a.
 

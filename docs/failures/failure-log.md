@@ -293,5 +293,30 @@ Dokumen ini mencatat setiap kegagalan, error perintah, kegagalan panggilan API, 
 - **Bukti perbaikan:** Penanganan galat sesuai spesifikasi PRD; transmisi API valid terbukti pada sampel yang sukses.
 - **Dampak ke klaim:** Tidak ada klaim publik yang terpengaruh.
 
+---
 
+## F-019 | 2026-10-22 15:10 WIB | Fase 2
+- **Kategori:** api
+- **Severity:** P2
+- **Gejala:** Panggilan API Gemini pada eksekusi model probe menghasilkan error HTTP 503 (1x pada gemini-3.5-flash, 2x pada gemini-3.8-flash), 429 quota exhaustion (12x pada gemini-3.5-flash), timeout/abort >20s (8x pada gemini-3.8-flash), dan HTTP 404 (18x pada gemini-2.5-flash).
+- **Perintah / konteks:** `node --env-file=.env.local scripts/model-probe.mjs gemini-3.5-flash,gemini-3.8-flash,gemini-3.5-flash-lite,gemini-2.5-flash`
+- **Log mentah:** `docs/failures/raw/2026-10-22-F-019.txt`
+- **Dugaan penyebab:** Beban server penyedia model, kuota per menit untuk tier free/tier awal terlampaui saat pengujian beruntun tanpa jeda panjang, latensi ekstrem pada gemini-3.8-flash, serta nama model lama gemini-2.5-flash tidak mendukung endpoint generateContent v1beta.
+- **Tindakan:** Mengisolasi hasil ke dalam matriks ketersediaan dan latensi tanpa retry untuk evaluasi pemilihan model; menyajikan tabel objektif ke pemilik proyek tanpa memilih model secara sepihak.
+- **Status:** dimitigasi
+- **Bukti perbaikan:** Tabel hasil probe tersimpan di `docs/evidence/model-probe-2026-10-22.md` bertanda eksploratori; model `gemini-3.5-flash-lite` berhasil 18 dari 18 panggilan (100% 200).
+- **Dampak ke klaim:** C-005 memerlukan penetapan model stabil sebelum pengujian 3x5 final.
 
+---
+
+## F-020 | 2026-10-22 15:14 WIB | Fase 2
+- **Kategori:** api
+- **Severity:** P2
+- **Gejala:** Panggilan API Gemini untuk sampel `late-night-hotfix` dan `works-on-machine` pada live-check opsi `--show-text` menghasilkan HTTP 503 ganda berturut-turut sehingga mengembalikan HTTP 502 `AI_GENERATION_FAILED`.
+- **Perintah / konteks:** `node --env-file=.env.local scripts/live-check.mjs --show-text`
+- **Log mentah:** `docs/failures/raw/2026-10-22-F-020.txt`
+- **Dugaan penyebab:** Kapasitas sementara server Gemini untuk model `gemini-3.5-flash` mengalami lonjakan beban (*high demand*) pada 2 dari 3 sampel.
+- **Tindakan:** Memverifikasi penanganan error graceful dan mencetak teks keluaran AI untuk sampel yang berhasil (`rebase-conflict`).
+- **Status:** dimitigasi
+- **Bukti perbaikan:** Sampel `rebase-conflict` berhasil (HTTP 200) dan teks AI berhasil diekstraksi dan diverifikasi sesuai skema.
+- **Dampak ke klaim:** Tidak ada klaim publik yang terpengaruh.
