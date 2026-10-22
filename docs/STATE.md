@@ -29,7 +29,7 @@ Dokumen satu halaman ini adalah ringkasan status terkini repositori yang wajib d
   8. **T-006:** Halaman landing `/` (Hero, HowItWorks, PricingCards) — dijadwalkan Sabtu, bukan syarat Gate 2
 - **Hambatan / Isu Aktif:** Pembatasan laju kuota permintaan API (HTTP 429) terjadi jika eksekusi sampel beruntun dilakukan tanpa jeda waktu memadai (F-022); diantisipasi dengan penambahan `--spacing-ms` dan penjadwalan run yang terukur pada uji coba Gate 2 (T-007b).
 - **Temuan P0 / P1 Terbuka:** **0** (Temuan P1 auditor pada Gate 1 dikalibrasi ulang sebagai status wajar klaim terbuka sesuai DEC-010)
-- **Hash Commit Terakhir:** `56cb92a` (docs: update HEAD commit hash in STATE.md)
+- **Hash Commit Terakhir:** `4916efc` (feat: adopt gemini-3.5-flash, reconcile probe totals, and tune incident report voice)
 
 ---
 
