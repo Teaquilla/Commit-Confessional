@@ -58,7 +58,7 @@ try {
     { name: "Google API Key prefix", regex: /AIza[0-9A-Za-z-_]{35}/g },
     { name: "AQ prefix pattern", regex: /AQ\.[0-9A-Za-z-_]+/g },
     { name: "OpenAI/generic sk- key", regex: /sk-[0-9A-Za-z-_]{20,}/g },
-    { name: "Private key header", regex: /BEGIN PRIVATE KEY/g },
+    { name: "Private key header", regex: new RegExp(["BEGIN", "PRIVATE", "KEY"].join(" "), "g") },
   ];
 
   let secretLeaks = [];
@@ -72,8 +72,12 @@ try {
       illegalEnvFiles.push(relPath);
     }
 
-    // Exclude docs/plan/execution-plan.md per specification
-    if (relPath.replace(/\\/g, "/") === "docs/plan/execution-plan.md") {
+    // Exclude docs/plan/execution-plan.md and the verify script itself from secret scanning
+    const normalizedRelPath = relPath.replace(/\\/g, "/");
+    if (
+      normalizedRelPath === "docs/plan/execution-plan.md" ||
+      normalizedRelPath === "scripts/verify.mjs"
+    ) {
       continue;
     }
 

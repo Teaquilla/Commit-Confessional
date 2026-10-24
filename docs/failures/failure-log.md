@@ -386,4 +386,20 @@ Dokumen ini mencatat setiap kegagalan, error perintah, kegagalan panggilan API, 
 - **Bukti perbaikan:** Type-cast diterapkan di `tests/confess.test.ts`, eksekusi `node scripts/verify.mjs` berhasil dengan exit code 0 (`[PASS] Production build succeeded` dan `>>> VERIFY RESULT: ALL CHECKS PASSED <<<`).
 - **Dampak ke klaim:** Fase A2 verifikasi lulus sepenuhnya.
 
+---
+
+## F-025 | 2026-10-24 12:54 WIB | Self-detection pola secret scanner pada scripts/verify.mjs
+- **Kategori:** verifikasi / skrip
+- **Severity:** P2
+- **Gejala:** `npm run verify` gagal dengan exit code 1: `[FAIL] Secret Scanning: Potential secret pattern detected: scripts/verify.mjs (Private key header)`.
+- **Perintah / konteks:** `npm run verify` -> `scripts/verify.mjs`
+- **Log mentah:** `docs/failures/raw/2026-10-24-F-025.txt`
+- **Dugaan penyebab:** `scripts/verify.mjs` mendefinisikan regex literal pengecekan private key, sehingga saat skrip memindai dirinya sendiri yang berstatus tracked git, regex mencocokkan string definisinya sendiri.
+- **Rencana perbaikan:** Pecah pembentukan pola regex secara dinamis (misal `new RegExp(["BEGIN", "PRIVATE", "KEY"].join(" "))`) atau kecualikan berkas pemindai `scripts/verify.mjs` dari pemindaian dirinya sendiri, lalu jalankan ulang `npm run verify`.
+- **Status:** diperbaiki
+- **Bukti perbaikan:** `scripts/verify.mjs` diperbarui dengan konstruksi dinamis pola private key dan pengecualian self-scanning pada berkas pemindai itu sendiri. Eksekusi ulang `npm run verify` sukses dengan exit code 0 (`>>> VERIFY RESULT: ALL CHECKS PASSED <<<`).
+- **Dampak ke klaim:** Verifikasi otomatis proyek bebas dari kegagalan self-detection.
+
+
+
 

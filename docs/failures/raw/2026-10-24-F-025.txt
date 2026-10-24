@@ -1,0 +1,9 @@
+=== [VERIFY] 3. Secret Scanning ===
+[FAIL] Secret Scanning: Potential secret pattern detected: scripts/verify.mjs (Private key header)
+
+==========================================
+>>> VERIFY RESULT: SOME CHECKS FAILED <<<
+==========================================
+Command: npm run verify
+Exit code: 1
+Reason: scripts/verify.mjs contains literal regex `/BEGIN PRIVATE KEY/g` which triggers its own self-scanning pattern match.
