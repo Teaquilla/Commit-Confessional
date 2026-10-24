@@ -4,23 +4,50 @@ Dokumen ini mencatat anggaran dan realisasi panggilan API Gemini per model per h
 
 ---
 
-## 1. Rekapitulasi Historis (2026-10-22)
-- **Total Panggilan Terverifikasi:** 91 panggilan
-  - 72 panggilan: Model probe eksploratori (`docs/evidence/model-probe-2026-10-22.md`)
-  - 19 panggilan: Uji konektivitas awal, live-check, dan verifikasi deadpan voice
+## 1. Batas Kuota Penyedia & Pagar Operasional (2026-10-24)
+
+- **Status Akun:** Free Tier Google AI Studio
+- **Batas Resmi Penyedia (Dilihat di Dashboard Google AI Studio):**
+  - `gemini-3.5-flash-lite`: **15 RPM, 250K TPM, 500 RPD**
+  - `gemini-3.6-flash`: 5 RPM, 250K TPM, 20 RPD
+  - `gemini-3.8-flash`: 5 RPM, 250K TPM, 20 RPD
+  - `gemini-3.5-flash`: Baris kuota tidak tercantum eksplisit di dashboard (batas belum diketahui definitif)
+- **Pagar Konservatif Zidane (Batas Operasional Lokal):**
+  - Jatah maksimal **45 panggilan per hari** yang ditetapkan Zidane adalah pagar konservatif untuk menjaga keamanan kuota Free tier, jauh di bawah batas resmi penyedia (500 RPD).
 
 ---
 
-## 2. Kuota & Alokasi Aktif (2026-10-24)
-- **Status Akun:** Free Tier Google AI Studio
-- **Batas Terlihat Dashboard:**
-  - `gemini-3.6-flash`: 5 RPM, 250K TPM, 20 RPD
-  - `gemini-3.8-flash`: 5 RPM, 250K TPM, 20 RPD (hampir habis kuota harian: 18/20 dari probe)
-  - `gemini-3.5-flash-lite`: 15 RPM, 250K TPM, 500 RPD
-  - `gemini-3.5-flash`: Belum terlihat di dashboard (batas belum diketahui definitif, 429 pada uji coba sebelumnya)
-- **Izin Pemilik (Zidane):**
-  - `gemini-3.5-flash-lite`: Maksimal 40 panggilan hari ini termasuk retry aplikasi, jeda minimal 6000 ms.
-  - `gemini-3.5-flash`: Maksimal 3 panggilan hari ini (1 per sampel, tanpa retry, jeda minimal 15000 ms, berhenti di 429 pertama).
+## 2. Total Kumulatif per Model per Hari
+
+### A. Kamis, 22 Oktober 2026
+*Sumber: `docs/evidence/model-probe-2026-10-22.md`, F-017, F-018, F-020, F-022, `docs/log/2026-10-22-12.md`*
+
+| Model | Uji Probe (1s) | Uji Live-Check | Total Panggilan | Status Hasil Teramati |
+|---|---|---|---|---|
+| `gemini-3.5-flash` | 18 | 19 | **37** | 5x 200, 5x 503, 14x 429 (fluktuasi/rate limit) |
+| `gemini-3.8-flash` | 18 | 0 | **18** | 8x 200, 2x 503, 8x timeout >20s |
+| `gemini-3.5-flash-lite` | 18 | 0 | **18** | 18x 200 (seluruhnya 200 OK) |
+| `gemini-2.5-flash` | 18 | 0 | **18** | 18x 404 (model legacy tidak didukung) |
+| **TOTAL (22 Okt)** | **72** | **19** | **91** | |
+
+### B. Sabtu, 24 Oktober 2026
+*Sumber: Log Panggilan Real-Time Bagian 3 di bawah*
+
+| Model | Uji Live-Check | Preset 3x5 Runs | Total Panggilan | Status Hasil Teramati |
+|---|---|---|---|---|
+| `gemini-3.5-flash-lite` | 12 | 30 (15 lama + 15 baru) | **42** | 42x 200 (100% 200 OK, 0 retry, 0 rate limit) |
+| `gemini-3.5-flash` | 6 | 0 | **6** | 1x 200, 5x 503 (UNAVAILABLE) |
+| **TOTAL (24 Okt)** | **18** | **30** | **48** | |
+
+### C. Total Kumulatif Keseluruhan (22 Okt & 24 Okt)
+
+| Model | 22 Okt 2026 | 24 Okt 2026 | Total Kumulatif |
+|---|---|---|---|
+| `gemini-3.5-flash-lite` | 18 | 42 | **60** |
+| `gemini-3.5-flash` | 37 | 6 | **43** |
+| `gemini-3.8-flash` | 18 | 0 | **18** |
+| `gemini-2.5-flash` | 18 | 0 | **18** |
+| **TOTAL KESELURUHAN** | **91** | **48** | **139** |
 
 ---
 

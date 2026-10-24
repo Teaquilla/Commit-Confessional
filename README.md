@@ -1,61 +1,71 @@
-# Commit Confessional & PR Therapist
+# Commit Confessional
 
 > A Devpost *Build With AI: Basics* Hackathon Proof of Concept.
 
-Commit Confessional is an anti-generic developer micro-utility packaged as a sleek SaaS. It analyzes messy, panic-driven git diffs or commit messages, producing an unfiltered, comedic **Confession** (what really happened) alongside a polished, diplomatic **PR Description** ready to share with your engineering team—complete with a diagnostic **Panic Score**.
+Commit Confessional is a developer micro-utility packaged as a sleek SaaS. It analyzes messy, panic-driven git diffs or commit messages, producing an unfiltered, deadpan **Incident Report** alongside a diplomatic **PR Description** ready to share with your engineering team—complete with a diagnostic **Panic Score**.
 
 ---
 
-## The Unique Kernel
-Instead of generic AI chat or bland code review, Commit Confessional acts as both a humorous emotional mirror for exhausted late-night developers and a pragmatic workflow tool that turns frantic commits into professional pull requests in seconds.
+## What It Is
+
+Instead of generic chat assistants or complex code review bots, Commit Confessional is focused on a single loop: taking frantic late-night commits and generating two distinct documents:
+1. **The Incident Report (Internal):** A 5-line monospace summary capturing severity, what happened, the observable cause, the fix, and lessons learned formatted from commit messages.
+2. **The PR Description (External):** A structured, polite markdown draft containing a summary, bulleted changes, and verification steps.
+3. **The Panic Score (0–100):** A diagnostic score derived from 5 deterministic heuristics in code with a modest AI contextual adjustment (-15 to +15).
 
 ---
 
-## Submission Links & Artifacts
-- **Hackathon:** [Build With AI: Basics on Devpost](https://learn-ai-basics.devpost.com/)
-- **Live Demo Video (1-3 min):** *(Tautan video demo akan dilampirkan pada Fase 4)*
-- **Live Application URL:** https://commit-confessional.vercel.app/app
-- **Planning Documents:**
-  - Scope: [`devpost/scope.md`](devpost/scope.md) *(dibuat pada Fase 1)*
-  - PRD: [`devpost/prd.md`](devpost/prd.md) *(dibuat pada Fase 1)*
-  - Tech Spec: [`devpost/spec.md`](devpost/spec.md) *(dibuat pada Fase 1)*
-- **Audit & Governance:**
-  - Rencana Eksekusi: [`docs/plan/execution-plan.md`](docs/plan/execution-plan.md)
-  - Log Sesi Builder: [`docs/log/`](docs/log/)
-  - Log Kegagalan: [`docs/failures/failure-log.md`](docs/failures/failure-log.md)
-  - Register Klaim: [`docs/failures/claims-register.md`](docs/failures/claims-register.md)
-  - Laporan Audit Codex: [`docs/audit/`](docs/audit/)
+## Architecture
+
+Built with Next.js 16 (App Router) and TypeScript. Client-side state is entirely in-memory with zero persistent database storage and zero user tracking cookies. When a user submits git changes or selects a preset, the payload is sent to the Next.js API Route Handler (`/api/confess`). The server calculates a baseline Panic Score across 5 deterministic code signals (rushed commit messages, shouting or keyboard mashing, repeated file modifications, leftover debug statements, and total diff volume) and formats the Incident Report's `lessonsLearned` line directly from commit history. Concurrently, it invokes Google Gemini (`gemini-3.5-flash-lite`) to produce a constrained JSON output containing a modest score adjustment (-15 to +15), an Incident Report narrative (`whatHappened`, `cause`, `fix`), and structured PR Description fields. A server-side guardrail checks that every file name referenced in the AI text existed in the input diff before returning the response to the user interface.
 
 ---
 
-## Getting Started
+## Running Locally Without an API Key
 
-### Prerequisites
-- Node.js (v18+ or LTS recommended)
-- Git
+The application includes an offline mock mode that allows full local development and testing without making external API calls or requiring a Gemini API key:
 
-### Installation
 ```bash
-# Clone the repository
-git clone <repo-url>
-cd commit-confessional
+# 1. Clone the repository
+git clone https://github.com/Teaquilla/Commit-Confessional.git
+cd Commit-Confessional
 
-# Install dependencies (akan diinisialisasi pada Fase 2)
-npm install
+# 2. Install dependencies
+npm ci
 
-# Setup environment variables
-cp .env.example .env.local
-# Masukkan API Key yang diperlukan ke .env.local (hanya untuk server-side)
+# 3. Start development server in mock mode (no API key required)
+# On Linux / macOS:
+AI_MOCK=1 npm run dev
 
-# Run development server
-npm run dev
+# On Windows (PowerShell):
+$env:AI_MOCK="1"; npm run dev
 ```
+
+Open `http://localhost:3000` in your browser to view the landing page, or visit `http://localhost:3000/app` to use the confession tool with pre-loaded mock fixtures.
+
+To run with live API calls locally, copy `.env.example` to `.env.local`, set your `GEMINI_API_KEY`, set `AI_MODEL_NAME=gemini-3.5-flash-lite`, and start the app with `npm run dev`.
 
 ---
 
 ## Known Limitations
-- Saat ini dalam status **Fase 2: Build Core Loop & Deployment Kerangka**.
-- Demo publik berjalan pada Free tier API dengan batas harian; permintaan bisa gagal dengan HTTP 429 saat kuota habis.
-- C-013: Pada 24 Okt 2026, 15 dari 15 percobaan pada tiga preset menghasilkan keluaran valid dengan gemini-3.5-flash-lite; sampel kecil, satu hari, Free tier; gemini-3.5-flash dan gemini-3.8-flash menghasilkan 503 pada pengujian lain.
-- Baris 'Lessons learned' pada Incident Report disusun secara deterministik oleh kode (berdasarkan fakta pesan commit), bukan oleh AI.
-- Sesuai batas PoC (*Strict Scope Lock*), fitur autentikasi, database multi-tenant, dan pembayaran riil sengaja dikecualikan (*Explicitly Cut*).
+
+1. **Heuristic Score:** The Panic Score is a rule-of-thumb heuristic, not a statistically validated metric.
+2. **Score Tuning:** The heuristics are tuned for human panic commits; tidy AI-generated commit changes may score lower than they feel.
+3. **AI Cause Interpretation:** The "Cause" line in the Incident Report is generated by the AI model as an interpretation based on diff clues, not confirmed ground truth.
+4. **Lessons Learned Composed by Code:** The "Lessons learned" line is composed deterministically by code from commit messages (copying commit messages as-is, truncated to 30 characters each), so it depends directly on user input content.
+5. **Language Support:** Non-English inputs have not been tested.
+6. **Large Diff-Only Inputs:** A diff-only input with >300 changed lines and no commit messages yields a base score of 50 (MAJOR) because commit signals are unavailable and remaining signals are re-normalized.
+7. **AI Output Stochasticity:** AI responses are non-deterministic; identical inputs can produce slight phrasing variations across runs.
+8. **Third-Party Data Processing:** Input diffs and messages are transmitted to the Google Gemini API to generate the narrative text and score adjustments.
+9. **Free Tier Quota on Public Demo:** The public deployment runs on Google AI Studio Free Tier (500 requests per day, 15 requests per minute); requests can fail with HTTP 429 when quota is exhausted.
+10. **Rate Limiting:** Per-IP rate limiting is active only if configured at the hosting infrastructure or reverse proxy level.
+11. **Empirical Preset Baseline (C-013):** On October 24, 2026, 15 of 15 runs on three presets yielded valid schema outputs with `gemini-3.5-flash-lite` (recorded in `docs/evidence/preset-runs.md`); this represents a small sample on one day under Free Tier limits. In separate testing, `gemini-3.5-flash` and `gemini-3.8-flash` returned HTTP 503 errors under load.
+
+---
+
+## Credits
+
+- **Author:** Zidane (Teaquilla) for Devpost *Build With AI: Basics* Hackathon (October 2026).
+- **Hackathon Guidance:** Skills and structured workflow adapted from `challengepost/learn-ai-basics`.
+- **Engineering Discipline:** Process and testing discipline inspired by teammate repository (`Teaquilla/Hakaton`) with independent implementation.
+- **Typography:** IBM Plex Sans and IBM Plex Mono.

@@ -420,6 +420,7 @@ PRD ref: `prd.md > 8. Deferred From the POC`, `prd.md > 9. Non-Goals`.
 7. **Third-Party Service:** User input is transmitted to Google Gemini API to generate the reports.
 8. **Rate Limiting:** Per-IP rate limiting must be configured at the reverse proxy before deployment (see Deployment checklist); until verified, it is not claimed.
 9. **Free Tier Daily Quota:** Demo publik berjalan pada Free tier API dengan batas harian; permintaan bisa gagal dengan HTTP 429 saat kuota habis.
+10. **Lessons Learned Source:** 'Lessons learned' disusun kode dari pesan commit (bukan oleh AI). Lessons learned menyalin pesan commit pengguna apa adanya (dipotong 30 karakter) sehingga bergantung pada isi input.
 
 
 
