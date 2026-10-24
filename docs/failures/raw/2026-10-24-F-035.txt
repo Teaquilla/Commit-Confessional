@@ -1,0 +1,9 @@
+Command: Get-ChildItem .next/static/immutable/chunks/
+Exit code: 1
+Output:
+Get-ChildItem : Cannot find path 'D:\yayaya\.next\static\immutable\chunks\' because it does not exist.
+At line:1 char:1
++ Get-ChildItem .next/static/immutable/chunks/
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (D:\yayaya\.next\static\immutable\chunks\:String) [Get-ChildItem], ItemNotFoundException
+    + FullyQualifiedErrorId : PathNotFound,Microsoft.PowerShell.Commands.GetChildItemCommand

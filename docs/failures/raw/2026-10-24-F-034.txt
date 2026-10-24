@@ -1,0 +1,17 @@
+Command: node -e "fetch('https://commit-confessional.vercel.app').then(r => r.text()).then(t => { const m = t.match(/buildId[\"']:[\"']([^\"']+)[\"']/); console.log('buildId:', m ? m[1] : 'not found'); const s = t.match(/_next\/static\/([a-zA-Z0-9_-]+)\/_buildManifest/); console.log('manifest buildId:', s ? s[1] : 'not found'); })"
+Exit code: 1
+Output:
+At line:1 char:129
++ ... r.text()).then(t => { const m = t.match(/buildId[\"']:[\"']([^\"']+)[ ...
++                                                                  ~
+Missing type name after '['.
+At line:1 char:318
++ ... fest/); console.log('manifest buildId:', s ? s[1] : 'not found'); })"
++                                                                   ~~~~~~~
+The string is missing the terminator: '.
+At line:1 char:325
++ ... fest/); console.log('manifest buildId:', s ? s[1] : 'not found'); })"
++                                                                          ~
+Missing closing ')' in expression.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : MissingTypename

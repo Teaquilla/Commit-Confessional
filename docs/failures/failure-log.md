@@ -521,6 +521,51 @@ Dokumen ini mencatat setiap kegagalan, error perintah, kegagalan panggilan API, 
 - **Bukti perbaikan:** Log mentah tersimpan di `docs/failures/raw/2026-10-24-F-033.txt`.
 - **Dampak ke klaim:** Tidak ada dampak.
 
+---
+
+## F-034 | 2026-10-24 23:01 WIB | ParserError pada inline PowerShell karena kurung siku regex di string ganda
+- **Kategori:** perintah / sintaks
+- **Severity:** P2
+- **Gejala:** ParserError pada PowerShell `Missing type name after '['.` dan `The string is missing the terminator: '.`.
+- **Perintah / konteks:** `node -e "fetch(...)...match(/buildId[\"']:[\"']([^\"']+)[\"']/)..."`
+- **Log mentah:** `docs/failures/raw/2026-10-24-F-034.txt`
+- **Dugaan penyebab:** PowerShell menginterpretasikan `[` sebagai type literal casting di dalam kutipan ganda string.
+- **Rencana perbaikan:** Tulis skrip verifikasi ke berkas sementara di `scripts/` atau jalankan via node dengan berkas terpisah.
+- **Status:** diperbaiki
+- **Bukti perbaikan:** Log mentah tersimpan di `docs/failures/raw/2026-10-24-F-034.txt`.
+- **Dampak ke klaim:** Tidak ada dampak.
+
+---
+
+## F-035 | 2026-10-24 23:01 WIB | PathNotFound pada Get-ChildItem .next/static/immutable/chunks/
+- **Kategori:** perintah / sistem berkas
+- **Severity:** P2
+- **Gejala:** PowerShell `ItemNotFoundException: Cannot find path 'D:\yayaya\.next\static\immutable\chunks\' because it does not exist.`.
+- **Perintah / konteks:** `Get-ChildItem .next/static/immutable/chunks/`
+- **Log mentah:** `docs/failures/raw/2026-10-24-F-035.txt`
+- **Dugaan penyebab:** Struktur folder `.next/static/` lokal di Windows menggunakan `chunks/` langsung, bukan `immutable/chunks/` (yang merupakan struktur distribusi CDN Vercel).
+- **Rencana perbaikan:** Periksa struktur `.next/static/` menggunakan `Get-ChildItem .next/static/`.
+- **Status:** diperbaiki
+- **Bukti perbaikan:** Log mentah tersimpan di `docs/failures/raw/2026-10-24-F-035.txt`.
+- **Dampak ke klaim:** Tidak ada dampak.
+
+---
+
+## F-036 | 2026-10-24 23:03 WIB | ParserError pada PowerShell karena regex matchAll pada string inline
+- **Kategori:** perintah / sintaks
+- **Severity:** P2
+- **Gejala:** ParserError pada PowerShell `Missing type name after '['.` dan `The string is missing the terminator: ".`.
+- **Perintah / konteks:** `node -e "fetch(...)...matchAll(/src=\"([^\"]+)\"/g)..."`
+- **Log mentah:** `docs/failures/raw/2026-10-24-F-036.txt`
+- **Dugaan penyebab:** Kutipan ganda string PowerShell mengalami collision dengan ekspresi regular regex inline.
+- **Rencana perbaikan:** Selalu gunakan berkas skrip `scripts/check-deploy.mjs` untuk pemeriksaan deployment daripada inline node.
+- **Status:** diperbaiki
+- **Bukti perbaikan:** Log mentah tersimpan di `docs/failures/raw/2026-10-24-F-036.txt`.
+- **Dampak ke klaim:** Tidak ada dampak.
+
+
+
+
 
 
 

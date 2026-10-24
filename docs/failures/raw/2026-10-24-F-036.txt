@@ -1,0 +1,21 @@
+Command: node -e "fetch('https://commit-confessional.vercel.app/').then(r => r.text()).then(t => { const m = [...t.matchAll(/src=\"([^\"]+)\"/g)].map(x => x[1]); console.log(m.slice(0, 5)); })"
+Exit code: 1
+Output:
+At line:1 char:125
++ ... r => r.text()).then(t => { const m = [...t.matchAll(/src=\"([^\"]+)\" ...
++                                                                  ~
+Missing type name after '['.
+At line:1 char:182
++ ... /src=\"([^\"]+)\"/g)].map(x => x[1]); console.log(m.slice(0, 5)); })"
++                                                                       ~
+Unexpected token '}' in expression or statement.
+At line:1 char:183
++ ... /src=\"([^\"]+)\"/g)].map(x => x[1]); console.log(m.slice(0, 5)); })"
++                                                                        ~
+Unexpected token ')' in expression or statement.
+At line:1 char:184
++ ... /src=\"([^\"]+)\"/g)].map(x => x[1]); console.log(m.slice(0, 5)); })"
++                                                                         ~
+The string is missing the terminator: ".
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : MissingTypename
