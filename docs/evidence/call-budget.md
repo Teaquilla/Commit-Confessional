@@ -34,3 +34,9 @@ Dokumen ini mencatat anggaran dan realisasi panggilan API Gemini per model per h
 | 2026-10-24T03:41:07.667Z | gemini-3.5-flash | 503 | false |
 | 2026-10-24T03:41:30.664Z | gemini-3.5-flash | 503 | false |
 | 2026-10-24T03:41:54.708Z | gemini-3.5-flash | 503 | false |
+| 2026-10-24T06:35:20.451Z | gemini-3.5-flash-lite | 200 | false |
+| 2026-10-24T06:35:27.861Z | gemini-3.5-flash-lite | 200 | false |
+| 2026-10-24T06:35:35.398Z | gemini-3.5-flash-lite | 200 | false |
+| 2026-10-24T06:36:35.558Z | gemini-3.5-flash | 503 | false |
+| 2026-10-24T06:36:51.904Z | gemini-3.5-flash | 503 | false |
+| 2026-10-24T06:37:15.826Z | gemini-3.5-flash | 200 | false |

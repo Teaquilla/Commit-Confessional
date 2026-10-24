@@ -1,0 +1,6 @@
+At line:1 char:106
++ ... ures/failure-log.md docs/failures/raw/2026-10-24-F-026.txt && git com ...
++                                                                ~~
+The token '&&' is not a valid statement separator in this version.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : InvalidEndOfLine

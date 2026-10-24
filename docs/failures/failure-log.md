@@ -400,6 +400,30 @@ Dokumen ini mencatat setiap kegagalan, error perintah, kegagalan panggilan API, 
 - **Bukti perbaikan:** `scripts/verify.mjs` diperbarui dengan konstruksi dinamis pola private key dan pengecualian self-scanning pada berkas pemindai itu sendiri. Eksekusi ulang `npm run verify` sukses dengan exit code 0 (`>>> VERIFY RESULT: ALL CHECKS PASSED <<<`).
 - **Dampak ke klaim:** Verifikasi otomatis proyek bebas dari kegagalan self-detection.
 
+---
 
+## F-026 | 2026-10-24 13:37 WIB | Eksplorasi gemini-3.5-flash menghasilkan HTTP 503 UNAVAILABLE
+- **Kategori:** api
+- **Severity:** P2
+- **Gejala:** Panggilan API Gemini untuk model `gemini-3.5-flash` menghasilkan HTTP 503 UNAVAILABLE pada sampel 1 (`late-night-hotfix`, latensi 7491 ms) dan sampel 2 (`rebase-conflict`, latensi 1328 ms) saat dieksekusi dengan `--no-retry`. Sampel 3 (`works-on-machine`) berhasil dengan HTTP 200 (latensi 8926 ms).
+- **Perintah / konteks:** `node --env-file=.env.local scripts/live-check.mjs --model=gemini-3.5-flash --show-text --spacing-ms=15000 --no-retry --stop-on-429`
+- **Log mentah:** `docs/failures/raw/2026-10-24-F-026.txt`
+- **Dugaan penyebab:** Kapasitas server upstream Google AI Studio untuk model `gemini-3.5-flash` pada Free Tier mengalami fluktuasi/beban tinggi (high demand / 503 UNAVAILABLE), berbeda dengan `gemini-3.5-flash-lite` yang konsisten 200 dengan latensi ~1.4 - 3.2 detik.
+- **Rencana perbaikan:** Pertahankan keputusan arsitektur (DEC-020) untuk menjadikan `gemini-3.5-flash-lite` sebagai model utama produksi/demo. Model `gemini-3.5-flash` hanya dipakai untuk evaluasi eksploratori.
+- **Status:** dimitigasi (keputusan arsitektur model utama tetap pada `gemini-3.5-flash-lite`)
+- **Bukti perbaikan:** `gemini-3.5-flash-lite` 3/3 sukses HTTP 200; `gemini-3.5-flash` berhasil membuktikan pembatasan upstream dan isolasi galat `AI_GENERATION_FAILED` tanpa crash atau kebocoran secret.
+- **Dampak ke klaim:** Mengonfirmasi bahwa klaim keandalan demo harus bertumpu pada `gemini-3.5-flash-lite`.
 
+---
 
+## F-027 | 2026-10-24 13:38 WIB | Sintaks shell PowerShell tidak mendukung operator token &&
+- **Kategori:** perintah
+- **Severity:** P2
+- **Gejala:** Perintah shell gagal dengan exit code 1 (`The token '&&' is not a valid statement separator in this version.`).
+- **Perintah / konteks:** `git add ... && git commit -m "..."`
+- **Log mentah:** `docs/failures/raw/2026-10-24-F-027.txt`
+- **Dugaan penyebab:** Windows PowerShell default tidak mendukung operator rantai bash `&&`, melainkan memerlukan pemisah baris/titik koma (`;`).
+- **Rencana perbaikan:** Jalankan perintah `git add` dan `git commit` secara terpisah atau gunakan pemisah `;`.
+- **Status:** diperbaiki
+- **Bukti perbaikan:** Perintah dijalankan secara terpisah tanpa token `&&`.
+- **Dampak ke klaim:** Tidak ada dampak pada kode aplikasi maupun klaim publik.

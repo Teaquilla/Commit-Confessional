@@ -1,0 +1,57 @@
+=== LIVE CHECK (EKSPLORATORI, BUKAN BUKTI 3X5) ===
+Target Model: gemini-3.5-flash
+Spacing: 15000 ms between samples
+No Retry: true
+Stop On 429: true
+
+--- Sample: late-night-hotfix ---
+[AI_HTTP_ERROR] status: 503, error.status: UNAVAILABLE
+[API_ERROR] AI_GENERATION_FAILED attempts=1
+Status: 502
+Latency: 7491 ms
+Schema Valid: false
+Error Code: AI_GENERATION_FAILED
+HTTP Status: 502
+
+--- Sample: rebase-conflict ---
+[AI_HTTP_ERROR] status: 503, error.status: UNAVAILABLE
+[API_ERROR] AI_GENERATION_FAILED attempts=1
+Status: 502
+Latency: 1328 ms
+Schema Valid: false
+Error Code: AI_GENERATION_FAILED
+HTTP Status: 502
+
+--- Sample: works-on-machine ---
+Status: 200
+Latency: 8926 ms
+Schema Valid: true
+Guardrail Passed: true
+Final Score: 49 (Base: 43, Adj: 6)
+Severity: MODERATE
+String Lengths vs Limits:
+  aiAdjustmentReason: 101 / 240
+  whatHappened:       120 / 300
+  cause:              109 / 300
+  fix:                100 / 300
+  lessonsLearned:     94 / 300
+  prSummary:          130 / 400
+  whatChanged:        [61, 65, 66] / max 200 each (count: 3/4)
+  howToCheck:         [79, 79] / max 200 each (count: 2/2)
+
+--- [AI Output Text] ---
+Incident Report (5 lines):
+  Severity: MODERATE
+  What happened: The file src/storage/upload.ts was modified across 6 commits due to file creation failures in the container environment.
+  Cause: The target upload directory path was unset in the environment and lacked necessary file creation permissions.
+  Fix: Fallback directory assignment, explicit directory creation, and permission configuration were added.
+  Lessons learned: Container runtime directory configuration was not validated before pushing changes to staging.
+PR Description:
+  Summary: Configures fallback upload directory handling, creates missing upload paths, and sets target permissions in src/storage/upload.ts.
+  What changed:
+    - Added environment variable fallback for upload directory path
+    - Added directory existence checks and explicit permission settings
+    - Included logging statements for path and directory mode inspection
+  How to check:
+    - Verify file upload functionality when UPLOAD_DIR environment variable is absent
+    - Inspect file permissions of created upload directories in container environment
