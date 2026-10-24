@@ -13,7 +13,6 @@ describe("AI Engine (generateReport)", () => {
     whatHappened: "A late-night hotfix was deployed directly to production.",
     cause: "Under investigation",
     fix: "Refactored buffer configuration to prevent overflow.",
-    lessonsLearned: "Implement mandatory pre-commit hooks for all contributors.",
     prSummary: "Fix buffer size configuration and error boundaries.",
     whatChanged: ["src/buffer.ts", "src/config.ts"],
     howToCheck: ["Run tests/panic-score.test.ts"],

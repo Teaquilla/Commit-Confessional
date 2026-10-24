@@ -38,11 +38,9 @@ Your job is to analyze git diffs and commit logs, then generate an incident repo
 
 Adhere strictly to the following rules:
 1. Deadpan Understated Incident Report:
-   - Provide a structured incident report with keys: whatHappened, cause, fix, lessonsLearned.
+   - Provide a structured incident report with keys: whatHappened, cause, fix.
    - Use short sentences and understated, dry, passive engineering language.
    - 'cause' MUST contain only the direct cause visible in the diff or commit messages; if not directly visible, you MUST set cause strictly to "Under investigation".
-   - 'lessonsLearned' MUST be exactly one dry sentence citing one observed fact from the "Deterministic Observed Facts" block or from commit messages (for example, the number of commits or exact words from repetitive commit messages); it MUST NOT repeat 'cause' or 'fix', and MUST NOT judge team process or procedures.
-   - Exact commit messages may be quoted as dry facts.
    - Absolutely NO exclamation marks, NO emojis, and NO explicit jokes or humor.
 2. Neutral PR Description:
    - Provide summary, whatChanged (array of max 4 strings), and howToCheck (array of max 2 strings).
@@ -64,7 +62,6 @@ Adhere strictly to the following rules:
      "whatHappened": string (max 160 chars),
      "cause": string (max 160 chars),
      "fix": string (max 160 chars),
-     "lessonsLearned": string (max 160 chars),
      "prSummary": string (max 250 chars),
      "whatChanged": string[] (max 4 items, max 160 chars each),
      "howToCheck": string[] (max 2 items, max 160 chars each)
@@ -78,7 +75,6 @@ Example 1:
   "whatHappened": "Authentication service changes occurred across 6 consecutive commits.",
   "cause": "A validation check was omitted in the diff.",
   "fix": "Fallback token verification check was restored.",
-  "lessonsLearned": "Six commits were recorded for a single service change.",
   "prSummary": "Restores backward compatibility for legacy session tokens.",
   "whatChanged": [
     "Added validation fallback for legacy tokens",
@@ -96,7 +92,6 @@ Example 2:
   "whatHappened": "A database query adjustment was committed across 3 commits.",
   "cause": "Under investigation.",
   "fix": "Query index definition was added and timeout value was adjusted.",
-  "lessonsLearned": "Three commits contained identical messages citing urgent repair.",
   "prSummary": "Adds missing composite index and adjusts query execution timeout.",
   "whatChanged": [
     "Added composite index definition",

@@ -56,4 +56,6 @@ npm run dev
 ## Known Limitations
 - Saat ini dalam status **Fase 2: Build Core Loop & Deployment Kerangka**.
 - Demo publik berjalan pada Free tier API dengan batas harian; permintaan bisa gagal dengan HTTP 429 saat kuota habis.
+- C-013: Pada 24 Okt 2026, 15 dari 15 percobaan pada tiga preset menghasilkan keluaran valid dengan gemini-3.5-flash-lite; sampel kecil, satu hari, Free tier; gemini-3.5-flash dan gemini-3.8-flash menghasilkan 503 pada pengujian lain.
+- Baris 'Lessons learned' pada Incident Report disusun secara deterministik oleh kode (berdasarkan fakta pesan commit), bukan oleh AI.
 - Sesuai batas PoC (*Strict Scope Lock*), fitur autentikasi, database multi-tenant, dan pembayaran riil sengaja dikecualikan (*Explicitly Cut*).

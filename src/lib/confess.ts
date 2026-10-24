@@ -13,6 +13,7 @@ import {
 import {
   validateGitInput,
   calculatePanicScore,
+  formatLessonsLearned,
   type BaseScoreSignals,
 } from "./panic-score.ts";
 import { checkFileNames } from "./guardrails.ts";
@@ -61,7 +62,6 @@ function collectAllAiTexts(ai: AIOutput): string[] {
     ai.whatHappened,
     ai.cause,
     ai.fix,
-    ai.lessonsLearned,
     ai.prSummary,
     ...ai.whatChanged,
     ...ai.howToCheck,
@@ -315,6 +315,8 @@ export async function handleConfess(
   const severity = computeSeverity(finalScore);
 
   // (9) Assemble response and validate with ConfessResponseSchema
+  const lessonsLearned = formatLessonsLearned(panicResult.parsed.commits);
+
   const responseCandidate: ConfessResponse = {
     panicScore: {
       finalScore,
@@ -330,7 +332,7 @@ export async function handleConfess(
       whatHappened: aiOutput.whatHappened,
       cause: aiOutput.cause,
       fix: aiOutput.fix,
-      lessonsLearned: aiOutput.lessonsLearned,
+      lessonsLearned,
     },
     prDescription: {
       summary: aiOutput.prSummary,

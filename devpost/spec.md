@@ -105,6 +105,11 @@ PRD ref: `prd.md > 2. Screens and Layout`.
 - [ ] Service restart command verified (`pm2 restart commit-confessional` or `systemctl restart commit-confessional`).
 - [ ] Verification that the public URL is reachable from an external network.
 
+### Known Limitations
+- Demo publik berjalan pada Free tier API dengan batas harian; permintaan bisa gagal dengan HTTP 429 saat kuota habis.
+- C-013: Pada 24 Okt 2026, 15 dari 15 percobaan pada tiga preset menghasilkan keluaran valid dengan gemini-3.5-flash-lite; sampel kecil, satu hari, Free tier; gemini-3.5-flash dan gemini-3.8-flash menghasilkan 503 pada pengujian lain.
+- Baris 'Lessons learned' pada Incident Report disusun secara deterministik oleh kode (berdasarkan fakta pesan commit), bukan oleh AI.
+
 
 ---
 
@@ -204,7 +209,7 @@ export type ConfessRequest = z.infer<typeof ConfessRequestSchema>;
 ```
 
 ### 8.2 AI Output Schema (Raw LLM Generation Contract)
-The AI model is instructed to output strictly this structure. The AI does NOT output severity or final scores.
+The AI model is instructed to output strictly this structure. The AI does NOT output severity, final scores, or lessons learned.
 ```typescript
 export const AIOutputSchema = z.object({
   aiAdjustment: z.number().int().min(-15).max(15),
@@ -212,7 +217,6 @@ export const AIOutputSchema = z.object({
   whatHappened: z.string().max(200),
   cause: z.string().max(200),
   fix: z.string().max(200),
-  lessonsLearned: z.string().max(200),
   prSummary: z.string().max(300),
   whatChanged: z.array(z.string().max(150)).max(4),
   howToCheck: z.array(z.string().max(150)).max(2),
@@ -247,7 +251,7 @@ export interface ConfessResponse {
     whatHappened: string;
     cause: string;
     fix: string;
-    lessonsLearned: string;
+    lessonsLearned: string; // Formatted deterministically by code from commit messages
   };
   prDescription: {
     summary: string;
@@ -292,7 +296,7 @@ export async function generateReport(input: string): Promise<AIOutput>;
 ### 9.2 Output Guardrails Validator (`src/lib/guardrails.ts`)
 - **Extraction:**
   - *Valid File Names Set:* Parsed from diff headers (`diff --git a/... b/...`, `+++ b/...`, `--- a/...`), plus any file paths identified in the raw input text. Both full relative paths and basenames (e.g. `auth.ts` for `src/auth.ts`) are considered valid.
-  - *Extracted AI References:* Scanned across all AI-generated fields (`whatHappened`, `cause`, `fix`, `lessonsLearned`, `prSummary`, `whatChanged`, `howToCheck`, and `aiAdjustmentReason`) using regex pattern matching file extensions (`\b[\w\.\-/]+\.[a-zA-Z0-9]{1,8}\b`).
+  - *Extracted AI References:* Scanned across all AI-generated fields (`whatHappened`, `cause`, `fix`, `prSummary`, `whatChanged`, `howToCheck`, and `aiAdjustmentReason`) using regex pattern matching file extensions (`\b[\w\.\-/]+\.[a-zA-Z0-9]{1,8}\b`).
 - **Enforcement & Retry Policy:**
   1. If any file name referenced by the AI does not exist in the valid set:
      - The output is rejected.

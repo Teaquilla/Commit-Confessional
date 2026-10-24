@@ -7,6 +7,7 @@ import {
   validateGitInput,
   parseInput,
   calculatePanicScore,
+  formatLessonsLearned,
 } from "../src/lib/panic-score.ts";
 
 describe("validateGitInput", () => {
@@ -515,6 +516,65 @@ describe("calculatePanicScore", () => {
     assert.equal(hundredResult.baseScore, 100);
     assert.equal(hundredResult.finalScore, 100);
     assert.equal(hundredResult.severity, "CRITICAL");
+  });
+});
+
+describe("formatLessonsLearned", () => {
+  it("returns 'No commit messages were provided.' when commits array is empty", () => {
+    assert.equal(formatLessonsLearned([]), "No commit messages were provided.");
+  });
+
+  it("returns 'The change was made in N commits.' when all messages are normal", () => {
+    const commits = [
+      { hash: "a1", message: "Add user profile configuration", files: [] },
+      { hash: "a2", message: "Update database pool settings", files: [] },
+    ];
+    assert.equal(formatLessonsLearned(commits), "The change was made in 2 commits.");
+  });
+
+  it("formats single low-effort commit correctly", () => {
+    const commits = [{ hash: "a1", message: "fix", files: [] }];
+    assert.equal(formatLessonsLearned(commits), "The commit messages were 'fix'.");
+  });
+
+  it("formats 2 commits with low-effort correctly", () => {
+    const commits = [
+      { hash: "a1", message: "fix", files: [] },
+      { hash: "a2", message: "please work now", files: [] },
+    ];
+    assert.equal(
+      formatLessonsLearned(commits),
+      "The commit messages were 'fix' and 'please work now'."
+    );
+  });
+
+  it("formats 3 commits with low-effort correctly", () => {
+    const commits = [
+      { hash: "a1", message: "fix", files: [] },
+      { hash: "a2", message: "wip", files: [] },
+      { hash: "a3", message: "third attempt", files: [] },
+    ];
+    assert.equal(
+      formatLessonsLearned(commits),
+      "The commit messages were 'fix', 'wip' and 'third attempt'."
+    );
+  });
+
+  it("formats > 3 commits with truncation to 30 characters and 'and N more'", () => {
+    const longMsg = "This is a very long commit message that exceeds thirty chars";
+    const commits = [
+      { hash: "a1", message: "fix", files: [] },
+      { hash: "a2", message: longMsg, files: [] },
+      { hash: "a3", message: "debug", files: [] },
+      { hash: "a4", message: "fourth commit", files: [] },
+      { hash: "a5", message: "fifth commit", files: [] },
+    ];
+    const expectedTruncated = longMsg.slice(0, 30);
+    assert.equal(expectedTruncated.length, 30);
+    assert.equal(
+      formatLessonsLearned(commits),
+      `The commit messages were 'fix', '${expectedTruncated}', 'debug' and 2 more.`
+    );
   });
 });
 

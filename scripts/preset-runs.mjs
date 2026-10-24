@@ -64,7 +64,6 @@ outerLoop: for (const sample of samples) {
           data.incidentReport.whatHappened,
           data.incidentReport.cause,
           data.incidentReport.fix,
-          data.incidentReport.lessonsLearned,
           data.prDescription.summary,
           ...data.prDescription.whatChanged,
           ...data.prDescription.howToCheck,

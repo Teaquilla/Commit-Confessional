@@ -17,7 +17,6 @@ export const AIOutputSchema = z.object({
   whatHappened: z.string().max(300),
   cause: z.string().max(300),
   fix: z.string().max(300),
-  lessonsLearned: z.string().max(300),
   prSummary: z.string().max(400),
   whatChanged: z.array(z.string().max(200)).max(4),
   howToCheck: z.array(z.string().max(200)).max(2),

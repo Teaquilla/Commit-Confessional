@@ -56,13 +56,12 @@ for (let i = 0; i < samples.length; i++) {
       const data = res.data;
       console.log(`Schema Valid: true`);
 
-      // Check guardrail
+      // Check guardrail (strictly AI-generated texts)
       const aiTexts = [
         data.panicScore.aiAdjustmentReason,
         data.incidentReport.whatHappened,
         data.incidentReport.cause,
         data.incidentReport.fix,
-        data.incidentReport.lessonsLearned,
         data.prDescription.summary,
         ...data.prDescription.whatChanged,
         ...data.prDescription.howToCheck,

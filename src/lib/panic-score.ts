@@ -517,3 +517,54 @@ export function calculatePanicScore(input: string): PanicScoreResult {
     parsed,
   };
 }
+
+/**
+ * Formats the Incident Report's 'lessonsLearned' line deterministically from parsed commit messages.
+ * Rules:
+ * - If no commit log: "No commit messages were provided."
+ * - If all commit messages are ordinary (no low-effort): "The change was made in N commits."
+ * - If commit messages contain low-effort items: "The commit messages were 'a', 'b' and 'c'."
+ *   (Max 3 messages in commit order, truncated to 30 chars each without case alteration;
+ *    if >3 commits, appends " and N more").
+ */
+export function formatLessonsLearned(commits: ParsedCommit[]): string {
+  if (!commits || commits.length === 0) {
+    return "No commit messages were provided.";
+  }
+
+  let lowEffortCount = 0;
+  const seenMessages = new Set<string>();
+
+  for (const commit of commits) {
+    const msg = commit.message.toLowerCase().trim();
+    const isFixedWord = LOW_EFFORT_SET.has(msg);
+    const isSingleWord = msg.length > 0 && !msg.includes(" ");
+    const isDuplicate = seenMessages.has(msg);
+
+    if (isFixedWord || isSingleWord || isDuplicate) {
+      lowEffortCount++;
+    }
+    seenMessages.add(msg);
+  }
+
+  if (lowEffortCount === 0) {
+    return `The change was made in ${commits.length} commits.`;
+  }
+
+  const sliced = commits.slice(0, 3).map((c) => c.message.slice(0, 30));
+  const remaining = commits.length - 3;
+
+  if (remaining > 0) {
+    return `The commit messages were '${sliced[0]}', '${sliced[1]}', '${sliced[2]}' and ${remaining} more.`;
+  }
+
+  if (sliced.length === 1) {
+    return `The commit messages were '${sliced[0]}'.`;
+  }
+
+  if (sliced.length === 2) {
+    return `The commit messages were '${sliced[0]}' and '${sliced[1]}'.`;
+  }
+
+  return `The commit messages were '${sliced[0]}', '${sliced[1]}' and '${sliced[2]}'.`;
+}

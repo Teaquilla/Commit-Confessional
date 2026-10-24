@@ -19,7 +19,6 @@ const VALID_AI_OUTPUT: AIOutput = {
   whatHappened: "Checkout service experienced null customer billing references.",
   cause: "Missing null checks on nested customer billing object.",
   fix: "Added fallback error return when billingAddress is missing.",
-  lessonsLearned: "Validate nested objects before passing to payment gateway.",
   prSummary: "Adds null safety check for order billing address in checkout service.",
   whatChanged: [
     "Added null guard in processOrder",
@@ -367,7 +366,6 @@ describe("handleConfess Integration Unit Tests", () => {
         whatHappened: "Order processing logic was modified across 2 commits.",
         cause: "Under investigation",
         fix: "Applied condition check in src/payments/checkout.ts",
-        lessonsLearned: "Staging checks required before production rollout.",
         prSummary: "Fix validation in payments checkout.",
         whatChanged: ["src/payments/checkout.ts"],
         howToCheck: ["Verify checkout flow"],

@@ -331,3 +331,19 @@ Dokumen ini mencatat setiap keputusan arsitektural, teknis, atau penyesuaian sco
   2. Memperbarui kedua contoh format laporan pada prompt agar memenuhi aturan di atas secara presisi, tanpa mencantumkan nama berkas apa pun.
 - **Rasional:** Menjaga agar laporan insiden tetap bersifat deskriptif faktual (*deadpan engineering voice*) berbasis sinyal git teramati tanpa membuat spekulasi atau penghakiman prosedur kerja tim.
 - **Status:** Disetujui (Zidane).
+
+---
+
+## DEC-025 | 2026-10-24 | Klarifikasi Penomoran Keputusan & Penyusunan lessonsLearned oleh Kode
+- **Keputusan:**
+  1. **Klarifikasi Penomoran Keputusan:** Menegaskan bahwa urutan nomor keputusan di log proyek adalah DEC-020 (kuota & model), DEC-021 (format kontrak tugas T-005 s.d. T-008), DEC-022 (pengetatan nada incident report), DEC-023 (mode mock pengujian lokal), dan DEC-024 (revisi aturan Incident Report di SYSTEM_PROMPT). Seluruh ID bersifat unik dan berurutan.
+  2. **Penyusunan `lessonsLearned` oleh Kode:**
+     - Menghapus `lessonsLearned` dari `AIOutputSchema` dan `SYSTEM_PROMPT`. Model AI hanya menghasilkan `whatHappened`, `cause`, `fix`, `prSummary`, `whatChanged`, `howToCheck`, dan `aiAdjustment`.
+     - `incidentReport.lessonsLearned` disusun secara deterministik di kode (`formatLessonsLearned`) menggunakan templat tetap berbasis pesan commit git:
+       * Jika ada pesan commit (dan terdeteksi low-effort): `"The commit messages were 'a', 'b' and 'c'."` (maksimal 3 pesan terurut, dipotong 30 karakter tanpa ubah huruf; jika >3 ditambah `" and N more"`).
+       * Jika tidak ada log commit: `"No commit messages were provided."`.
+       * Jika semua pesan normal (tidak ada low-effort): `"The change was made in N commits."`.
+     - Guardrail nama file tetap memeriksa teks keluaran AI (`aiAdjustmentReason`, `whatHappened`, `cause`, `fix`, `prSummary`, `whatChanged`, `howToCheck`).
+     - Seluruh tes, spec, dan README dimutakhirkan untuk mendokumentasikan bahwa baris ini disusun oleh kode.
+- **Rasional:** Menjamin determinisme dan kekeringan kalimat pada `lessonsLearned` secara konsisten tanpa variasi stokastik LLM dan tanpa risiko halusinasi atau penilaian prosedur tim.
+- **Status:** Disetujui (Zidane).
