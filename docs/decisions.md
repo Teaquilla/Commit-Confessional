@@ -304,4 +304,17 @@ Dokumen ini mencatat setiap keputusan arsitektural, teknis, atau penyesuaian sco
 - **Rasional:** Memastikan laporan insiden memiliki dasar faktual langsung dari sinyal git input sekaligus mencegah keluaran yang repetitif.
 - **Status:** Disetujui (Zidane).
 
+---
+
+## DEC-023 | 2026-10-24 | Mode Mock untuk Pengembangan Lokal (AI_MOCK=1) & Larangan Video
+- **Keputusan:**
+  1. Mengimplementasikan mode mock di `src/lib/confess.ts` yang diaktifkan melalui environment variable `AI_MOCK=1`.
+  2. Mode mock HANYA diakui jika `process.env.NODE_ENV === 'development'`.
+  3. Pada lingkungan produksi (`NODE_ENV === 'production'`), flag `AI_MOCK` diabaikan sepenuhnya untuk menjamin panggilan tidak dipotong di lingkungan publik.
+  4. Ketika mode mock aktif, route mengembalikan respons deterministik dari fixture di `tests/fixtures/mock-responses.ts` (mencakup 3 tingkat severity berbeda: MODERATE, MINOR, CRITICAL untuk 3 sampel diff) yang valid terhadap `ConfessResponseSchema`, dan antarmuka `/app` WAJIB menampilkan label tegas: `"MOCK RESPONSE (development only)"`.
+  5. Menambahkan aturan pada `docs/DEMO_READINESS.md` bahwa perekaman video demo resmi dilarang keras menggunakan mode mock.
+- **Rasional:** Memungkinkan pengujian antarmuka pengguna `/app`, layout, dan interaksi browser secara cepat dan deterministik tanpa menghabiskan kuota harian API Free Tier.
+- **Status:** Disetujui (Zidane).
+
+
 

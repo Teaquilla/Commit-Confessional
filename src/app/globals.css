@@ -6,4 +6,20 @@
   --border: #e4e2dc;
   --card: #f3f1ec;
   --accent: #c2410c;
+  --accent-tint: #fbe9df;
+  --text-secondary: #5f5c55;
+  --font-sans: var(--font-plex-sans), system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, monospace;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--background);
+  color: var(--foreground);
+  margin: 0;
+  padding: 0;
+}
+
+code, pre, .font-mono {
+  font-family: var(--font-mono);
 }

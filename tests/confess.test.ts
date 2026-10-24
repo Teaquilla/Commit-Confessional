@@ -314,4 +314,78 @@ describe("handleConfess Integration Unit Tests", () => {
       console.warn = origWarn;
     }
   });
+
+  it("13. returns mock fixtures with distinct severities when AI_MOCK=1 and NODE_ENV=development", async () => {
+    const envObj = process.env as Record<string, string | undefined>;
+    const origMock = process.env.AI_MOCK;
+    const origEnv = process.env.NODE_ENV;
+    envObj.AI_MOCK = "1";
+    envObj.NODE_ENV = "development";
+
+    try {
+      // Sample 1: late-night-hotfix -> MODERATE
+      const res1 = await handleConfess({ input: lateNightHotfix });
+      assert.equal(res1.status, 200);
+      assert.equal("panicScore" in res1.data, true);
+      if ("panicScore" in res1.data) {
+        assert.equal(res1.data.isMock, true);
+        assert.equal(res1.data.incidentReport.severity, "MODERATE");
+      }
+
+      // Sample 2: rebase-conflict -> MINOR
+      const res2 = await handleConfess({ input: rebaseConflict });
+      assert.equal(res2.status, 200);
+      if ("panicScore" in res2.data) {
+        assert.equal(res2.data.isMock, true);
+        assert.equal(res2.data.incidentReport.severity, "MINOR");
+      }
+
+      // Sample 3: works-on-machine -> CRITICAL
+      const res3 = await handleConfess({ input: worksOnMachine });
+      assert.equal(res3.status, 200);
+      if ("panicScore" in res3.data) {
+        assert.equal(res3.data.isMock, true);
+        assert.equal(res3.data.incidentReport.severity, "CRITICAL");
+      }
+    } finally {
+      envObj.AI_MOCK = origMock;
+      envObj.NODE_ENV = origEnv;
+    }
+  });
+
+  it("14. ignores AI_MOCK=1 strictly when NODE_ENV is production", async () => {
+    const envObj = process.env as Record<string, string | undefined>;
+    const origMock = process.env.AI_MOCK;
+    const origEnv = process.env.NODE_ENV;
+    envObj.AI_MOCK = "1";
+    envObj.NODE_ENV = "production";
+
+    try {
+      const fakeGenerate = async () => ({
+        aiAdjustment: 0,
+        aiAdjustmentReason: "Production execution without mock bypass.",
+        whatHappened: "Order processing logic was modified across 2 commits.",
+        cause: "Under investigation",
+        fix: "Applied condition check in src/payments/checkout.ts",
+        lessonsLearned: "Staging checks required before production rollout.",
+        prSummary: "Fix validation in payments checkout.",
+        whatChanged: ["src/payments/checkout.ts"],
+        howToCheck: ["Verify checkout flow"],
+      });
+
+      const res = await handleConfess(
+        { input: lateNightHotfix },
+        { generateReport: fakeGenerate }
+      );
+
+      assert.equal(res.status, 200);
+      if ("panicScore" in res.data) {
+        assert.equal(res.data.isMock, undefined); // AI_MOCK ignored in production!
+      }
+    } finally {
+      envObj.AI_MOCK = origMock;
+      envObj.NODE_ENV = origEnv;
+    }
+  });
 });
+

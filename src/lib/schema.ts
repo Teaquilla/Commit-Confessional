@@ -75,6 +75,7 @@ export const ConfessResponseSchema = z.object({
   incidentReport: IncidentReportSchema,
   prDescription: PRDescriptionSchema,
   truncated: z.boolean(),
+  isMock: z.boolean().optional(),
 });
 export type ConfessResponse = z.infer<typeof ConfessResponseSchema>;
 

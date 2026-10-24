@@ -9,6 +9,7 @@ Dokumen satu halaman ini adalah daftar periksa wajib sebelum perekaman video dem
 - [ ] **Aksesibilitas Eksternal:** URL aplikasi publik dapat dibuka dan digunakan dengan lancar dari perangkat/jaringan lain di luar localhost.
 - [ ] **Keandalan Model (3x5 Runs):** 3 preset sampel diff telah diuji dan lolos 5 kali berturut-turut (skema JSON valid & lolos guardrail) menggunakan model yang tercatat di `docs/evidence/preset-runs.md`.
 - [ ] **Ketahanan Alur (Graceful Handling):** Tidak ada satu pun respons AI (termasuk timeout atau error 503) yang membuat aplikasi crash atau layar menjadi blank; pesan error tampil tenang dan informatif.
+- [ ] **Larangan Mock di Video:** Video demo TIDAK BOLEH memakai mode mock (`AI_MOCK=1`); wajib menggunakan respons panggilan live API atau rekaman cadangan live nyata tanpa mock.
 - [ ] **Rencana Cadangan (Fallback Strategy):** Telah disiapkan rekaman video cadangan lokal yang berhasil sebagai antisipasi jika koneksi jaringan atau penyedia API mengalami kendala saat perekaman live.
 - [ ] **Kebersihan Kredensial:** Layar browser, berkas yang terbuka, tab VS Code, dan riwayat terminal bersih mutlak dari secret, token API, atau berkas `.env*`.
 - [ ] **Kualitas Visual & Fokus:** Notifikasi sistem operasi dinonaktifkan (*Do Not Disturb*), resolusi rekaman bersih, ukuran teks terbaca tajam tanpa zoom berlebih, dan kontras warna memenuhi standar WCAG.

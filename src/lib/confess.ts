@@ -20,6 +20,11 @@ import {
   generateReport as defaultGenerateReport,
   type GenerateReportOptions,
 } from "./ai/index.ts";
+import {
+  mockLateNightHotfix,
+  mockRebaseConflict,
+  mockWorksOnMachine,
+} from "../../tests/fixtures/mock-responses.ts";
 
 export interface ConfessDeps {
   generateReport?: (
@@ -171,6 +176,31 @@ export async function handleConfess(
   const baseScore = panicResult.baseScore;
   const baseSignals = panicResult.signals;
   const dominantReason = panicResult.dominantReason;
+
+  // Development Mock Mode (AI_MOCK=1 ONLY when NODE_ENV === 'development')
+  const isMockMode =
+    process.env.AI_MOCK === "1" && process.env.NODE_ENV === "development";
+
+  if (isMockMode) {
+    let mockFixture = mockLateNightHotfix;
+    if (finalInput.includes("session.ts") || finalInput.includes("rebase")) {
+      mockFixture = mockRebaseConflict;
+    } else if (
+      finalInput.includes("upload.ts") ||
+      finalInput.includes("storage")
+    ) {
+      mockFixture = mockWorksOnMachine;
+    }
+
+    return {
+      status: 200,
+      data: {
+        ...mockFixture,
+        truncated,
+        isMock: true,
+      },
+    };
+  }
 
   // (6) Call AI generation with 28-second overall request deadline
   let aiOutput: AIOutput;

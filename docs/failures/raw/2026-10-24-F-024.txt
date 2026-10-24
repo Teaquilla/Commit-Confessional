@@ -1,0 +1,17 @@
+=== [VERIFY] 2. Production Build (npm run build) ===
+
+> commit-confessional@1.0.0 build
+> next build
+
+▲ Next.js 16.4.2 (Turbopack)
+- Environments: .env.local
+✓ Running next.config.ts took 40ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 3.0s
+  Running TypeScript ...
+tests/confess.test.ts(322,17): error TS2540: Cannot assign to 'NODE_ENV' because it is a read-only property.
+tests/confess.test.ts(351,19): error TS2540: Cannot assign to 'NODE_ENV' because it is a read-only property.
+tests/confess.test.ts(359,17): error TS2540: Cannot assign to 'NODE_ENV' because it is a read-only property.
+tests/confess.test.ts(385,19): error TS2540: Cannot assign to 'NODE_ENV' because it is a read-only property.
+Failed to type check.

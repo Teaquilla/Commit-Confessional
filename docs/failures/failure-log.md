@@ -371,3 +371,19 @@ Dokumen ini mencatat setiap kegagalan, error perintah, kegagalan panggilan API, 
 - **Klarifikasi / Pernyataan Pemilik:** Pemilik menyatakan key lama sudah dicabut di AI Studio pada 2026-10-22 (pernyataan pemilik, tidak diverifikasi agen).
 - **Status:** terdokumentasi
 - **Dampak ke klaim:** Dicatat di claims-register.md (C-011).
+
+---
+
+## F-024 | 2026-10-24 10:52 WIB | TypeScript error saat next build karena penugasan ke process.env.NODE_ENV di file tes
+- **Kategori:** build / typescript
+- **Severity:** P2
+- **Gejala:** `npm run build` (melalui `scripts/verify.mjs`) gagal dengan exit code 1: `tests/confess.test.ts: error TS2540: Cannot assign to 'NODE_ENV' because it is a read-only property.`
+- **Perintah / konteks:** `node scripts/verify.mjs` -> `next build`
+- **Log mentah:** `docs/failures/raw/2026-10-24-F-024.txt`
+- **Dugaan penyebab:** Type definition `@types/node` mendeklarasikan `process.env.NODE_ENV` sebagai read-only, sehingga penugasan langsung `process.env.NODE_ENV = "..."` pada file tes menyebabkan typecheck gagal saat Next.js mengompilasi.
+- **Rencana perbaikan:** Gunakan type-cast `(process.env as Record<string, string | undefined>).NODE_ENV = ...` atau sesuaikan penugasan env di `tests/confess.test.ts` agar lulus type check TypeScript, lalu jalankan ulang `verify`.
+- **Status:** diperbaiki
+- **Bukti perbaikan:** Type-cast diterapkan di `tests/confess.test.ts`, eksekusi `node scripts/verify.mjs` berhasil dengan exit code 0 (`[PASS] Production build succeeded` dan `>>> VERIFY RESULT: ALL CHECKS PASSED <<<`).
+- **Dampak ke klaim:** Fase A2 verifikasi lulus sepenuhnya.
+
+
