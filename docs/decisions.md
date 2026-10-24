@@ -347,3 +347,21 @@ Dokumen ini mencatat setiap keputusan arsitektural, teknis, atau penyesuaian sco
      - Seluruh tes, spec, dan README dimutakhirkan untuk mendokumentasikan bahwa baris ini disusun oleh kode.
 - **Rasional:** Menjamin determinisme dan kekeringan kalimat pada `lessonsLearned` secara konsisten tanpa variasi stokastik LLM dan tanpa risiko halusinasi atau penilaian prosedur tim.
 - **Status:** Disetujui (Zidane).
+
+---
+
+## DEC-026 | 2026-10-24 | Penyempurnaan Format formatLessonsLearned (Pemotongan Batas Kata, Sanitasi Kutip, & Aturan Selalu Mengutip)
+- **Keputusan:**
+  1. **Pemotongan Batas Kata & Tanda Baca:**
+     - Setiap pesan commit di-trim, lalu jika lebih dari 30 karakter dipotong pada batas kata terakhir sebelum 30 karakter.
+     - Tanda baca dan spasi di ujung potongan dibuang sebelum ditambahkan akhiran `'...'`.
+     - Tidak boleh ada spasi sebelum tanda kutip penutup.
+     - Huruf besar dan kecil dipertahankan apa adanya (tanpa perubahan case).
+  2. **Sanitasi Tanda Kutip Tunggal:**
+     - Tanda kutip tunggal (`'`) di dalam pesan diganti dengan tanda kutip aman (`’`) agar tidak merusak struktur string pembungkus `'...'`.
+  3. **Aturan Selalu Mengutip Pesan:**
+     - Selalu kutip pesan commit jika tersedia (maksimal 3 pesan terurut, lalu `' and N more'` jika lebih dari 3 commit).
+     - Kalimat cadangan `"The change was made in N commits."` hanya digunakan jika terdapat entri commit namun seluruh pesannya kosong/whitespace.
+     - Jika tidak ada log commit sama sekali (array kosong): `"No commit messages were provided."`.
+- **Rasional:** Menjamin kerapian tipografi dan konsistensi kutipan pesan commit tanpa terpotong di tengah kata atau meninggalkan tanda baca ganjil di depan tanda kutip penutup.
+- **Status:** Disetujui (Zidane).

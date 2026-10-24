@@ -520,24 +520,77 @@ describe("calculatePanicScore", () => {
 });
 
 describe("formatLessonsLearned", () => {
-  it("returns 'No commit messages were provided.' when commits array is empty", () => {
+  it("returns 'No commit messages were provided.' when commits array is empty (tidak ada pesan)", () => {
     assert.equal(formatLessonsLearned([]), "No commit messages were provided.");
   });
 
-  it("returns 'The change was made in N commits.' when all messages are normal", () => {
+  it("returns 'The change was made in N commits.' when commit messages are all empty or whitespace (pesan kosong)", () => {
     const commits = [
-      { hash: "a1", message: "Add user profile configuration", files: [] },
-      { hash: "a2", message: "Update database pool settings", files: [] },
+      { hash: "a1", message: "", files: [] },
+      { hash: "a2", message: "   ", files: [] },
     ];
     assert.equal(formatLessonsLearned(commits), "The change was made in 2 commits.");
   });
 
-  it("formats single low-effort commit correctly", () => {
-    const commits = [{ hash: "a1", message: "fix", files: [] }];
-    assert.equal(formatLessonsLearned(commits), "The commit messages were 'fix'.");
+  it("formats single message correctly (satu pesan)", () => {
+    const commits = [{ hash: "a1", message: "Initial commit", files: [] }];
+    assert.equal(
+      formatLessonsLearned(commits),
+      "The commit messages were 'Initial commit'."
+    );
   });
 
-  it("formats 2 commits with low-effort correctly", () => {
+  it("cuts long message at last word boundary before 30 characters with '...' (pesan panjang terpotong di batas kata)", () => {
+    const longMsg = "This is a very long commit message that exceeds thirty chars";
+    const commits = [{ hash: "a1", message: longMsg, files: [] }];
+    // "This is a very long commit mes" -> cut at "commit" -> "This is a very long commit..."
+    assert.equal(
+      formatLessonsLearned(commits),
+      "The commit messages were 'This is a very long commit...'."
+    );
+  });
+
+  it("ensures no trailing whitespace before closing quotes (pesan tanpa spasi akhir)", () => {
+    const commits = [
+      { hash: "a1", message: "fix trailing spaces   ", files: [] },
+      { hash: "a2", message: "another message with long text that has words", files: [] },
+    ];
+    const result = formatLessonsLearned(commits);
+    const quotedItems = [...result.matchAll(/'([^']*)'/g)].map((m) => m[1]);
+    for (const item of quotedItems) {
+      assert.ok(!item.endsWith(" "), `Quoted item "${item}" should not end with space`);
+    }
+    assert.match(result, /'fix trailing spaces'/);
+    assert.match(result, /'another message with long...'/);
+  });
+
+  it("formats six messages into 3 quotes and 'and 3 more' (enam pesan menghasilkan 3 kutipan dan and 3 more)", () => {
+    const commits = [
+      { hash: "1", message: "m1", files: [] },
+      { hash: "2", message: "m2", files: [] },
+      { hash: "3", message: "m3", files: [] },
+      { hash: "4", message: "m4", files: [] },
+      { hash: "5", message: "m5", files: [] },
+      { hash: "6", message: "m6", files: [] },
+    ];
+    assert.equal(
+      formatLessonsLearned(commits),
+      "The commit messages were 'm1', 'm2', 'm3' and 3 more."
+    );
+  });
+
+  it("escapes or replaces internal single quotes with safe quote (pesan dengan tanda kutip tunggal)", () => {
+    const commits = [
+      { hash: "a1", message: "don't touch this user's session", files: [] },
+    ];
+    const result = formatLessonsLearned(commits);
+    assert.equal(
+      result,
+      "The commit messages were 'don’t touch this user’s...'."
+    );
+  });
+
+  it("formats 2 commits correctly", () => {
     const commits = [
       { hash: "a1", message: "fix", files: [] },
       { hash: "a2", message: "please work now", files: [] },
@@ -548,7 +601,7 @@ describe("formatLessonsLearned", () => {
     );
   });
 
-  it("formats 3 commits with low-effort correctly", () => {
+  it("formats 3 commits correctly", () => {
     const commits = [
       { hash: "a1", message: "fix", files: [] },
       { hash: "a2", message: "wip", files: [] },
@@ -559,22 +612,6 @@ describe("formatLessonsLearned", () => {
       "The commit messages were 'fix', 'wip' and 'third attempt'."
     );
   });
-
-  it("formats > 3 commits with truncation to 30 characters and 'and N more'", () => {
-    const longMsg = "This is a very long commit message that exceeds thirty chars";
-    const commits = [
-      { hash: "a1", message: "fix", files: [] },
-      { hash: "a2", message: longMsg, files: [] },
-      { hash: "a3", message: "debug", files: [] },
-      { hash: "a4", message: "fourth commit", files: [] },
-      { hash: "a5", message: "fifth commit", files: [] },
-    ];
-    const expectedTruncated = longMsg.slice(0, 30);
-    assert.equal(expectedTruncated.length, 30);
-    assert.equal(
-      formatLessonsLearned(commits),
-      `The commit messages were 'fix', '${expectedTruncated}', 'debug' and 2 more.`
-    );
-  });
 });
+
 

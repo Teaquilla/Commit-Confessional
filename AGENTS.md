@@ -14,6 +14,7 @@ Sumber kebenaran scope: devpost/scope.md. Jangan menambah fitur di luar scope ta
 5. Setiap klaim 'selesai' harus punya bukti (file, commit, perintah, atau screenshot).
 6. Pasang dependensi hanya dengan npm ci dari lockfile. Dependensi baru perlu alasan di docs/decisions.md.
 7. Log sesi (`docs/log/`) dan keputusan (`docs/decisions.md`) hanya dikoreksi lewat entri baru, bukan menulis ulang entri lama.
+8. Jangan membaca, mencari, atau mencantumkan berkas di luar folder proyek (termasuk folder data Antigravity) kecuali Zidane meminta. Jika bukti yang dibutuhkan tidak ada di repo, katakan tidak tersimpan.
 
 ## Pencatatan kegagalan (wajib, semua agen)
 1. Setiap error, perintah gagal (exit code non-nol), panggilan API gagal, output AI rusak, retry, rollback, atau revert dicatat di docs/failures/failure-log.md pada saat terjadi, SEBELUM mencoba memperbaikinya.

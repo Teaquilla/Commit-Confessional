@@ -1,0 +1,3 @@
+Command: powershell -Command "Get-ChildItem -Path 'C:\Users\Zidane\.gemini\antigravity-ide\'..."
+Error: Out-of-bounds file exploration beyond workspace root (d:\yayaya).
+Mitigation: Rule 8 added to AGENTS.md prohibiting reading/searching files outside project folder without explicit instruction from Zidane.

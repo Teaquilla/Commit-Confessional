@@ -23,7 +23,7 @@ Dokumen satu halaman ini adalah ringkasan status terkini repositori yang wajib d
   - *(Catatan: C-003/C-012 telah terverifikasi sebagai pernyataan pemilik: Free tier tanpa billing; C-005 ditutup/dikoreksi karena gemini-3.8-flash tidak dipakai).*
 - **Hambatan / Isu Aktif:** Kuota harian provider Free tier (500 RPD pada `gemini-3.5-flash-lite`, batas RPM 15). Kuota harian aman; tidak ada pemanggilan live baru pada Fase E.
 - **Temuan P0 / P1 Terbuka:** **0**
-- **Hash Commit Terakhir:** `c247f3e` (feat: implement landing page and verify WCAG contrast ratios (Phase D))
+- **Hash Commit Terakhir:** `06d0fae` (feat: refine formatLessonsLearned with word boundary truncation, add boundary rules, and log telemetry (DEC-026))
 
 ---
 
@@ -41,7 +41,7 @@ Dokumen satu halaman ini adalah ringkasan status terkini repositori yang wajib d
 - **WCAG 2.1 AA Contrast Checker (scripts/check-contrast.mjs):**
   - 9 dari 9 pasangan token warna lulus threshold (body text rasio 5.18:1 s.d. 17.21:1 terhadap target >= 4.5:1).
 - **Uji Unit & Integritas Build:**
-  - 72 tes lulus pada 24 Okt 2026 (`npm test` $\rightarrow$ **72 pass, 0 fail** across 9 suites).
+  - 75 tes lulus pada 24 Okt 2026 (`npm test` $\rightarrow$ **75 pass, 0 fail** across 9 suites).
   - Next.js build sukses (`next build` $\rightarrow$ exit code 0).
   - Skrip verifikasi mekanis `npm run verify` $\rightarrow$ **ALL CHECKS PASSED** (0 secrets, 0 forbidden words, hygiene clean, mock isolation confirmed).
 
@@ -53,8 +53,10 @@ Dokumen satu halaman ini adalah ringkasan status terkini repositori yang wajib d
 3. **DILARANG** menjalankan panggilan live ke Gemini API di luar batas yang diizinkan pemilik (`call-budget.md`).
 4. **DILARANG** menggunakan mode mock (`AI_MOCK=1`) dalam video rekaman demo resmi.
 5. **DILARANG** membuat tag Git (`known-good-gate2` atau lainnya) sebelum instruksi eksplisit pemilik.
+6. **DILARANG** membaca, mencari, atau mencantumkan berkas di luar folder proyek (termasuk folder data IDE Antigravity) kecuali diminta pemilik.
 
 ---
 
 ## 5. Pesan Serah-Terima (Handover Message)
-> Seluruh paket submit Fase E telah selesai: README.md diperbarui dalam bahasa Inggris tanpa kata terlarang, docs/references.md mencatat lisensi riil dependensi dan model, docs/DEMO_SCRIPT.md memetakan narasi video (1:45–2:30) per kalimat ke bukti/klaim beserta rencana cadangan, docs/SUBMISSION.md memuat draf teks Devpost dan tabel pencocokan klaim, docs/DEMO_READINESS.md mencentang hanya item yang terbukti, dan call-budget.md menampilkan rekap kumulatif per model per hari (22 dan 24 Okt). Jadwal diperbarui (Sabtu: push, uji publik, Demo Freeze; Minggu: video; Senin: cek akhir, repo publik, submit). Berhenti pada checkpoint STOP S5.
+> Seluruh koreksi dan penyesuaian Fase E selesai: aturan pembatasan folder proyek ditambahkan ke AGENTS.md No. 8 dan dicatat di F-028; pelampauan jatah 6 panggilan gemini-3.5-flash dijelaskan di call-budget.md dan F-029; formatLessonsLearned disempurnakan dengan pemotongan batas kata, sanitasi kutip tunggal, dan aturan selalu mengutip (DEC-026) dengan 75 tes lulus; README diperbarui dengan sintaks PowerShell dan bash untuk mock mode. Berhenti di checkpoint final.
+

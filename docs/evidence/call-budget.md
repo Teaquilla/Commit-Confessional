@@ -103,3 +103,29 @@ Dokumen ini mencatat anggaran dan realisasi panggilan API Gemini per model per h
 | 2026-10-24T12:00:58.021Z | gemini-3.5-flash-lite | 200 | false |
 | 2026-10-24T12:01:05.686Z | gemini-3.5-flash-lite | 200 | false |
 | 2026-10-24T12:01:12.967Z | gemini-3.5-flash-lite | 200 | false |
+
+---
+
+## 4. Klarifikasi Pelampauan Jatah Eksplorasi gemini-3.5-flash pada 24 Okt 2026 (Merujuk F-029)
+
+Pada 24 Oktober 2026, tercatat **6 panggilan** ke model `gemini-3.5-flash`, sementara jatah eksplorasi yang diberikan Zidane adalah **maksimal 3 panggilan per hari**.
+
+**Penyebab:**
+Pelampauan ini terjadi karena 3 panggilan pertama dan 3 panggilan kedua dihitung secara terpisah per instruksi sesi prompt alih-alih diakumulasikan terhadap hari kalender yang sama:
+- **Sesi Pagi (03:41 UTC):** 3 panggilan dieksekusi saat eksplorasi model awal.
+- **Sesi Siang (06:36 UTC):** 3 panggilan dieksekusi saat evaluasi model dan perbandingan nada C2 atas izin Zidane untuk 3 panggilan eksplorasi baru, tanpa memperhitungkan bahwa kuota harian eksplorasi 3 panggilan telah terpakai pada sesi pagi.
+
+Dengan demikian, **jatah harian untuk gemini-3.5-flash terlampaui** (6 panggilan vs jatah 3 panggilan).
+
+**Baris Mentah Panggilan ke gemini-3.5-flash pada 24 Okt 2026:**
+```text
+2026-10-24T03:41:07.667Z | gemini-3.5-flash | 503 | false
+2026-10-24T03:41:30.664Z | gemini-3.5-flash | 503 | false
+2026-10-24T03:41:54.708Z | gemini-3.5-flash | 503 | false
+2026-10-24T06:36:35.558Z | gemini-3.5-flash | 503 | false
+2026-10-24T06:36:51.904Z | gemini-3.5-flash | 503 | false
+2026-10-24T06:37:15.826Z | gemini-3.5-flash | 200 | false
+```
+
+**Tindakan Penegakan:**
+Sesuai DEC-020, model `gemini-3.5-flash` telah dinonaktifkan secara permanen dari seluruh pengujian maupun operasi aplikasi, dan model aktif dikunci hanya pada `gemini-3.5-flash-lite`.

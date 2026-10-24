@@ -519,52 +519,66 @@ export function calculatePanicScore(input: string): PanicScoreResult {
 }
 
 /**
+ * Formats a single commit message for display in lessons learned:
+ * 1. Trim leading and trailing whitespace.
+ * 2. Sanitize internal single quotes (replace ' with ’) to prevent quote collisions.
+ * 3. If longer than 30 characters:
+ *    - Cut at the last word boundary before 30 characters (or at 30 chars if no space).
+ *    - Strip trailing punctuation and whitespace.
+ *    - Append '...'.
+ * 4. Ensures no whitespace precedes the closing quote and preserves casing.
+ */
+function formatSingleLessonMessage(rawMsg: string): string {
+  let msg = rawMsg.trim();
+  msg = msg.replace(/'/g, "’");
+
+  if (msg.length <= 30) {
+    return msg;
+  }
+
+  const slice = msg.slice(0, 30);
+  const lastSpace = slice.lastIndexOf(" ");
+  let cut = lastSpace > 0 ? slice.slice(0, lastSpace) : slice;
+
+  cut = cut.replace(/[\s\.,;:!\?\-_'"’]+$/, "");
+
+  return cut + "...";
+}
+
+/**
  * Formats the Incident Report's 'lessonsLearned' line deterministically from parsed commit messages.
- * Rules:
- * - If no commit log: "No commit messages were provided."
- * - If all commit messages are ordinary (no low-effort): "The change was made in N commits."
- * - If commit messages contain low-effort items: "The commit messages were 'a', 'b' and 'c'."
- *   (Max 3 messages in commit order, truncated to 30 chars each without case alteration;
- *    if >3 commits, appends " and N more").
+ * Rules (DEC-026):
+ * - If no commit log provided (empty/null array): "No commit messages were provided."
+ * - If commit log exists but has no non-empty messages: "The change was made in N commits."
+ * - If commit messages exist: Always quote up to 3 messages in commit order, then ' and N more' if > 3.
  */
 export function formatLessonsLearned(commits: ParsedCommit[]): string {
   if (!commits || commits.length === 0) {
     return "No commit messages were provided.";
   }
 
-  let lowEffortCount = 0;
-  const seenMessages = new Set<string>();
+  const validMessages = commits
+    .map((c) => (c.message ? c.message.trim() : ""))
+    .filter((m) => m.length > 0);
 
-  for (const commit of commits) {
-    const msg = commit.message.toLowerCase().trim();
-    const isFixedWord = LOW_EFFORT_SET.has(msg);
-    const isSingleWord = msg.length > 0 && !msg.includes(" ");
-    const isDuplicate = seenMessages.has(msg);
-
-    if (isFixedWord || isSingleWord || isDuplicate) {
-      lowEffortCount++;
-    }
-    seenMessages.add(msg);
-  }
-
-  if (lowEffortCount === 0) {
+  if (validMessages.length === 0) {
     return `The change was made in ${commits.length} commits.`;
   }
 
-  const sliced = commits.slice(0, 3).map((c) => c.message.slice(0, 30));
-  const remaining = commits.length - 3;
+  const formatted = validMessages.slice(0, 3).map(formatSingleLessonMessage);
+  const remaining = validMessages.length - 3;
 
   if (remaining > 0) {
-    return `The commit messages were '${sliced[0]}', '${sliced[1]}', '${sliced[2]}' and ${remaining} more.`;
+    return `The commit messages were '${formatted[0]}', '${formatted[1]}', '${formatted[2]}' and ${remaining} more.`;
   }
 
-  if (sliced.length === 1) {
-    return `The commit messages were '${sliced[0]}'.`;
+  if (formatted.length === 1) {
+    return `The commit messages were '${formatted[0]}'.`;
   }
 
-  if (sliced.length === 2) {
-    return `The commit messages were '${sliced[0]}' and '${sliced[1]}'.`;
+  if (formatted.length === 2) {
+    return `The commit messages were '${formatted[0]}' and '${formatted[1]}'.`;
   }
 
-  return `The commit messages were '${sliced[0]}', '${sliced[1]}' and '${sliced[2]}'.`;
+  return `The commit messages were '${formatted[0]}', '${formatted[1]}' and '${formatted[2]}'.`;
 }

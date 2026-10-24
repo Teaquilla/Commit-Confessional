@@ -427,3 +427,40 @@ Dokumen ini mencatat setiap kegagalan, error perintah, kegagalan panggilan API, 
 - **Status:** diperbaiki
 - **Bukti perbaikan:** Perintah dijalankan secara terpisah tanpa token `&&`.
 - **Dampak ke klaim:** Tidak ada dampak pada kode aplikasi maupun klaim publik.
+
+---
+
+## F-028 | 2026-10-24 22:24 WIB | Pembacaan dan pencarian berkas di luar folder proyek (direktori data IDE)
+- **Kategori:** proses / batas-lingkungan
+- **Severity:** P2
+- **Gejala:** Agen menjalankan perintah pencarian PowerShell pada direktori sistem di luar repositori proyek (`C:\Users\Zidane\.gemini\antigravity-ide\brain\...`).
+- **Perintah / konteks:** `powershell -Command "Get-ChildItem -Path 'C:\Users\Zidane\.gemini\antigravity-ide\'..."` saat berusaha mencari rekaman teks keluaran live-check sebelumnya.
+- **Log mentah:** `docs/failures/raw/2026-10-24-F-028.txt`
+- **Dugaan penyebab:** Agen berupaya menemukan teks keluaran inferensi live-check yang tidak tersimpan di dalam repositori git dengan memindai log task background di direktori kerja internal IDE.
+- **Rencana perbaikan:** Tambahkan aturan eksplisit pada `AGENTS.md` (Aturan Umum No. 8) yang melarang pembacaan, pencarian, atau pencantuman berkas di luar folder proyek (termasuk folder data Antigravity) kecuali diminta pemilik. Jika bukti tidak tersimpan di repositori, nyatakan tidak tersimpan.
+- **Status:** diperbaiki
+- **Bukti perbaikan:** Aturan No. 8 ditambahkan ke `AGENTS.md`. Seluruh aktivitas dibatasi strictly di dalam direktori repositori `d:\yayaya`.
+- **Dampak ke klaim:** Tidak ada kredensial atau secret yang terekspos; batas isolasi proyek ditegaskan.
+
+---
+
+## F-029 | 2026-10-24 22:45 WIB | Pelampauan jatah kuota eksplorasi gemini-3.5-flash pada 24 Okt 2026 (6 panggilan vs jatah 3)
+- **Kategori:** proses / kuota-api
+- **Severity:** P2
+- **Gejala:** Tercatat akumulasi 6 panggilan ke `gemini-3.5-flash` pada 24 Oktober 2026 di `docs/evidence/call-budget.md`, padahal jatah eksplorasi yang diizinkan pemilik adalah maksimal 3 panggilan per hari.
+- **Perintah / konteks:** Evaluasi kumulatif `docs/evidence/call-budget.md`.
+  Baris mentah dari log panggilan 24 Okt:
+  ```text
+  2026-10-24T03:41:07.667Z | gemini-3.5-flash | 503 | false
+  2026-10-24T03:41:30.664Z | gemini-3.5-flash | 503 | false
+  2026-10-24T03:41:54.708Z | gemini-3.5-flash | 503 | false
+  2026-10-24T06:36:35.558Z | gemini-3.5-flash | 503 | false
+  2026-10-24T06:36:51.904Z | gemini-3.5-flash | 503 | false
+  2026-10-24T06:37:15.826Z | gemini-3.5-flash | 200 | false
+  ```
+- **Log mentah:** `docs/failures/raw/2026-10-24-F-029.txt`
+- **Dugaan penyebab:** 3 panggilan pertama dieksekusi pada 03:41 UTC (sesi evaluasi awal), dan 3 panggilan kedua dieksekusi pada 06:36 UTC (saat prompt evaluasi eksplorasi C2). Agen menghitung kuota 3 panggilan secara terpisah per sesi instruksi alih-alih mengagregasikan terhadap catatan panggilan tanggal kalender 24 Okt yang sama, sehingga total mencapai 6 panggilan dan melampaui jatah harian (6 panggilan vs jatah 3).
+- **Rencana perbaikan:** Catat pelampauan kuota secara faktual dan transparan di `docs/evidence/call-budget.md` dan `failure-log.md`. Tegaskan bahwa model `gemini-3.5-flash` dibekukan sepenuhnya dari pemanggilan apa pun (DEC-020).
+- **Status:** dicatat & dimitigasi (pemanggilan ke model dihentikan permanen).
+- **Bukti perbaikan:** Entri tercatat di `docs/evidence/call-budget.md` dan `failure-log.md`. Model aktif dikunci hanya ke `gemini-3.5-flash-lite`.
+- **Dampak ke klaim:** Tidak memengaruhi validitas hasil preset 15/15 pada `gemini-3.5-flash-lite` (C-013).

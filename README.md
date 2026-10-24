@@ -34,11 +34,11 @@ cd Commit-Confessional
 npm ci
 
 # 3. Start development server in mock mode (no API key required)
-# On Linux / macOS:
-AI_MOCK=1 npm run dev
+# PowerShell:
+$env:AI_MOCK=1; npm run dev
 
-# On Windows (PowerShell):
-$env:AI_MOCK="1"; npm run dev
+# Bash:
+AI_MOCK=1 npm run dev
 ```
 
 Open `http://localhost:3000` in your browser to view the landing page, or visit `http://localhost:3000/app` to use the confession tool with pre-loaded mock fixtures.

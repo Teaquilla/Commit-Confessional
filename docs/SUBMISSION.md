@@ -33,7 +33,7 @@ Commit Confessional is a developer micro-utility packaged as a sleek SaaS. It an
 ### Accomplishments That We're Proud Of
 - **Radical Transparency:** Every error, retry, API failure, and scope adjustment is recorded in `docs/failures/failure-log.md` with raw outputs.
 - **Evidence-Backed Claims:** Every factual assertion in our documentation, landing page, and video is cataloged in `docs/failures/claims-register.md`.
-- **Accessibility & Hygiene:** Design tokens meet WCAG AA contrast thresholds (checked by script), and 72 automated unit tests pass in under 2 seconds.
+- **Accessibility & Hygiene:** Design tokens meet WCAG AA contrast thresholds (checked by script), and 75 automated unit tests pass in under 2 seconds.
 
 ### What We Learned
 Separating deterministic logic (heuristics, commit message parsing, and file name validation) from generative language models yields far more reliable developer tools than relying entirely on freeform AI prompts.
@@ -63,7 +63,7 @@ This table maps every factual assertion across project materials to `docs/failur
 | README.md > Known Limitations | API operates on Free tier without active billing; quota limit 429 risk noted | C-012 | `terverifikasi` | Owner declaration at AI Studio & `docs/evidence/deploy-smoke.md` |
 | README.md > Known Limitations | `gemini-3.5-flash-lite` produced valid output across 15 of 15 preset runs | C-013 | `terverifikasi` | `docs/evidence/preset-runs.md` (15/15 valid runs on 2026-10-24) |
 | Demo Script (0:00–0:30) | Public deployment URL responds with HTTP 200 | C-012 | `terverifikasi` | `docs/evidence/deploy-smoke.md` (GET /api/health and GET /app) |
-| Demo Script (0:30–1:15) | Panic Score calculated deterministically across 5 code signals | C-009 | `terverifikasi` | `src/lib/panic-score.ts`, `tests/panic-score.test.ts` (72 tests) |
+| Demo Script (0:30–1:15) | Panic Score calculated deterministically across 5 code signals | C-009 | `terverifikasi` | `src/lib/panic-score.ts`, `tests/panic-score.test.ts` (75 tests) |
 | Demo Script (1:15–1:50) | Only Free tier is offered today; Pro and Team are labeled Coming soon | C-001 | `terverifikasi` | `src/app/page.tsx`, `devpost/prd.md > Screen 1` |
 | Demo Script (1:50–2:30) | Server-side guardrail checks file names against diff input | C-007 | `terverifikasi` | `src/lib/guardrails.ts`, `tests/guardrails.test.ts` |
 | Submission Text > Challenges | Exploration of alternative models cataloged in failure log | C-013 | `terverifikasi` | `docs/failures/failure-log.md` (F-017 through F-026) |
