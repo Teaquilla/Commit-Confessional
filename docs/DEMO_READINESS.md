@@ -6,7 +6,7 @@ Dokumen satu halaman ini adalah daftar periksa wajib sebelum perekaman video dem
 
 ## 1. Daftar Periksa Kesiapan Demo (Demo Checklist)
 
-- [ ] **Aksesibilitas Eksternal:** URL aplikasi publik dapat dibuka (hanya GET terbukti pada `docs/evidence/deploy-smoke.md`; pengujian end-to-end POST /api/confess dari jaringan eksternal belum diuji).
+- [x] **Aksesibilitas Eksternal:** URL aplikasi publik dapat dibuka dan alur POST telah diuji (pernyataan pemilik, lihat deploy-smoke.md).
 - [x] **Keandalan Model (3x5 Runs):** 3 preset sampel diff telah diuji dan lolos 5 kali berturut-turut (skema JSON valid & lolos guardrail) menggunakan model yang tercatat di `docs/evidence/preset-runs.md` (15/15 lolos pada `gemini-3.5-flash-lite`).
 - [x] **Kontras Token Memenuhi 4,5:1:** Pasangan warna token yang dipakai memenuhi rasio 4,5:1 (diperiksa `scripts/check-contrast.mjs`; 9 dari 9 pasangan token warna lulus threshold WCAG AA; bukan pengujian teks yang dirender).
 - [ ] **Ketahanan Alur (Graceful Handling):** Pengujian unit penanganan error lulus di `tests/confess.test.ts` via `npm test`; ketahanan live di browser saat perekaman belum diuji secara langsung.

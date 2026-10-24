@@ -50,3 +50,9 @@ HTML Valid (contains wordmark): true
 │ 2       │ 'POST /api/confess' │ 'SKIPPED' │ 0         │ true  │
 └─────────┴─────────────────────┴───────────┴───────────┴───────┘
 ```
+
+---
+
+## 4. Pengujian Alur POST /api/confess Publik oleh Pemilik
+
+Pemilik menyatakan telah menguji alur POST /api/confess dari URL publik pada 24 Okt 2026 dan melaporkan waktu respons di atas 7 detik; perangkat, jaringan, dan kasus uji tidak dicatat; bukan pengukuran otomatis.

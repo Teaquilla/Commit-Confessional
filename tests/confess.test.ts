@@ -385,5 +385,60 @@ describe("handleConfess Integration Unit Tests", () => {
       envObj.NODE_ENV = origEnv;
     }
   });
+
+  it("15. logs a single [TIMING] telemetry line per request without leaking input content", async () => {
+    const sensitiveCanary = "CONFIDENTIAL_CANARY_TOKEN_XYZ_98765";
+    const loggedOutputs: string[] = [];
+    const origLog = console.log;
+
+    console.log = (...args: unknown[]) => {
+      loggedOutputs.push(args.map(String).join(" "));
+      origLog(...args);
+    };
+
+    try {
+      const deps: ConfessDeps = {
+        generateReport: async (_input, _signals, opts) => {
+          if (opts?.callTracker) opts.callTracker.count++;
+          return {
+            ...VALID_AI_OUTPUT,
+            whatHappened: "Changes made in payments checkout.",
+            cause: "Under investigation",
+            fix: "Patched src/payments/checkout.ts",
+          };
+        },
+      };
+
+      const res = await handleConfess(
+        { input: `${lateNightHotfix}\n# ${sensitiveCanary}` },
+        deps
+      );
+
+      assert.equal(res.status, 200);
+
+      const timingLines = loggedOutputs.filter((line) =>
+        line.startsWith("[TIMING]")
+      );
+
+      // Exactly ONE [TIMING] line per request
+      assert.equal(timingLines.length, 1);
+
+      const line = timingLines[0];
+
+      // Must strictly conform to telemetry contract
+      assert.match(
+        line,
+        /^\[TIMING\] total=\d+ parse_score=\d+ ai=\d+ guardrail=\d+ attempts=\d+ retried=(true|false)$/
+      );
+
+      // Must never contain input content, canary string, or keys
+      assert.ok(!line.includes(sensitiveCanary));
+      assert.ok(!line.includes("commit"));
+      assert.ok(!line.includes("checkout.ts"));
+    } finally {
+      console.log = origLog;
+    }
+  });
 });
+
 

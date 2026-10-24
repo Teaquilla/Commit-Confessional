@@ -23,7 +23,7 @@ Dokumen satu halaman ini adalah ringkasan status terkini repositori yang wajib d
   - *(Catatan: C-003/C-012 telah terverifikasi sebagai pernyataan pemilik: Free tier tanpa billing; C-005 ditutup/dikoreksi karena gemini-3.8-flash tidak dipakai).*
 - **Hambatan / Isu Aktif:** Kuota harian provider Free tier (500 RPD pada `gemini-3.5-flash-lite`, batas RPM 15). Kuota harian aman; tidak ada pemanggilan live baru pada Fase E.
 - **Temuan P0 / P1 Terbuka:** **0**
-- **Hash Commit Terakhir:** `0e7817d` (docs: align demo script, submission claims, and demo readiness checklist)
+- **Hash Commit Terakhir:** `510d399` (feat: add timing telemetry, redact personal data, and update smoke evidence (DEC-027, DEC-028))
 
 ---
 
@@ -41,7 +41,7 @@ Dokumen satu halaman ini adalah ringkasan status terkini repositori yang wajib d
 - **WCAG 2.1 AA Contrast Checker (scripts/check-contrast.mjs):**
   - 9 dari 9 pasangan token warna lulus threshold (body text rasio 5.18:1 s.d. 17.21:1 terhadap target >= 4.5:1).
 - **Uji Unit & Integritas Build:**
-  - 75 tes lulus pada 24 Okt 2026 (`npm test` $\rightarrow$ **75 pass, 0 fail** across 9 suites).
+  - 76 tes lulus pada 24 Okt 2026 (`npm test` $\rightarrow$ **76 pass, 0 fail** across 9 suites).
   - Next.js build sukses (`next build` $\rightarrow$ exit code 0).
   - Skrip verifikasi mekanis `npm run verify` $\rightarrow$ **ALL CHECKS PASSED** (0 secrets, 0 forbidden words, hygiene clean, mock isolation confirmed).
 

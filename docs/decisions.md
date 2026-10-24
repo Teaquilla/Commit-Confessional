@@ -365,3 +365,27 @@ Dokumen ini mencatat setiap keputusan arsitektural, teknis, atau penyesuaian sco
      - Jika tidak ada log commit sama sekali (array kosong): `"No commit messages were provided."`.
 - **Rasional:** Menjamin kerapian tipografi dan konsistensi kutipan pesan commit tanpa terpotong di tengah kata atau meninggalkan tanda baca ganjil di depan tanda kutip penutup.
 - **Status:** Disetujui (Zidane).
+
+---
+
+## DEC-027 | 2026-10-24 | Instrumentasi Waktu Telemetri Server di handleConfess
+- **Keputusan:**
+  1. Mengukur dan mencatat waktu eksekusi server pada `handleConfess` (`src/lib/confess.ts`) dengan format tepat SATU baris per permintaan ke console server:
+     `[TIMING] total=<ms> parse_score=<ms> ai=<ms> guardrail=<ms> attempts=<n> retried=<true|false>`
+  2. Hanya angka numerik integer dan boolean yang dicatat dalam log ini. Log tidak boleh memuat input pengguna, potongan diff, kunci API, atau teks keluaran AI.
+  3. Menambahkan tes unit otomatis (`tests/confess.test.ts` skenario 15) untuk memverifikasi format log dan memastikan ketiadaan kebocoran input atau teks diff.
+  4. Tidak mengubah model (`gemini-3.5-flash-lite`), prompt sistem, skema keluaran AI, maupun batas waktu (28 detik).
+- **Rasional:** Memberikan visibilitas terukur atas distribusi latensi server (parsing heuristik kode vs panggilan AI vs validasi guardrail) tanpa mengubah perilaku aplikasi maupun mengekspos data pengguna.
+- **Status:** Disetujui (Zidane).
+
+---
+
+## DEC-028 | 2026-10-24 | Redaksi Data Pribadi Sebelum Repositori Publik
+- **Keputusan:**
+  1. Melakukan redaksi data pribadi sebelum repositori dijadikan publik:
+     - Mengganti alamat email kampus mahasiswa pemilik di `docs/failures/failure-log.md` sekitar baris 360 menjadi `[owner-email]`.
+     - Mengganti nama pengguna Windows lokal pada jalur direktori internal IDE di `docs/failures/raw/2026-10-24-F-028.txt` baris 1 menjadi `[user]`.
+  2. Tindakan ini merupakan redaksi privasi data personal (*privacy redaction*), bukan penulisan ulang kronologi kegagalan (catatan insiden F-023 dan F-028 tetap dipertahankan dengan fakta teknis yang sama).
+  3. Dicatat bahwa riwayat komit Git terdahulu tetap memuat versi lama sesuai sifat permanensi komit Git.
+- **Rasional:** Menjaga privasi data personal pemilik sebelum repositori disetel menjadi publik untuk hackathon Devpost.
+- **Status:** Disetujui (Zidane).

@@ -80,8 +80,26 @@ export async function handleConfess(
   const generateReportFn = deps?.generateReport || defaultGenerateReport;
   const startTime = now();
 
+  // Timing breakdown metrics
+  let tParseScore = 0;
+  let tAi = 0;
+  let tGuardrail = 0;
+  let retried = false;
+
   // Track total AI calls made within this request
   const callTracker = { count: 0 };
+
+  const respond = (result: ConfessResult): ConfessResult => {
+    const total = Math.round(now() - startTime);
+    const parseScoreMs = Math.round(tParseScore);
+    const aiMs = Math.round(tAi);
+    const guardrailMs = Math.round(tGuardrail);
+    const isRetried = retried || callTracker.count > 1;
+    console.log(
+      `[TIMING] total=${total} parse_score=${parseScoreMs} ai=${aiMs} guardrail=${guardrailMs} attempts=${callTracker.count} retried=${isRetried}`
+    );
+    return result;
+  };
 
   // (1) Check raw body size limit of 100 KB (HTTP 413)
   let rawBytes = 0;
@@ -97,7 +115,7 @@ export async function handleConfess(
 
   if (rawBytes > MAX_RAW_BYTES) {
     console.error("[API_ERROR] INPUT_TOO_LARGE attempts=0");
-    return {
+    return respond({
       status: 413,
       data: {
         error: {
@@ -105,7 +123,7 @@ export async function handleConfess(
           message: "Input exceeds maximum allowed size of 100 KB.",
         },
       },
-    };
+    });
   }
 
   // (2) Extract input and check for empty or whitespace-only input (HTTP 400)
@@ -123,7 +141,7 @@ export async function handleConfess(
 
   if (typeof extractedInput !== "string" || extractedInput.trim().length === 0) {
     console.error("[API_ERROR] EMPTY_INPUT attempts=0");
-    return {
+    return respond({
       status: 400,
       data: {
         error: {
@@ -131,7 +149,7 @@ export async function handleConfess(
           message: PRD_NONSENSICAL_MESSAGE,
         },
       },
-    };
+    });
   }
 
   // (3) Truncate to 10,000 characters if longer, setting truncated: true
@@ -146,7 +164,7 @@ export async function handleConfess(
   const reqParse = ConfessRequestSchema.safeParse({ input: finalInput });
   if (!reqParse.success) {
     console.error("[API_ERROR] INVALID_INPUT attempts=0");
-    return {
+    return respond({
       status: 400,
       data: {
         error: {
@@ -154,13 +172,13 @@ export async function handleConfess(
           message: PRD_NONSENSICAL_MESSAGE,
         },
       },
-    };
+    });
   }
 
   // (4) Validate git input markers (HTTP 400)
   if (!validateGitInput(finalInput)) {
     console.error("[API_ERROR] INVALID_INPUT attempts=0");
-    return {
+    return respond({
       status: 400,
       data: {
         error: {
@@ -168,11 +186,14 @@ export async function handleConfess(
           message: PRD_NONSENSICAL_MESSAGE,
         },
       },
-    };
+    });
   }
 
   // (5) Parse git input and calculate deterministic Panic Score
+  const t0Parse = now();
   const panicResult = calculatePanicScore(finalInput);
+  tParseScore = now() - t0Parse;
+
   const baseScore = panicResult.baseScore;
   const baseSignals = panicResult.signals;
   const dominantReason = panicResult.dominantReason;
@@ -192,14 +213,14 @@ export async function handleConfess(
       mockFixture = mockWorksOnMachine;
     }
 
-    return {
+    return respond({
       status: 200,
       data: {
         ...mockFixture,
         truncated,
         isMock: true,
       },
-    };
+    });
   }
 
   // (6) Call AI generation with 28-second overall request deadline
@@ -210,7 +231,7 @@ export async function handleConfess(
 
     if (remainingMs <= 0) {
       console.error(`[API_ERROR] AI_TIMEOUT attempts=${callTracker.count}`);
-      return {
+      return respond({
         status: 504,
         data: {
           error: {
@@ -218,20 +239,25 @@ export async function handleConfess(
             message: PRD_FAILURE_MESSAGE,
           },
         },
-      };
+      });
     }
 
-    aiOutput = await generateReportFn(finalInput, baseSignals, {
-      deadlineMs: remainingMs,
-      callTracker,
-    });
+    const t0Ai = now();
+    try {
+      aiOutput = await generateReportFn(finalInput, baseSignals, {
+        deadlineMs: remainingMs,
+        callTracker,
+      });
+    } finally {
+      tAi += now() - t0Ai;
+    }
   } catch (err: unknown) {
     const isTimeout =
       err instanceof Error && err.message.startsWith("AI_TIMEOUT");
     const errCode = isTimeout ? "AI_TIMEOUT" : "AI_GENERATION_FAILED";
     const status = isTimeout ? 504 : 502;
     console.error(`[API_ERROR] ${errCode} attempts=${callTracker.count}`);
-    return {
+    return respond({
       status,
       data: {
         error: {
@@ -239,11 +265,13 @@ export async function handleConfess(
           message: PRD_FAILURE_MESSAGE,
         },
       },
-    };
+    });
   }
 
   // (7) Guardrail check: verify file names across all AI output texts
+  const t0Guard = now();
   let guardrail = checkFileNames(collectAllAiTexts(aiOutput), finalInput);
+  tGuardrail += now() - t0Guard;
 
   if (!guardrail.ok) {
     const elapsed = now() - startTime;
@@ -251,18 +279,27 @@ export async function handleConfess(
 
     // Retry AI call ONCE with firmer reminder ONLY if remaining time >= 10s AND total calls < 2
     if (remainingMs >= 10000 && callTracker.count < 2) {
+      retried = true;
       try {
-        aiOutput = await generateReportFn(finalInput, baseSignals, {
-          deadlineMs: remainingMs,
-          callTracker,
-          extraSystemInstruction:
-            "STRICT GUARDRAIL REMINDER: Do not mention file names that are not in the input.",
-        });
+        const t0Ai2 = now();
+        try {
+          aiOutput = await generateReportFn(finalInput, baseSignals, {
+            deadlineMs: remainingMs,
+            callTracker,
+            extraSystemInstruction:
+              "STRICT GUARDRAIL REMINDER: Do not mention file names that are not in the input.",
+          });
+        } finally {
+          tAi += now() - t0Ai2;
+        }
 
+        const t0Guard2 = now();
         guardrail = checkFileNames(collectAllAiTexts(aiOutput), finalInput);
+        tGuardrail += now() - t0Guard2;
+
         if (!guardrail.ok) {
           console.error(`[API_ERROR] GUARDRAIL_FAILED attempts=${callTracker.count}`);
-          return {
+          return respond({
             status: 502,
             data: {
               error: {
@@ -270,7 +307,7 @@ export async function handleConfess(
                 message: PRD_FAILURE_MESSAGE,
               },
             },
-          };
+          });
         }
       } catch (err: unknown) {
         const isTimeout =
@@ -278,7 +315,7 @@ export async function handleConfess(
         const errCode = isTimeout ? "AI_TIMEOUT" : "AI_GENERATION_FAILED";
         const status = isTimeout ? 504 : 502;
         console.error(`[API_ERROR] ${errCode} attempts=${callTracker.count}`);
-        return {
+        return respond({
           status,
           data: {
             error: {
@@ -286,12 +323,12 @@ export async function handleConfess(
               message: PRD_FAILURE_MESSAGE,
             },
           },
-        };
+        });
       }
     } else {
       // Cannot retry: out of time or 2-call quota exhausted
       console.error(`[API_ERROR] GUARDRAIL_FAILED attempts=${callTracker.count}`);
-      return {
+      return respond({
         status: 502,
         data: {
           error: {
@@ -299,7 +336,7 @@ export async function handleConfess(
             message: PRD_FAILURE_MESSAGE,
           },
         },
-      };
+      });
     }
   }
 
@@ -347,7 +384,7 @@ export async function handleConfess(
     console.error(
       `[API_ERROR] AI_GENERATION_FAILED attempts=${callTracker.count}`
     );
-    return {
+    return respond({
       status: 502,
       data: {
         error: {
@@ -355,11 +392,11 @@ export async function handleConfess(
           message: PRD_FAILURE_MESSAGE,
         },
       },
-    };
+    });
   }
 
-  return {
+  return respond({
     status: 200,
     data: responseParse.data,
-  };
+  });
 }

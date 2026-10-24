@@ -60,6 +60,7 @@ To run with live API calls locally, copy `.env.example` to `.env.local`, set you
 9. **Free Tier Quota on Public Demo:** The public deployment runs on Google AI Studio Free Tier (500 requests per day, 15 requests per minute); requests can fail with HTTP 429 when quota is exhausted.
 10. **Rate Limiting:** Per-IP rate limiting is active only if configured at the hosting infrastructure or reverse proxy level.
 11. **Empirical Preset Baseline (C-013):** On October 24, 2026, 15 of 15 runs on three presets yielded valid schema outputs with `gemini-3.5-flash-lite` (recorded in `docs/evidence/preset-runs.md`); this represents a small sample on one day under Free Tier limits. In separate testing, `gemini-3.5-flash` and `gemini-3.8-flash` returned HTTP 503 errors under load.
+12. **Response Latency:** Response time is typically several seconds and varies with provider load.
 
 ---
 

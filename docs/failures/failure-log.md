@@ -357,7 +357,7 @@ Dokumen ini mencatat setiap kegagalan, error perintah, kegagalan panggilan API, 
 - **Gejala:** Perintah `git push origin known-good-gate1` ditolak oleh GitHub remote hook dengan exit code 1 (`GH007: Your push would publish a private email address`).
 - **Perintah / konteks:** `git push origin known-good-gate1`
 - **Log mentah:** `docs/failures/raw/2026-10-24-F-023.txt`
-- **Dugaan penyebab:** Pengaturan privasi email akun GitHub pemilik ("Block command line pushes that expose my email" di https://github.com/settings/emails) memblokir push tag `known-good-gate1` yang merujuk pada commit ber-email `zidanezulf@student.ub.ac.id` (bukan noreply GitHub).
+- **Dugaan penyebab:** Pengaturan privasi email akun GitHub pemilik ("Block command line pushes that expose my email" di https://github.com/settings/emails) memblokir push tag `known-good-gate1` yang merujuk pada commit ber-email `[owner-email]` (bukan noreply GitHub).
 - **Tindakan:** Mencatat F-023 dan melaporkan status galat GitHub GH007 ke Zidane agar dapat memilih opsi: (a) menonaktifkan sementara perlindungan email privasi di pengaturan GitHub, atau (b) menggunakan tag beranotasi dengan identitas noreply yang diizinkan.
 - **Status:** diperbaiki
 - **Bukti perbaikan:** Perlindungan email disesuaikan oleh pemilik, dan eksekusi ulang `git push origin known-good-gate1` sukses dengan exit code 0 (`* [new tag] known-good-gate1 -> known-good-gate1`).
