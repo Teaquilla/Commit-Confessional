@@ -175,7 +175,9 @@ Deployment langsung menggunakan platform cloud Vercel:
      - `AI_MODEL_NAME`: `gemini-3.5-flash-lite`.
 3. **Catatan Durasi Eksekusi (`maxDuration`):**
    - Rute `/api/confess` telah menetapkan `export const maxDuration = 30;` di `src/app/api/confess/route.ts`.
-   - Pada Vercel Free (Hobby) Plan, durasi Serverless Function default adalah 10–15 detik, sedangkan total request timeout aplikasi adalah 28 detik. Jika menggunakan akun Vercel Pro, `maxDuration` hingga 60 detik berlaku penuh. Jika pada Hobby Plan terjadi timeout, prioritaskan Jalur 1 (Server Self-Hosted).
+   - Pada Vercel Free (Hobby) Plan, durasi Serverless Function default adalah 10–15 detik (dapat disesuaikan hingga 60s pada dashboard Vercel Functions settings), sedangkan total request timeout aplikasi adalah 28 detik. Jika menggunakan akun Vercel Pro, `maxDuration` hingga 60 detik berlaku penuh.
+   - **Langkah Wajib Verifikasi Durasi:** Periksa batas durasi fungsi pada platform tujuan (dokumentasi resmi dan dashboard), catat angkanya, dan bandingkan dengan deadline 28 detik aplikasi dan median latensi model (median latensi `gemini-3.5-flash-lite` terukur ~2,0–2,7 detik).
+   - **Setelah IZIN LIVE:** Ukur latensi `POST /api/confess` di URL publik menggunakan `node scripts/remote-smoke.mjs <BASE_URL> --with-live-confess` dan catat di `docs/evidence/deploy-smoke.md`.
 
 ---
 

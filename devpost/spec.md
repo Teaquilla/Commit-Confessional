@@ -415,5 +415,7 @@ PRD ref: `prd.md > 8. Deferred From the POC`, `prd.md > 9. Non-Goals`.
 6. **AI Output Variance:** AI generation is not completely deterministic; identical inputs may produce slight variations in wording.
 7. **Third-Party Service:** User input is transmitted to Google Gemini API to generate the reports.
 8. **Rate Limiting:** Per-IP rate limiting must be configured at the reverse proxy before deployment (see Deployment checklist); until verified, it is not claimed.
+9. **Free Tier Daily Quota:** Demo publik berjalan pada Free tier API dengan batas harian; permintaan bisa gagal dengan HTTP 429 saat kuota habis.
+
 
 

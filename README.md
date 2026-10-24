@@ -14,7 +14,7 @@ Instead of generic AI chat or bland code review, Commit Confessional acts as bot
 ## Submission Links & Artifacts
 - **Hackathon:** [Build With AI: Basics on Devpost](https://learn-ai-basics.devpost.com/)
 - **Live Demo Video (1-3 min):** *(Tautan video demo akan dilampirkan pada Fase 4)*
-- **Live Application URL:** *(Akan diperbarui pada Fase 2 setelah deployment publik)*
+- **Live Application URL:** https://commit-confessional.vercel.app/app
 - **Planning Documents:**
   - Scope: [`devpost/scope.md`](devpost/scope.md) *(dibuat pada Fase 1)*
   - PRD: [`devpost/prd.md`](devpost/prd.md) *(dibuat pada Fase 1)*
@@ -54,6 +54,6 @@ npm run dev
 ---
 
 ## Known Limitations
-*Daftar limitasi yang diketahui berdasarkan prinsip pelaporan jujur (append-only failure log):*
-- Saat ini dalam status **Fase 0: Setup Repositori & Kerangka Kerja**. Kode produk inti akan diimplementasikan pada Fase 2.
+- Saat ini dalam status **Fase 2: Build Core Loop & Deployment Kerangka**.
+- Demo publik berjalan pada Free tier API dengan batas harian; permintaan bisa gagal dengan HTTP 429 saat kuota habis.
 - Sesuai batas PoC (*Strict Scope Lock*), fitur autentikasi, database multi-tenant, dan pembayaran riil sengaja dikecualikan (*Explicitly Cut*).

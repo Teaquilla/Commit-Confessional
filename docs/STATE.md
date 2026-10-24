@@ -5,63 +5,61 @@ Dokumen satu halaman ini adalah ringkasan status terkini repositori yang wajib d
 ---
 
 ## 1. Ringkasan Status
-- **Tanggal Pembaruan:** Kamis, 22 Okt 2026
-- **Fase Aktif:** Fase 2 (Build Core Loop) — Dimulai (Gate 1 diterima pemilik via DEC-010)
+- **Tanggal Pembaruan:** Sabtu, 24 Okt 2026
+- **Fase Aktif:** Fase B (Deploy Kerangka Selesai) $\rightarrow$ Persiapan Fase C (Preset 3x5 & Nada)
 - **Status Audit per Gate:**
   - **Gate 0:** belum ada laporan audit
-  - **Gate 1:** laporan docs/audit/gate-1-2026-10-22.md ada (verdict LULUS DENGAN CATATAN, kualitas pemeriksaan terbatas, lihat DEC-009 & DEC-010)
-  - **Gate 2:** belum ada laporan audit
+  - **Gate 1:** laporan docs/audit/gate-1-2026-10-22.md ada (verdict LULUS DENGAN CATATAN, DEC-009 & DEC-010)
+  - **Gate 2:** TERTUNDA (menunggu uji preset 3x5 di Fase C dan validasi kuota)
   - **Gate 3:** belum ada laporan audit
   - **Gate 4:** belum ada laporan audit
-- **Tujuan Berikutnya:** Implementasi T-007a (Deploy kerangka awal: halaman minimal + `/api/confess` ke server tujuan/Vercel, verifikasi jalur transmisi, dan pembuktian C-003 serta C-005)
-- **Klaim 'Tidak Terbukti' Terbuka (Open Claims):**
-  - **C-002:** Body text contrast ratio memenuhi standar WCAG AA (> 4.5:1) — Target verifikasi: Gate 3
-  - **C-003:** Hard spending quota dikonfigurasi pada provider AI sebelum deployment — Target verifikasi: Gate 2 (sebelum deployment / T-007a)
-  - **C-005:** Model gemini-3.8-flash dapat menghasilkan teks respons yang valid (generateContent) — Target verifikasi: sebelum model dipilih untuk Fase 2 / T-007a
-- **Daftar & Urutan Tugas Fase 2 (Disetujui Pemilik):**
-  1. **T-001:** Parsing input & kalkulasi Panic Score deterministik + unit test (`tests/panic-score.test.ts`) [SELESAI]
-  2. **T-002:** Guardrail nama file terhadap input + unit test (`tests/guardrails.test.ts`) [SELESAI]
-  3. **T-003:** Scaffold Next.js, Skema Zod, & AI engine swappable (`generateReport`, batas waktu 28s, retry HTTP 503/429) [SELESAI]
-  4. **T-004:** Route handler server Next.js `/api/confess` terintegrasi [SELESAI]
-  5. **T-007a:** Deploy kerangka awal: halaman minimal + `/api/confess` ke server tujuan/Vercel, verifikasi jalur transmisi, dan pembuktian C-003 serta C-005
-  6. **T-005:** Antarmuka pengguna dedicated core loop screen `/app` (input, preset chips, loading, ScoreBar, popover, dual panel, copy buttons)
-  7. **T-007b:** Verifikasi preset runs 3x5 + pencatatan evaluasi di `docs/evidence/preset-runs.md` (syarat Gate 2)
-  8. **T-006:** Halaman landing `/` (Hero, HowItWorks, PricingCards) — dijadwalkan Sabtu, bukan syarat Gate 2
-- **Hambatan / Isu Aktif:** Pembatasan laju kuota permintaan API (HTTP 429) terjadi jika eksekusi sampel beruntun dilakukan tanpa jeda waktu memadai (F-022); diantisipasi dengan penambahan `--spacing-ms` dan penjadwalan run yang terukur pada uji coba Gate 2 (T-007b).
-- **Temuan P0 / P1 Terbuka:** **0** (Temuan P1 auditor pada Gate 1 dikalibrasi ulang sebagai status wajar klaim terbuka sesuai DEC-010)
-- **Hash Commit Terakhir:** `2436104` (docs: resolve F-023 as tag known-good-gate1 successfully pushed)
+- **Urutan Jadwal Proyek Terkini (Sabtu 24 Okt 2026):**
+  1. **Deploy Kerangka:** Vercel deployment aktif (`https://commit-confessional.vercel.app`), remote smoke test GET selesai. [SELESAI]
+  2. **Preset 3x5 dan Nada:** Eksekusi `scripts/preset-runs.mjs` dengan 15 run & evaluasi nada incident report C2. [BERIKUTNYA]
+  3. **Landing Page & Kontras WCAG:** Pembangunan `/` (Hero, How It Works, Pricing Cards) dan audit rasio kontras `scripts/check-contrast.mjs`.
+  4. **Demo Freeze:** Verifikasi menyeluruh `npm run verify` dan pemberian tag `known-good-gate3`.
+  5. **Perekaman Video Demo:** Dijadwalkan hari Minggu, 25 Okt 2026 (durasi 1:45–2:30, tanpa mock).
+  6. **Devpost Submission:** Finalisasi teks `docs/SUBMISSION.md` dan pengiriman formulir hari Senin, 26 Okt 2026 (Deadline: 27 Okt 2026, 04.00 WIB).
+- **Klaim Terbuka (Open Claims):**
+  - **C-002:** Body text contrast ratio memenuhi standar WCAG AA (> 4.5:1) — Target verifikasi: Gate 3 / Fase D
+  - **C-013:** Model yang dipakai menghasilkan keluaran valid pada 3 preset x 5 — Target verifikasi: Fase C (`docs/evidence/preset-runs.md`)
+  - *(Catatan: C-003/C-012 telah terverifikasi sebagai pernyataan pemilik: Free tier tanpa billing; C-005 ditutup/dikoreksi karena gemini-3.8-flash tidak dipakai).*
+- **Hambatan / Isu Aktif:** Kuota harian provider Free tier (500 RPD pada `gemini-3.5-flash-lite`, batas RPM 15) diantisipasi dengan jeda `--spacing-ms=6000` dan pembatasan panggilan harian (maks 40 panggilan).
+- **Temuan P0 / P1 Terbuka:** **0**
+- **Hash Commit Terakhir:** `5242d7d` (docs: create deployment documentation and remote smoke test script)
 
 ---
 
 ## 2. Lokasi Penting & Konfigurasi
 - **Repositori Git:** `d:\yayaya` (Remote: `https://github.com/Teaquilla/Commit-Confessional`, status: privat)
-- **Target URL Deploy:** Self-hosted Linux server dengan HTTPS reverse proxy (Fallback: Vercel Free Plan)
-- **Model AI Aktif:** `gemini-3.5-flash` (Ditetapkan Zidane via DEC-017, dibaca dari `AI_MODEL_NAME`)
+- **Target URL Deploy:** `https://commit-confessional.vercel.app` (Vercel Production)
+- **Model AI Aktif:** `gemini-3.5-flash-lite` (Ditetapkan Zidane via DEC-020, dibaca dari `AI_MODEL_NAME`)
 - **Kredensial:** `.env.local` terisolasi dari Git (aturan ignore aktif di `.gitignore`)
 
 ---
 
 ## 3. Bukti Pengujian Terbaru
-- **Uji Unit Lengkap (Scoring, Guardrail, AI Engine, Confess Handler, Samples):**
-  - 59 tes lulus pada 22 Okt 2026, lihat keluaran (`npm test` $\rightarrow$ **59 pass, 0 fail**).
-  - Next.js build sukses (`next build` $\rightarrow$ exit code 0, route dynamic `/api/confess`).
-- **Uji Transmisi API Eksploratori (`scripts/live-check.mjs` & `scripts/model-probe.mjs`):**
-  - Model `gemini-3.5-flash` berhasil memproses sampel `late-night-hotfix` (HTTP 200, 9363ms) dengan verifikasi gaya suara deadpan baru via `--show-text`.
-  - Rekonsiliasi perhitungan tabel probe dan pencatatan status HTTP mentah 72 panggilan lengkap di `docs/evidence/model-probe-2026-10-22.md`.
-- **Audit Jejak Kunci Lama & Pemindaian Rahasia:**
-  - `git grep` & `git log` $\rightarrow$ **0 kecocokan secret**. Pemindaian mekanis pemilik bersih. Seluruh berkas dokumentasi telah disamarkan (`[key-prefix]`).
+- **Remote Smoke Test Publik (`https://commit-confessional.vercel.app`):**
+  - `GET /api/health` $\rightarrow$ **HTTP 200** (624 ms, valid `{"ok":true}`).
+  - `GET /app` $\rightarrow$ **HTTP 200** (45 ms, valid memuat wordmark antarmuka).
+  - Dicatat di `docs/evidence/deploy-smoke.md`.
+- **Uji Unit & Integritas Build:**
+  - 66 tes lulus pada 24 Okt 2026 (`npm test` $\rightarrow$ **66 pass, 0 fail** across 8 suites).
+  - Next.js build sukses (`next build` $\rightarrow$ exit code 0).
+  - Skrip verifikasi mekanis `npm run verify` $\rightarrow$ **ALL CHECKS PASSED** (0 secrets, 0 forbidden words, hygiene clean, mock isolation confirmed).
+- **Uji Evaluasi Nada C2 & Kuota Model:**
+  - 3 preset lolos inferensi di `gemini-3.5-flash-lite` (HTTP 200, 1,8–2,6 detik, mengutip fakta sinyal, tanpa lelucon/emoji/repetisi cause).
+  - `docs/evidence/call-budget.md` mencatat 6 panggilan live real-time pada 2026-10-24.
 
 ---
 
 ## 4. Hal yang BELUM Boleh Dikerjakan (Strict Locks)
-1. **DILARANG** menulis kode implementasi produk di `src/` sebelum kontrak tugas disetujui oleh pemilik (Zidane).
-2. **DILARANG** menambahkan sistem autentikasi pengguna, basis data persisten multi-tenant, pembayaran, atau webhook GitHub App.
-3. **DILARANG** merancang logika perpindahan model otomatis (*no automatic fallback*). Model strictly dibaca dari `AI_MODEL_NAME`.
-4. **DILARANG** membuka, mencetak, atau menyalin isi berkas `.env*` ke layar atau dokumen.
-5. **DILARANG** menjalankan panggilan live ke Gemini API sampai diizinkan secara eksplisit oleh pemilik (Zidane).
+1. **DILARANG** menambahkan sistem autentikasi pengguna, basis data persisten multi-tenant, pembayaran, atau webhook GitHub App.
+2. **DILARANG** membuka, mencetak, atau menyalin isi berkas `.env*` ke layar atau dokumen.
+3. **DILARANG** menjalankan panggilan live ke Gemini API di luar batas yang diizinkan pemilik (`call-budget.md`).
+4. **DILARANG** menggunakan mode mock (`AI_MOCK=1`) dalam video rekaman demo resmi.
 
 ---
 
 ## 5. Pesan Serah-Terima (Handover Message)
-> Output teks sampel late-night-hotfix (Incident Report 5 baris & PR Description) telah ditempel utuh dari berkas mentah. Ketiadaan rincian body 429 pada F-022 dijelaskan secara faktual. Penanganan galat HTTP telah disanitasi di `src/lib/ai/index.ts` dan `scripts/live-check.mjs` (DEC-019), diverifikasi dengan tes unit baru (total 59 tes lulus tanpa panggilan jaringan). Audit total panggilan live hari ini (91 panggilan) telah dihitung. Seluruh operasi live Gemini dihentikan menunggu izin Zidane.
-
+> Remote smoke test publik pada `https://commit-confessional.vercel.app` sukses dijalankan untuk GET /api/health (200, 624ms) dan GET /app (200, 45ms). C-003 dimutakhirkan sebagai pernyataan pemilik (Free tier tanpa billing aktif, C-012) dan C-005 ditutup digantikan C-013. Known limitations di README dan spec telah memuat batas kuota harian Free tier (HTTP 429). DEPLOY.md telah memuat verifikasi batas durasi platform. Jadwal diperbarui menuju Fase C (Preset 3x5 & Nada).

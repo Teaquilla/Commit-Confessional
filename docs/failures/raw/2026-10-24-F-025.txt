@@ -6,4 +6,4 @@
 ==========================================
 Command: npm run verify
 Exit code: 1
-Reason: scripts/verify.mjs contains literal regex `/BEGIN PRIVATE KEY/g` which triggers its own self-scanning pattern match.
+Reason: scripts/verify.mjs contains literal regex pattern [PRIVATE_KEY_HEADER] which triggers its own self-scanning pattern match.
