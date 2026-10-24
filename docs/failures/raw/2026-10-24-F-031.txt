@@ -1,0 +1,4 @@
+Command: lightpanda --version
+Exit code: 1
+Output:
+Error: No URL provided.

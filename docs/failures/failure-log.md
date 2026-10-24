@@ -464,3 +464,63 @@ Dokumen ini mencatat setiap kegagalan, error perintah, kegagalan panggilan API, 
 - **Status:** dicatat & dimitigasi (pemanggilan ke model dihentikan permanen).
 - **Bukti perbaikan:** Entri tercatat di `docs/evidence/call-budget.md` dan `failure-log.md`. Model aktif dikunci hanya ke `gemini-3.5-flash-lite`.
 - **Dampak ke klaim:** Tidak memengaruhi validitas hasil preset 15/15 pada `gemini-3.5-flash-lite` (C-013).
+
+---
+
+## F-030 | 2026-10-24 22:56 WIB | Perintah npx vercel whoami gagal (CLI tidak terautentikasi / Logged out)
+- **Kategori:** perintah / konfigurasi
+- **Severity:** P2
+- **Gejala:** Perintah `npx vercel whoami` keluar dengan exit code 1 dan pesan `> Logged out.`.
+- **Perintah / konteks:** `npx vercel whoami` untuk memeriksa status deployment dan variabel Vercel.
+- **Log mentah:** `docs/failures/raw/2026-10-24-F-030.txt`
+- **Dugaan penyebab:** Vercel CLI pada environment lokal belum login / tidak memiliki token autentikasi sesi CLI.
+- **Rencana perbaikan:** Periksa apakah token Vercel tersedia di environment variable sistem tanpa mencetak secret, atau lakukan verifikasi deployment publik via HTTP/endpoint publik, atau laporkan kepada pengguna.
+- **Status:** dicatat
+- **Bukti perbaikan:** Log mentah tersimpan di `docs/failures/raw/2026-10-24-F-030.txt`.
+- **Dampak ke klaim:** Tidak memengaruhi build lokal maupun pengujian aplikasi.
+
+---
+
+## F-031 | 2026-10-24 22:57 WIB | lightpanda --version gagal (argumen URL wajib pada wrapper lightpanda)
+- **Kategori:** perintah
+- **Severity:** P2
+- **Gejala:** Perintah `lightpanda --version` keluar dengan exit code 1 dan pesan `Error: No URL provided.`.
+- **Perintah / konteks:** `lightpanda --version` untuk memeriksa ketersediaan CLI.
+- **Log mentah:** `docs/failures/raw/2026-10-24-F-031.txt`
+- **Dugaan penyebab:** Wrapper/skrip `lightpanda` di Windows memerlukan URL sebagai argumen input utama (misalnya `lightpanda <URL>`).
+- **Rencana perbaikan:** Panggil `lightpanda fetch <URL>` atau `lightpanda <URL>` sesuai spesifikasi wrapper.
+- **Status:** diperbaiki
+- **Bukti perbaikan:** Log mentah dicatat di `docs/failures/raw/2026-10-24-F-031.txt`.
+- **Dampak ke klaim:** Tidak ada dampak.
+
+---
+
+## F-032 | 2026-10-24 22:58 WIB | ParserError pada inline PowerShell karena tanda kutip ganda/tunggal
+- **Kategori:** perintah / sintaks
+- **Severity:** P2
+- **Gejala:** ParserError pada PowerShell `The string is missing the terminator: '.` saat menjalankan skrip inline node.
+- **Perintah / konteks:** `node -e "fetch('...').then(...)"`
+- **Log mentah:** `docs/failures/raw/2026-10-24-F-032.txt`
+- **Dugaan penyebab:** Sintaks inline PowerShell dengan kutipan ganda luar dan regex `\"'` memicu galat terminator kutipan.
+- **Rencana perbaikan:** Gunakan skrip berkas sementara atau hindari nesting kutipan kompleks pada perintah PowerShell inline.
+- **Status:** diperbaiki
+- **Bukti perbaikan:** Log mentah tersimpan di `docs/failures/raw/2026-10-24-F-032.txt`.
+- **Dampak ke klaim:** Tidak ada dampak pada kode aplikasi.
+
+---
+
+## F-033 | 2026-10-24 23:00 WIB | ParserError pada inline PowerShell karena variabel env kosong di dalam kondisi if
+- **Kategori:** perintah / sintaks
+- **Severity:** P2
+- **Gejala:** ParserError pada PowerShell `Missing condition in if statement after 'if ('.`.
+- **Perintah / konteks:** `powershell -Command "if ($env:VERCEL_TOKEN)..."`
+- **Log mentah:** `docs/failures/raw/2026-10-24-F-033.txt`
+- **Dugaan penyebab:** Variabel `$env:VERCEL_TOKEN` kosong sehingga terevaluasi menjadi string kosong sebelum blok dieksekusi oleh shell.
+- **Rencana perbaikan:** Gunakan Test-Path atau script node untuk memeriksa keberadaan variabel lingkungan.
+- **Status:** diperbaiki
+- **Bukti perbaikan:** Log mentah tersimpan di `docs/failures/raw/2026-10-24-F-033.txt`.
+- **Dampak ke klaim:** Tidak ada dampak.
+
+
+
+

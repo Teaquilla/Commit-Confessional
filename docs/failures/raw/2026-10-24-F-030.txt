@@ -1,0 +1,6 @@
+Command: npx vercel whoami
+Exit code: 1
+Output:
+Vercel CLI 65.2.0 (Node.js 24.21.0)
+> Logged out.
+> Run `vercel deploy --temporary` to create a temporary deployment you can claim later, or `vercel login` to log in.
