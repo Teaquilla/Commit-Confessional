@@ -23,7 +23,7 @@ Dokumen satu halaman ini adalah ringkasan status terkini repositori yang wajib d
   - *(Catatan: C-003/C-012 telah terverifikasi sebagai pernyataan pemilik: Free tier tanpa billing; C-005 ditutup/dikoreksi karena gemini-3.8-flash tidak dipakai).*
 - **Hambatan / Isu Aktif:** Kuota harian provider Free tier (500 RPD pada `gemini-3.5-flash-lite`, batas RPM 15). Kuota harian aman; tidak ada pemanggilan live baru pada Fase E.
 - **Temuan P0 / P1 Terbuka:** **0**
-- **Hash Commit Terakhir:** `510d399` (feat: add timing telemetry, redact personal data, and update smoke evidence (DEC-027, DEC-028))
+- **Hash Commit Terakhir:** `4f6a2c8` (docs: redact username in failure-log.md to [user] (DEC-028))
 
 ---
 

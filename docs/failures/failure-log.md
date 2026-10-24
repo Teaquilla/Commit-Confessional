@@ -433,8 +433,8 @@ Dokumen ini mencatat setiap kegagalan, error perintah, kegagalan panggilan API, 
 ## F-028 | 2026-10-24 22:24 WIB | Pembacaan dan pencarian berkas di luar folder proyek (direktori data IDE)
 - **Kategori:** proses / batas-lingkungan
 - **Severity:** P2
-- **Gejala:** Agen menjalankan perintah pencarian PowerShell pada direktori sistem di luar repositori proyek (`C:\Users\Zidane\.gemini\antigravity-ide\brain\...`).
-- **Perintah / konteks:** `powershell -Command "Get-ChildItem -Path 'C:\Users\Zidane\.gemini\antigravity-ide\'..."` saat berusaha mencari rekaman teks keluaran live-check sebelumnya.
+- **Gejala:** Agen menjalankan perintah pencarian PowerShell pada direktori sistem di luar repositori proyek (`C:\Users\[user]\.gemini\antigravity-ide\brain\...`).
+- **Perintah / konteks:** `powershell -Command "Get-ChildItem -Path 'C:\Users\[user]\.gemini\antigravity-ide\'..."` saat berusaha mencari rekaman teks keluaran live-check sebelumnya.
 - **Log mentah:** `docs/failures/raw/2026-10-24-F-028.txt`
 - **Dugaan penyebab:** Agen berupaya menemukan teks keluaran inferensi live-check yang tidak tersimpan di dalam repositori git dengan memindai log task background di direktori kerja internal IDE.
 - **Rencana perbaikan:** Tambahkan aturan eksplisit pada `AGENTS.md` (Aturan Umum No. 8) yang melarang pembacaan, pencarian, atau pencantuman berkas di luar folder proyek (termasuk folder data Antigravity) kecuali diminta pemilik. Jika bukti tidak tersimpan di repositori, nyatakan tidak tersimpan.
