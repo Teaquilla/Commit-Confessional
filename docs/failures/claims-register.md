@@ -25,6 +25,8 @@ Status yang digunakan:
 | C-011 | Pemilik menyatakan key lama sudah dicabut di AI Studio pada 2026-10-22 (pernyataan pemilik, tidak diverifikasi agen) | docs/failures/failure-log.md > F-005 | Pernyataan pemilik | terverifikasi | Pernyataan pemilik, tidak diverifikasi agen |
 | C-012 | Project API berada di Free tier; billing belum diaktifkan (dilihat pemilik di AI Studio pada 2026-10-24). Tidak ada tagihan yang mungkin terjadi; risiko yang tersisa adalah kuota habis (HTTP 429). | docs/evidence/deploy-smoke.md, devpost/spec.md > 4 | Pernyataan pemilik di AI Studio pada 2026-10-24 | terverifikasi | Pernyataan pemilik, bukan oleh agen. Tanpa screenshot ke repo demi privasi email dan project ID |
 | C-013 | Model yang dipakai menghasilkan keluaran valid pada 3 preset x 5 | devpost/spec.md, docs/evidence/preset-runs.md | 15 dari 15 run valid dan lolos guardrail pada 2026-10-24 (gemini-3.5-flash-lite, docs/evidence/preset-runs.md) | terverifikasi | 15 dari 15 berhasil: 5/5 late-night-hotfix, 5/5 rebase-conflict, 5/5 works-on-machine |
+| C-014 | The model used produced valid output across 3 presets x 5 | devpost/spec.md, docs/evidence/preset-runs.md | 15 of 15 runs valid and passed guardrails on 2026-10-24 (gemini-3.5-flash-lite, docs/evidence/preset-runs.md) | terverifikasi | Versi bahasa Inggris dari C-013 untuk keselarasan teks materi submit dan naskah demo |
+| C-015 | Design token color pairs meet the 4.5:1 contrast ratio (checked by scripts/check-contrast.mjs); not rendered text testing | devpost/spec.md > 5, scripts/check-contrast.mjs | Eksekusi scripts/check-contrast.mjs (9 pasangan token warna lulus threshold WCAG AA) | terverifikasi | Versi bahasa Inggris dari C-002 untuk keselarasan teks materi submit dan naskah demo |
 
 ---
 

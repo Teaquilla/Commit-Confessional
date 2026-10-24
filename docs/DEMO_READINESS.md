@@ -6,17 +6,18 @@ Dokumen satu halaman ini adalah daftar periksa wajib sebelum perekaman video dem
 
 ## 1. Daftar Periksa Kesiapan Demo (Demo Checklist)
 
-- [x] **Aksesibilitas Eksternal:** URL aplikasi publik dapat dibuka dan digunakan dengan lancar dari perangkat/jaringan lain di luar localhost (`docs/evidence/deploy-smoke.md`, HTTP 200 pada GET /api/health dan GET /app).
+- [ ] **Aksesibilitas Eksternal:** URL aplikasi publik dapat dibuka (hanya GET terbukti pada `docs/evidence/deploy-smoke.md`; pengujian end-to-end POST /api/confess dari jaringan eksternal belum diuji).
 - [x] **Keandalan Model (3x5 Runs):** 3 preset sampel diff telah diuji dan lolos 5 kali berturut-turut (skema JSON valid & lolos guardrail) menggunakan model yang tercatat di `docs/evidence/preset-runs.md` (15/15 lolos pada `gemini-3.5-flash-lite`).
-- [x] **Ketahanan Alur (Graceful Handling):** Tidak ada satu pun respons AI (termasuk timeout atau error 503) yang membuat aplikasi crash atau layar menjadi blank; pesan error tampil tenang dan informatif (`tests/confess.test.ts` 14 integrasi test lolos graceful error).
+- [x] **Kontras Token Memenuhi 4,5:1:** Pasangan warna token yang dipakai memenuhi rasio 4,5:1 (diperiksa `scripts/check-contrast.mjs`; 9 dari 9 pasangan token warna lulus threshold WCAG AA; bukan pengujian teks yang dirender).
+- [ ] **Ketahanan Alur (Graceful Handling):** Pengujian unit penanganan error lulus di `tests/confess.test.ts` via `npm test`; ketahanan live di browser saat perekaman belum diuji secara langsung.
 - [ ] **Larangan Mock di Video:** Video demo TIDAK BOLEH memakai mode mock (`AI_MOCK=1`); wajib menggunakan respons panggilan live API atau rekaman cadangan live nyata tanpa mock (perekaman dijadwalkan Minggu, 25 Okt 2026).
-- [ ] **Rencana Cadangan (Fallback Strategy):** Telah disiapkan rekaman video cadangan lokal yang berhasil sebagai antisipasi jika koneksi jaringan atau penyedia API mengalami kendala saat perekaman live.
-- [x] **Kebersihan Kredensial:** Layar browser, berkas yang terbuka, tab VS Code, dan riwayat terminal bersih mutlak dari secret, token API, atau berkas `.env*` (`npm run verify` cek 3: 0 secrets detected, `.env*` terisolasi).
-- [x] **Kualitas Visual & Fokus:** Notifikasi sistem operasi dinonaktifkan (*Do Not Disturb*), resolusi rekaman bersih, ukuran teks terbaca tajam tanpa zoom berlebih, dan kontras warna memenuhi standar WCAG (`scripts/check-contrast.mjs` 9/9 lulus WCAG AA).
-- [x] **Struktur Aha-Moment (30 Detik Pertama):** Video langsung menampilkan aksi inti dalam 30 detik awal: menempelkan diff/commit berantakan, menekan Confess, lalu memunculkan dua panel berdampingan (Confession kiri, PR formal kanan) bersama Panic Score (tercantum di `docs/DEMO_SCRIPT.md` 0:00–0:30).
-- [ ] **Durasi Video Tepat:** Durasi total video berada di rentang **1 hingga 3 menit** (memenuhi batas resmi aturan Devpost; diverifikasi setelah render video selesai).
+- [ ] **Rencana Cadangan (Fallback Strategy):** Telah disiapkan prosedur rekaman cadangan lokal sebagai antisipasi jika koneksi jaringan atau penyedia API mengalami kendala saat perekaman live.
+- [ ] **Kebersihan Kredensial, Layar, dan Terminal:** Layar browser, berkas yang terbuka, tab VS Code, dan riwayat terminal bersih dari secret, token API, atau berkas `.env*` saat perekaman video.
+- [ ] **Kualitas Visual & Fokus:** Notifikasi sistem operasi dinonaktifkan (*Do Not Disturb*), resolusi rekaman bersih, dan ukuran teks terbaca tajam saat perekaman video.
+- [ ] **Struktur Aha-Moment (30 Detik Pertama):** Video menampilkan aksi inti dalam 30 detik awal sesuai `docs/DEMO_SCRIPT.md` (diverifikasi saat video selesai direkam).
+- [ ] **Durasi Video Tepat:** Durasi total video berada di rentang **1:45 hingga 2:30 menit** (memenuhi batas resmi aturan Devpost; diverifikasi setelah render video selesai).
 - [ ] **Aksesibilitas Tautan Video:** Video diunggah (YouTube/Loom/Vimeo) dengan setelan publik/unlisted dan telah diuji dapat diputar langsung tanpa login dari peramban privat (incognito).
-- [x] **Kesesuaian Klaim:** Setiap narasi yang disampaikan dalam video dan teks pendukung diverifikasi selaras sepenuhnya dengan status `terverifikasi` di `docs/failures/claims-register.md` (tabel pencocokan di `docs/SUBMISSION.md`).
+- [ ] **Kesesuaian Klaim:** Setiap narasi yang disampaikan dalam video dan teks pendukung diverifikasi selaras sepenuhnya dengan status `terverifikasi` di `docs/failures/claims-register.md` saat materi final video siap.
 
 ---
 
@@ -34,5 +35,5 @@ Setelah Gate 3 dinyatakan lulus, proyek memasuki tahap **Demo Freeze**:
 - [ ] **Visibilitas Repositori:** Repositori GitHub disetel menjadi **Publik** sebelum formulir submit dikirimkan (saat ini tetap privat sampai hari Senin).
 - [x] **Tiga Dokumen Wajib:** Berkas `devpost/scope.md`, `devpost/prd.md`, dan `devpost/spec.md` lengkap, konsisten, dan berstatus `approved`.
 - [ ] **Validasi Tautan Silang:** Semua tautan (tautan repositori publik, URL demo aplikasi, tautan video) telah diklik dan diverifikasi berfungsi dari akun/peramban lain (menunggu tautan video demo).
-- [x] **Profil Anggota Tim:** Nama dan detail anggota tim pada formulir pendaftaran Devpost sudah terverifikasi benar (Zidane / Teaquilla).
-- [x] **Kepatuhan Aturan Devpost:** Pengecekan akhir bahwa proyek tidak menggunakan materi berhak cipta tanpa lisensi, sesuai tema hackathon, dan mematuhi batas waktu pengiriman (27 Okt 2026, 04.00 WIB).
+- [ ] **Profil Anggota Tim:** Nama dan detail anggota tim pada formulir pendaftaran Devpost diverifikasi saat submit (Zidane / Teaquilla).
+- [ ] **Kepatuhan Aturan Devpost:** Pengecekan akhir bahwa proyek tidak menggunakan materi berhak cipta tanpa lisensi, sesuai tema hackathon, dan mematuhi batas waktu pengiriman (27 Okt 2026, 04.00 WIB) saat submit.
