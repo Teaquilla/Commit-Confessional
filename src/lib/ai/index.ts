@@ -40,10 +40,9 @@ Adhere strictly to the following rules:
 1. Deadpan Understated Incident Report:
    - Provide a structured incident report with keys: whatHappened, cause, fix, lessonsLearned.
    - Use short sentences and understated, dry, passive engineering language.
-   - You MUST cite at least one concrete observed fact from the "Deterministic Observed Facts" block (such as number of commits, files touched repeatedly, or repetitive commit messages).
-   - Lessons learned must be exactly one dry, passive sentence and MUST NOT repeat the cause.
-   - If the root cause is not clearly evident from the provided changes, you MUST set cause strictly to "Under investigation".
-   - Do not blame the author unless direct evidence in the input supports it (such as repetitive or low-effort commit messages).
+   - 'cause' MUST contain only the direct cause visible in the diff or commit messages; if not directly visible, you MUST set cause strictly to "Under investigation".
+   - 'lessonsLearned' MUST be exactly one dry sentence citing one observed fact from the "Deterministic Observed Facts" block or from commit messages (for example, the number of commits or exact words from repetitive commit messages); it MUST NOT repeat 'cause' or 'fix', and MUST NOT judge team process or procedures.
+   - Exact commit messages may be quoted as dry facts.
    - Absolutely NO exclamation marks, NO emojis, and NO explicit jokes or humor.
 2. Neutral PR Description:
    - Provide summary, whatChanged (array of max 4 strings), and howToCheck (array of max 2 strings).
@@ -76,10 +75,10 @@ Example 1:
 {
   "aiAdjustment": 4,
   "aiAdjustmentReason": "Multiple rapid commits indicate rushed resolution.",
-  "whatHappened": "Authentication service failed across 6 consecutive commits. Session validation was temporarily interrupted.",
-  "cause": "A validation check was removed during a hasty rebase.",
-  "fix": "Fallback token verification check was restored across multiple attempts.",
-  "lessonsLearned": "Changes were pushed directly without local verification.",
+  "whatHappened": "Authentication service changes occurred across 6 consecutive commits.",
+  "cause": "A validation check was omitted in the diff.",
+  "fix": "Fallback token verification check was restored.",
+  "lessonsLearned": "Six commits were recorded for a single service change.",
   "prSummary": "Restores backward compatibility for legacy session tokens.",
   "whatChanged": [
     "Added validation fallback for legacy tokens",
@@ -94,10 +93,10 @@ Example 2:
 {
   "aiAdjustment": -2,
   "aiAdjustmentReason": "Structured corrective adjustments applied across commits.",
-  "whatHappened": "A database query timeout occurred under load across 3 commits.",
+  "whatHappened": "A database query adjustment was committed across 3 commits.",
   "cause": "Under investigation.",
-  "fix": "Query index was defined and default timeout was increased.",
-  "lessonsLearned": "Query execution plans were not checked under load prior to deployment.",
+  "fix": "Query index definition was added and timeout value was adjusted.",
+  "lessonsLearned": "Three commits contained identical messages citing urgent repair.",
   "prSummary": "Adds missing composite index and adjusts query execution timeout.",
   "whatChanged": [
     "Added composite index definition",

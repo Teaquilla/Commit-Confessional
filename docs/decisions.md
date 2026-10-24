@@ -277,10 +277,13 @@ Dokumen ini mencatat setiap keputusan arsitektural, teknis, atau penyesuaian sco
      - `gemini-3.8-flash`: 5 RPM, 250K TPM, 20 RPD (hampir habis kuota harian: 18/20 terpakai saat probe 22 Okt).
      - `gemini-3.5-flash-lite`: 15 RPM, 250K TPM, 500 RPD.
      - `gemini-3.5-flash`: Baris kuota tidak terlihat di dashboard AI Studio; batas definitifnya BELUM diketahui.
-  2. Dugaan (belum terbukti): Galat HTTP 429 pada `gemini-3.5-flash` sebelumnya dipicu oleh batas kuota harian atau rate limit tier gratis.
-  3. **Adendum untuk DEC-017:** Kelayakan model tergantung pada batas kuota riil penyedia. Model `gemini-3.5-flash` tidak dipakai sementara untuk pengembangan utama.
-  4. Zidane menetapkan `gemini-3.5-flash-lite` sebagai model aktif untuk pengembangan dan pembuktian 3x5 (kualitas nada tekstual diuji secara bertahap).
-- **Rasional:** Menjaga kelangsungan eksekusi dan ketersediaan kuota selama proses perancangan UI dan verifikasi build tanpa terhenti oleh pembatasan 20 RPD.
+  2. Hasil uji coba perbandingan 2026-10-24 (hanya angka):
+     - `gemini-3.5-flash-lite`: 3 dari 3 sukses, latensi 1,4–3,2 detik (1399 ms, 1537 ms, 3238 ms).
+     - `gemini-3.5-flash`: 2 dari 3 berstatus 503 (latensi 1328 ms, 7491 ms), 1 sukses berstatus 200 dengan latensi 8,9 detik (8926 ms).
+  3. Catatan metodologi: Perbandingan Lite vs Flash tidak setara (jumlah sampel berbeda) dan tidak menyimpulkan kualitas.
+  4. Model `gemini-3.5-flash` tidak dipakai lagi untuk pemanggilan uji/pengembangan.
+  5. Zidane menetapkan `gemini-3.5-flash-lite` sebagai model aktif untuk pengembangan dan pembuktian 3x5.
+- **Rasional:** Menjaga kelangsungan eksekusi dan ketersediaan kuota selama proses perancangan UI dan verifikasi build tanpa terhenti oleh pembatasan kuota harian.
 - **Status:** Disetujui (Zidane).
 
 ---
@@ -316,5 +319,15 @@ Dokumen ini mencatat setiap keputusan arsitektural, teknis, atau penyesuaian sco
 - **Rasional:** Memungkinkan pengujian antarmuka pengguna `/app`, layout, dan interaksi browser secara cepat dan deterministik tanpa menghabiskan kuota harian API Free Tier.
 - **Status:** Disetujui (Zidane).
 
+---
 
-
+## DEC-024 (Rujukan Tugas: DEC-021) | 2026-10-24 | Revisi Aturan Incident Report di SYSTEM_PROMPT & Dua Format Contoh
+- **Keputusan:**
+  1. Memperbarui aturan Incident Report pada `SYSTEM_PROMPT` di `src/lib/ai/index.ts`:
+     - `cause`: Hanya berisi sebab yang terlihat langsung di diff atau pesan commit; jika tidak tampak langsung, wajib diisi persis `"Under investigation."`
+     - `lessonsLearned`: Wajib satu kalimat kering yang menyebut satu fakta teramati dari blok *Deterministic Observed Facts* atau dari pesan commit (misalnya jumlah commit atau kata persis dari pesan commit berulang). Tidak boleh mengulang `cause` atau `fix`, dan dilarang menilai proses atau prosedur tim.
+     - Diperbolehkan mengutip pesan commit persis sebagai fakta kering.
+     - Tanpa tanda seru, emoji, atau lelucon eksplisit.
+  2. Memperbarui kedua contoh format laporan pada prompt agar memenuhi aturan di atas secara presisi, tanpa mencantumkan nama berkas apa pun.
+- **Rasional:** Menjaga agar laporan insiden tetap bersifat deskriptif faktual (*deadpan engineering voice*) berbasis sinyal git teramati tanpa membuat spekulasi atau penghakiman prosedur kerja tim.
+- **Status:** Disetujui (Zidane).

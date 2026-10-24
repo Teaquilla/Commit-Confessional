@@ -24,7 +24,7 @@ Status yang digunakan:
 | C-010 | 59 tes lulus pada 22 Okt 2026, lihat keluaran | docs/log/2026-10-22-12.md, docs/STATE.md | Keluaran lengkap eksekusi "npm test" (59 pass, 0 fail) | terverifikasi | Penambahan tes isolasi galat HTTP di ai-engine |
 | C-011 | Pemilik menyatakan key lama sudah dicabut di AI Studio pada 2026-10-22 (pernyataan pemilik, tidak diverifikasi agen) | docs/failures/failure-log.md > F-005 | Pernyataan pemilik | terverifikasi | Pernyataan pemilik, tidak diverifikasi agen |
 | C-012 | Project API berada di Free tier; billing belum diaktifkan (dilihat pemilik di AI Studio pada 2026-10-24). Tidak ada tagihan yang mungkin terjadi; risiko yang tersisa adalah kuota habis (HTTP 429). | docs/evidence/deploy-smoke.md, devpost/spec.md > 4 | Pernyataan pemilik di AI Studio pada 2026-10-24 | terverifikasi | Pernyataan pemilik, bukan oleh agen. Tanpa screenshot ke repo demi privasi email dan project ID |
-| C-013 | Model yang dipakai menghasilkan keluaran valid pada 3 preset x 5 | devpost/spec.md, docs/evidence/preset-runs.md | Menunggu eksekusi 15 run pada scripts/preset-runs.mjs | tidak terbukti | Pengganti C-005 untuk model aktif; belum terbukti sampai docs/evidence/preset-runs.md terisi |
+| C-013 | Model yang dipakai menghasilkan keluaran valid pada 3 preset x 5 | devpost/spec.md, docs/evidence/preset-runs.md | 15 dari 15 run valid dan lolos guardrail pada 2026-10-24 (gemini-3.5-flash-lite, docs/evidence/preset-runs.md) | terverifikasi | 15 dari 15 berhasil: 5/5 late-night-hotfix, 5/5 rebase-conflict, 5/5 works-on-machine |
 
 ---
 
@@ -38,6 +38,6 @@ Status yang digunakan:
 ### 2. Penutupan C-005 & Klaim Baru C-013
 - **C-005:** Ditutup (`dikoreksi`) karena model `gemini-3.8-flash` tidak dipakai (DEC-020).
 - **C-013:** "Model yang dipakai menghasilkan keluaran valid pada 3 preset x 5".
-- **Status:** `tidak terbukti` sampai pengujian 15 run tuntas dan dicatat di `docs/evidence/preset-runs.md`.
+- **Status:** `terverifikasi` berdasarkan hasil empiris 15 dari 15 run pada 2026-10-24 menggunakan `gemini-3.5-flash-lite` di `docs/evidence/preset-runs.md`.
 
 
