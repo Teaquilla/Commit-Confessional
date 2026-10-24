@@ -13,7 +13,7 @@ Status yang digunakan:
 | ID | Klaim | Lokasi (file / slide / menit video) | Bukti | Status | Catatan |
 |---|---|---|---|---|---|
 | C-001 | Struktur kerangka repo, AGENTS.md, dan konfigurasi lingkungan awal Fase 0 telah disiapkan | README.md, docs/plan/execution-plan.md | Inisialisasi struktur repo & commit Git Fase 0 | terverifikasi | Inisialisasi awal repositori |
-| C-002 | Body text contrast ratio memenuhi standar WCAG AA (> 4.5:1) | devpost/spec.md > 5. Look and Feel Implementation | Pemeriksaan contrast checker sebelum Gate 3 | tidak terbukti | Wajib diverifikasi sebelum Gate 3 |
+| C-002 | Body text contrast ratio memenuhi standar WCAG AA (> 4.5:1) | devpost/spec.md > 5. Look and Feel Implementation | Eksekusi scripts/check-contrast.mjs (9 pasang warna lulus threshold WCAG AA) | terverifikasi | Diverifikasi pada 2026-10-24 sebelum Gate 3 |
 | C-003 | Hard spending quota dikonfigurasi pada provider AI sebelum deployment | devpost/spec.md > 4. Where It Runs | Pernyataan pemilik di AI Studio (Free tier tanpa billing aktif) | dikoreksi | Diperbarui via C-012: Free tier tanpa kartu kredit/billing; risiko tagihan nihil |
 | C-004 | Kredensial lingkungan lokal aman (.env* terabaikan git, tidak terlacak) dan transmisi API terverifikasi | docs/decisions.md > DEC-004, scripts/ | git ls-files kosong, check-ignore aktif, smoke test HTTP 200 (1152 chars) | terverifikasi | Kredensial baru terpasang di .env.local |
 | C-005 | Model gemini-3.8-flash dapat menghasilkan teks respons yang valid (generateContent) | devpost/spec.md > 3. Stack, docs/decisions.md > DEC-004 | Ditutup: model tidak dipakai (DEC-020) | dikoreksi | Ditutup: model tidak dipakai, digantikan klaim C-013 |
@@ -39,5 +39,9 @@ Status yang digunakan:
 - **C-005:** Ditutup (`dikoreksi`) karena model `gemini-3.8-flash` tidak dipakai (DEC-020).
 - **C-013:** "Model yang dipakai menghasilkan keluaran valid pada 3 preset x 5".
 - **Status:** `terverifikasi` berdasarkan hasil empiris 15 dari 15 run pada 2026-10-24 menggunakan `gemini-3.5-flash-lite` di `docs/evidence/preset-runs.md`.
+
+### 3. Pemutakhiran C-002
+- **Fakta:** Body text contrast ratio dan komponen UI memenuhi standar WCAG AA (rasio body text antara 5.18:1 sampai 17.21:1, melebihi threshold 4.5:1).
+- **Status:** `terverifikasi` berdasarkan eksekusi `node scripts/check-contrast.mjs` pada 2026-10-24.
 
 
