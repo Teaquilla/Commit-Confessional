@@ -22,4 +22,5 @@ Status yang digunakan:
 | C-008 | 43 tes lulus pada 22 Okt 2026, lihat keluaran | docs/tasks/T-003.md, docs/STATE.md | Keluaran lengkap eksekusi "npm test" (43 pass, 0 fail) | terverifikasi | 23 tes panic-score, 12 tes guardrail nama file, 8 tes ai-engine |
 | C-009 | 58 tes lulus pada 22 Okt 2026, lihat keluaran | docs/tasks/T-004.md, docs/STATE.md | Keluaran lengkap eksekusi "npm test" (58 pass, 0 fail) | terverifikasi | 23 tes panic-score, 12 tes guardrail, 8 tes ai-engine, 15 tes confess/samples |
 | C-010 | 59 tes lulus pada 22 Okt 2026, lihat keluaran | docs/log/2026-10-22-12.md, docs/STATE.md | Keluaran lengkap eksekusi "npm test" (59 pass, 0 fail) | terverifikasi | Penambahan tes isolasi galat HTTP di ai-engine |
+| C-011 | Pemilik menyatakan key lama sudah dicabut di AI Studio pada 2026-10-22 (pernyataan pemilik, tidak diverifikasi agen) | docs/failures/failure-log.md > F-005 | Pernyataan pemilik | terverifikasi | Pernyataan pemilik, tidak diverifikasi agen |
 

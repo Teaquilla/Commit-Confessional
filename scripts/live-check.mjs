@@ -9,6 +9,7 @@ import {
   worksOnMachine,
 } from "../src/samples/index.ts";
 import { checkFileNames } from "../src/lib/guardrails.ts";
+import { lastHttpErrorDetails } from "../src/lib/ai/index.ts";
 
 const samples = [
   { name: "late-night-hotfix", input: lateNightHotfix },
@@ -17,13 +18,27 @@ const samples = [
 ];
 
 const showText = process.argv.includes("--show-text");
+const stopOn429 = process.argv.includes("--stop-on-429");
+const noRetry = process.argv.includes("--no-retry");
+
+if (noRetry) {
+  process.env.AI_NO_RETRY = "1";
+}
+
 const spacingArg = process.argv.find((arg) => arg.startsWith("--spacing-ms="));
 const spacingMs = spacingArg ? parseInt(spacingArg.split("=")[1], 10) : 8000;
+
+const modelArg = process.argv.find((arg) => arg.startsWith("--model="));
+if (modelArg) {
+  process.env.AI_MODEL_NAME = modelArg.split("=")[1];
+}
 
 const modelName = process.env.AI_MODEL_NAME || "gemini-3.8-flash";
 console.log(`=== LIVE CHECK (EKSPLORATORI, BUKAN BUKTI 3X5) ===`);
 console.log(`Target Model: ${modelName}`);
-console.log(`Spacing: ${spacingMs} ms between samples\n`);
+console.log(`Spacing: ${spacingMs} ms between samples`);
+console.log(`No Retry: ${noRetry ? "true" : "false"}`);
+console.log(`Stop On 429: ${stopOn429 ? "true" : "false"}\n`);
 
 for (let i = 0; i < samples.length; i++) {
   const sample = samples[i];
@@ -98,12 +113,30 @@ for (let i = 0; i < samples.length; i++) {
       console.log(`Schema Valid: false`);
       console.log(`Error Code: ${res.data?.error?.code || "UNKNOWN"}`);
       console.log(`HTTP Status: ${res.status}`);
+
+      if (lastHttpErrorDetails?.status === 429 && stopOn429) {
+        console.log(
+          `\n[STOP ON 429] status: ${lastHttpErrorDetails.status}, error.status: ${
+            lastHttpErrorDetails.errorStatus || "undefined"
+          }, retryDelay: ${lastHttpErrorDetails.retryDelay || "undefined"}`
+        );
+        break;
+      }
     }
   } catch (err) {
     const latencyMs = Math.round(performance.now() - t0);
     console.log(`Status: 500 (Exception)`);
     console.log(`Latency: ${latencyMs} ms`);
     console.log(`Exception: ${err instanceof Error ? err.name : "Error"}`);
+
+    if (lastHttpErrorDetails?.status === 429 && stopOn429) {
+      console.log(
+        `\n[STOP ON 429] status: ${lastHttpErrorDetails.status}, error.status: ${
+          lastHttpErrorDetails.errorStatus || "undefined"
+        }, retryDelay: ${lastHttpErrorDetails.retryDelay || "undefined"}`
+      );
+      break;
+    }
   }
   console.log("");
   if (i < samples.length - 1 && spacingMs > 0) {

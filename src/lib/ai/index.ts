@@ -1,8 +1,27 @@
-// src/lib/ai/index.ts
-// Single entrypoint for AI engine: calls Gemini REST generateContent with strict prompt, guardrails, and timeouts.
-// No external runtime AI SDK. Uses native fetch and Zod.
-
+import fs from "node:fs";
+import path from "node:path";
 import { AIOutputSchema, type AIOutput, type BaseScoreSignals } from "../schema.ts";
+
+export interface LastHttpErrorDetails {
+  status: number;
+  errorStatus?: string;
+  retryDelay?: string;
+}
+
+export let lastHttpErrorDetails: LastHttpErrorDetails | null = null;
+
+function recordCallBudget(model: string, status: number | string, isRetry: boolean) {
+  try {
+    const budgetPath = path.resolve(process.cwd(), "docs/evidence/call-budget.md");
+    if (fs.existsSync(budgetPath)) {
+      const nowIso = new Date().toISOString();
+      const row = `| ${nowIso} | ${model} | ${status} | ${isRetry ? "true" : "false"} |\n`;
+      fs.appendFileSync(budgetPath, row, "utf8");
+    }
+  } catch {
+    // Non-fatal if recording fails
+  }
+}
 
 export interface GenerateReportOptions {
   fetchFn?: typeof fetch;
@@ -21,10 +40,10 @@ Adhere strictly to the following rules:
 1. Deadpan Understated Incident Report:
    - Provide a structured incident report with keys: whatHappened, cause, fix, lessonsLearned.
    - Use short sentences and understated, dry, passive engineering language.
-   - Cite concrete observed facts from the input or deterministic signals as-is (e.g. number of commits, files touched repeatedly, debug statements left behind).
+   - You MUST cite at least one concrete observed fact from the "Deterministic Observed Facts" block (such as number of commits, files touched repeatedly, or repetitive commit messages).
+   - Lessons learned must be exactly one dry, passive sentence and MUST NOT repeat the cause.
    - If the root cause is not clearly evident from the provided changes, you MUST set cause strictly to "Under investigation".
    - Do not blame the author unless direct evidence in the input supports it (such as repetitive or low-effort commit messages).
-   - Lessons learned must be exactly one dry, passive sentence.
    - Absolutely NO exclamation marks, NO emojis, and NO explicit jokes or humor.
 2. Neutral PR Description:
    - Provide summary, whatChanged (array of max 4 strings), and howToCheck (array of max 2 strings).
@@ -215,6 +234,10 @@ export async function generateReport(
 
       clearTimeout(timeoutId);
 
+      if (!opts?.fetchFn) {
+        recordCallBudget(modelName, response.status, attempt > 0);
+      }
+
       // Handle non-OK HTTP responses
       if (!response.ok) {
         let errorStatus: string | undefined;
@@ -243,6 +266,12 @@ export async function generateReport(
           // Body not JSON or not parseable
         }
 
+        lastHttpErrorDetails = {
+          status: response.status,
+          errorStatus,
+          retryDelay,
+        };
+
         const logParts = [`status: ${response.status}`];
         if (errorStatus) logParts.push(`error.status: ${errorStatus}`);
         if (retryDelay) logParts.push(`retryDelay: ${retryDelay}`);
@@ -251,9 +280,10 @@ export async function generateReport(
         // Handle retryable status codes: HTTP 503 (high demand) and HTTP 429 (rate limit)
         if (response.status === 503 || response.status === 429) {
           const currentRemaining = deadlineMs - (Date.now() - startTime);
+          const isNoRetry = process.env.AI_NO_RETRY === "1";
 
-          // Only retry if this is the first attempt and remaining time is at least 10s
-          if (attempt === 0 && currentRemaining >= 10000) {
+          // Only retry if this is the first attempt, remaining time is at least 10s, and AI_NO_RETRY is not enabled
+          if (!isNoRetry && attempt === 0 && currentRemaining >= 10000) {
             console.warn(
               `[AI_RETRY] ${response.status}${errorStatus ? ` (${errorStatus})` : ""}${
                 retryDelay ? ` retryDelay=${retryDelay}` : ""
@@ -286,6 +316,7 @@ export async function generateReport(
           }`
         );
       }
+      lastHttpErrorDetails = null;
 
       const data = await response.json();
       const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;

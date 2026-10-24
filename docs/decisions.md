@@ -268,3 +268,40 @@ Dokumen ini mencatat setiap keputusan arsitektural, teknis, atau penyesuaian sco
 - **Rasional:** Memastikan bukti telemetri kuota dan laju permintaan dari penyedia API terekam secara transparan untuk kebutuhan audit tanpa mengorbankan privasi data dan keamanan kredensial.
 - **Status:** Disetujui (Zidane).
 
+---
+
+## DEC-020 | 2026-10-24 | Kuota Free Tier AI Studio, Pemilihan Model Pengembangan, & Adendum DEC-017
+- **Keputusan:**
+  1. Mencatat profil batas kuota Google AI Studio Free Tier (puncak 28 hari) yang teramati pada dashboard:
+     - `gemini-3.6-flash`: 5 RPM, 250K TPM, 20 RPD.
+     - `gemini-3.8-flash`: 5 RPM, 250K TPM, 20 RPD (hampir habis kuota harian: 18/20 terpakai saat probe 22 Okt).
+     - `gemini-3.5-flash-lite`: 15 RPM, 250K TPM, 500 RPD.
+     - `gemini-3.5-flash`: Baris kuota tidak terlihat di dashboard AI Studio; batas definitifnya BELUM diketahui.
+  2. Dugaan (belum terbukti): Galat HTTP 429 pada `gemini-3.5-flash` sebelumnya dipicu oleh batas kuota harian atau rate limit tier gratis.
+  3. **Adendum untuk DEC-017:** Kelayakan model tergantung pada batas kuota riil penyedia. Model `gemini-3.5-flash` tidak dipakai sementara untuk pengembangan utama.
+  4. Zidane menetapkan `gemini-3.5-flash-lite` sebagai model aktif untuk pengembangan dan pembuktian 3x5 (kualitas nada tekstual diuji secara bertahap).
+- **Rasional:** Menjaga kelangsungan eksekusi dan ketersediaan kuota selama proses perancangan UI dan verifikasi build tanpa terhenti oleh pembatasan 20 RPD.
+- **Status:** Disetujui (Zidane).
+
+---
+
+## DEC-021 | 2026-10-24 | Format Kontrak Tugas Ringkas (T-005 s.d. T-008) & Mekanisme Verifikasi
+- **Keputusan:**
+  1. Kontrak tugas T-005 sampai T-008 disederhanakan menjadi format 6 baris (tujuan, kriteria selesai, perintah verifikasi, di luar scope, berkas, risiko). Ini adalah penyederhanaan yang disengaja karena keterbatasan waktu hackathon.
+  2. Audit model independen digantikan oleh eksekusi skrip mekanis `scripts/verify.mjs` dan inspeksi manual langsung oleh pemilik (Zidane).
+- **Rasional:** Mengurangi overhead dokumentasi formal dan mempercepat siklus iterasi menuju demo freeze tanpa mengurangi ketegasan verifikasi teknis.
+- **Status:** Disetujui (Zidane).
+
+---
+
+## DEC-022 | 2026-10-24 | Pengetatan Nada Incident Report (Fakta Teramati Wajib & Non-Repetisi Cause)
+- **Keputusan:**
+  1. Memperbarui `SYSTEM_PROMPT` di `src/lib/ai/index.ts`:
+     - Incident Report WAJIB mengutip minimal satu fakta teramati konkret dari blok *Deterministic Observed Facts* (seperti jumlah commit, berkas disentuh berulang, atau pesan commit berulang).
+     - *Lessons learned* wajib satu kalimat kering dan TIDAK BOLEH mengulang kalimat pada *Cause*.
+     - Tetap mempertahankan batasan: tanpa tanda seru, tanpa emoji, dan tanpa lelucon/humor eksplisit.
+  2. Menghindari segala klaim subjektif seperti 'lebih baik' atau 'meningkat'; seluruh evaluasi dicatat berdasarkan fakta keluaran teks apa adanya.
+- **Rasional:** Memastikan laporan insiden memiliki dasar faktual langsung dari sinyal git input sekaligus mencegah keluaran yang repetitif.
+- **Status:** Disetujui (Zidane).
+
+

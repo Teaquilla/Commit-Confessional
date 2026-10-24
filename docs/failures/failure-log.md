@@ -362,3 +362,12 @@ Dokumen ini mencatat setiap kegagalan, error perintah, kegagalan panggilan API, 
 - **Status:** diperbaiki
 - **Bukti perbaikan:** Perlindungan email disesuaikan oleh pemilik, dan eksekusi ulang `git push origin known-good-gate1` sukses dengan exit code 0 (`* [new tag] known-good-gate1 -> known-good-gate1`).
 - **Dampak ke klaim:** Tag `known-good-gate1` berhasil terdorong ke repositori remote GitHub.
+
+---
+
+## Catatan Koreksi & Klarifikasi F-005 | 2026-10-24 | Fase 2
+- **Kategori:** klaim / kredensial
+- **Merujuk ke:** F-005 (Kredensial API lama terunggah)
+- **Klarifikasi / Pernyataan Pemilik:** Pemilik menyatakan key lama sudah dicabut di AI Studio pada 2026-10-22 (pernyataan pemilik, tidak diverifikasi agen).
+- **Status:** terdokumentasi
+- **Dampak ke klaim:** Dicatat di claims-register.md (C-011).
